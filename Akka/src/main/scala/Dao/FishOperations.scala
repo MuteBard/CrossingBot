@@ -22,17 +22,32 @@ object FishOperations extends MongoDBOperations {
 		.getCollection("fish", classOf[Fish])
 		.withCodecRegistry(codecRegistry)
 
-	def BulkInsert(): Unit = {
+	def createAll(): Unit = {
 		val source = Source(Fishes)
 		val taskFuture = source.grouped(2).runWith(MongoSink.insertMany[Fish](allFishes))
 		taskFuture.onComplete{
-			case Success(_) => println(s"Successfully created all ${Fishes.length} fishes")
+			case Success(_) => println(s"Successfully created ${Fishes.length} fishes")
 			case Failure (ex) => println(s"Failed bulk insert: $ex")
 		}
 	}
 
-	def retrieveAll: List[Fish] = {
+	def readAll: List[Fish] = {
 		val source = MongoSource(allFishes.find(classOf[Fish]))
+		val fishSeqFuture = source.runWith(Sink.seq)
+		val fishSeq : Seq[Fish] = Await.result(fishSeqFuture, 1 seconds)
+		fishSeq.toList
+	}
+
+	def readbyId(query : String) : List[Fish] = {
+		val source = MongoSource(allFishes.find(classOf[Fish])).filter(fishes => fishes.fishId == query)
+		val fishSeqFuture = source.runWith(Sink.seq)
+		val fishSeq : Seq[Fish] = Await.result(fishSeqFuture, 1 seconds)
+		fishSeq.toList
+	}
+
+	//want to check if the contents of availability if they intersect with query, only those that have all of query's months with pass
+	def readbyMonth(query : List[String]) : List[Fish] = {
+		val source = MongoSource(allFishes.find(classOf[Fish])).filter(fishes => fishes.availability.intersect(query) == query)
 		val fishSeqFuture = source.runWith(Sink.seq)
 		val fishSeq : Seq[Fish] = Await.result(fishSeqFuture, 1 seconds)
 		fishSeq.toList
