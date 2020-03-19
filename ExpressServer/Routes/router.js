@@ -1,8 +1,8 @@
-const AkkaController = require('./Controller/Akka')
+const AkkaController = require('../Controller/Akka')
 
 exports.Inbound = {
     getAllBugs : AkkaController.getAllBugs(),
-    getAllFishes : AkkaController.getAllFishes()  
+    getAllFishes : AkkaController.getAllFishes() 
 }
 
 exports.Outbound = (app) => {

@@ -10,6 +10,8 @@ import akka.pattern.ask
 import akka.util.Timeout
 
 import scala.concurrent.duration._
+import ch.megard.akka.http.cors.scaladsl.CorsDirectives._
+
 
 object ToExpress extends
 	BugJsonProtocol with
@@ -17,23 +19,27 @@ object ToExpress extends
 	SprayJsonSupport {
 
 	import system.dispatcher
+
 	implicit val timeout = Timeout(5 seconds)
 	val toExpressRoutes =
-		pathPrefix("api"){
-			get{
-				path("populate"){
-					complete(StatusCodes.OK)
-				} ~
-				path("allBugs") {
-					val AllBugsFuture = (crossingbot ? Crossingbot.Read_All_Bugs).mapTo[List[Bug]]
-					complete(AllBugsFuture)
-				} ~
-				path("allFishes"){
-					val AllFishesFuture = (crossingbot ? Crossingbot.Read_All_Fishes).mapTo[List[Fish]]
-					complete(AllFishesFuture)
+		cors(){
+			pathPrefix("api"){
+				get{
+					path("populate"){
+						complete(StatusCodes.OK)
+					} ~
+					path("allBugs") {
+						val AllBugsFuture = (crossingbot ? Crossingbot.Read_All_Bugs).mapTo[List[Bug]]
+						complete(AllBugsFuture)
+					} ~
+					path("allFishes"){
+						val AllFishesFuture = (crossingbot ? Crossingbot.Read_All_Fishes).mapTo[List[Fish]]
+						complete(AllFishesFuture)
+					}
 				}
 			}
 		}
+
 
 		Http().bindAndHandle(toExpressRoutes, "localhost", 4774)
 }

@@ -14,5 +14,6 @@ libraryDependencies ++= Seq(
 "com.typesafe.akka" %% "akka-http-spray-json" % akkaHttpVersion,
 "com.typesafe.akka" %% "akka-http-testkit" % akkaHttpVersion,
 "com.lightbend.akka" %% "akka-stream-alpakka-mongodb" % mongodbVersion,
-"org.mongodb.scala" %% "mongo-scala-driver" % mongoDriverVersion
+"org.mongodb.scala" %% "mongo-scala-driver" % mongoDriverVersion,
+"ch.megard" %% "akka-http-cors" % "0.4.2"
 )
