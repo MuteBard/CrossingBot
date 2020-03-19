@@ -1,6 +1,6 @@
 package Model
 
-object Bug_ {
+object  Bug_ {
 	import spray.json.DefaultJsonProtocol
 	case class Bug(
 		_id : Int,

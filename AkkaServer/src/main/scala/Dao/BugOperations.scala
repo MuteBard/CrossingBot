@@ -12,6 +12,9 @@ import scala.util.{Failure, Success}
 import Logic.Main.system
 import system.dispatcher
 
+import scala.concurrent.duration._
+import scala.concurrent.{Await, Future}
+
 object BugOperations extends MongoDBOperations{
 	val codecRegistry = fromRegistries(fromProviders(classOf[Bug]), DEFAULT_CODEC_REGISTRY)
 
@@ -19,24 +22,20 @@ object BugOperations extends MongoDBOperations{
 		.getCollection("bug", classOf[Bug])
 		.withCodecRegistry(codecRegistry)
 
-	def BulkInsert{
+	def BulkInsert(): Unit = {
 		val source = Source(Bugs)
-		val result = source.grouped(2).runWith(MongoSink.insertMany[Bug](allBugs))
-		result.onComplete{
-			case Success(_) => println(s"Successfully Bulk inserted all ${Bugs.length} bugs")
+		val taskFuture = source.grouped(2).runWith(MongoSink.insertMany[Bug](allBugs))
+		taskFuture.onComplete{
+			case Success(_) => println(s"Successfully created all ${Bugs.length} bugs")
 			case Failure (ex) => println(s"Failed bulk insert: $ex")
 		}
 	}
 
-	def retrieveAll{
+	def retrieveAll: List[Bug] = {
 		val source = MongoSource(allBugs.find(classOf[Bug]))
-		val result = source.runWith(Sink.seq)
-		result.onComplete{
-			case Success(bugs) =>
-				println(s"Suc.essfully retrieved bugs")
-				bugs
-			case Failure (ex) => println(s"Failed bulk insert: $ex")
-		}
+		val bugSeqFuture = source.runWith(Sink.seq)
+		val bugSeq : Seq[Bug] = Await.result(bugSeqFuture, 1 seconds)
+		bugSeq.toList
 	}
 
 //	def getOne(id : String){
