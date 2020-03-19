@@ -35,5 +35,6 @@
     <orderEntry type="library" name="sbt: com.typesafe:config:1.4.0:jar" level="project" />
     <orderEntry type="library" name="sbt: com.lightbend.akka:akka-stream-alpakka-mongodb_2.12:1.1.2:jar" level="project" />
     <orderEntry type="library" name="sbt: com.google.protobuf:protobuf-java:3.10.0:jar" level="project" />
+    <orderEntry type="library" name="sbt: ch.megard:akka-http-cors_2.12:0.4.2:jar" level="project" />
   </component>
 </module>

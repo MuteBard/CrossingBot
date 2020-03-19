@@ -2,17 +2,18 @@ package Dao
 
 import Data.FishData.Fishes
 import Model.Fish_.Fish
-import akka.Done
-import akka.stream.alpakka.mongodb.scaladsl.MongoSink
-import akka.stream.scaladsl.Source
+import akka.stream.alpakka.mongodb.scaladsl.{MongoSink, MongoSource}
+import akka.stream.scaladsl.{Sink, Source}
 import org.bson.codecs.configuration.CodecRegistries.{fromProviders, fromRegistries}
 import org.mongodb.scala.MongoClient.DEFAULT_CODEC_REGISTRY
 import org.mongodb.scala.bson.codecs.Macros._
 
-import scala.concurrent.Future
 import scala.util.{Failure, Success}
 import Logic.Main.system
 import system.dispatcher
+
+import scala.concurrent.duration._
+import scala.concurrent.{Await, Future}
 
 object FishOperations extends MongoDBOperations {
 	val codecRegistry = fromRegistries(fromProviders(classOf[Fish]), DEFAULT_CODEC_REGISTRY)
@@ -21,12 +22,19 @@ object FishOperations extends MongoDBOperations {
 		.getCollection("fish", classOf[Fish])
 		.withCodecRegistry(codecRegistry)
 
-	def BulkInsert{
+	def BulkInsert(): Unit = {
 		val source = Source(Fishes)
-		val operation: Future[Done] = source.grouped(2).runWith(MongoSink.insertMany[Fish](allFishes))
-		operation.onComplete{
-			case Success(_) => println(s"Successfully Bulk inserted all ${Fishes.length} fishes")
+		val taskFuture = source.grouped(2).runWith(MongoSink.insertMany[Fish](allFishes))
+		taskFuture.onComplete{
+			case Success(_) => println(s"Successfully created all ${Fishes.length} fishes")
 			case Failure (ex) => println(s"Failed bulk insert: $ex")
 		}
+	}
+
+	def retrieveAll: List[Fish] = {
+		val source = MongoSource(allFishes.find(classOf[Fish]))
+		val fishSeqFuture = source.runWith(Sink.seq)
+		val fishSeq : Seq[Fish] = Await.result(fishSeqFuture, 1 seconds)
+		fishSeq.toList
 	}
 }

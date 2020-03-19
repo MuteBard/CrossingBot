@@ -1,6 +1,0 @@
-package SupportingObj
-
-object ModelSupport {
-
-
-}

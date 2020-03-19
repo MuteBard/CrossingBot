@@ -6,5 +6,3 @@ class MongoDBOperations {
 	val client = MongoClients.create("mongodb://localhost:27017")
 	protected val db = client.getDatabase("crossingbot")
 }
-
-
