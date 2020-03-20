@@ -58,25 +58,25 @@ object ToExpress extends
 					}
 				} ~
 				post{
-					path("bugByMonths"){
+					path("ListBugByMonths"){
 						entity(as[Months]) { months =>
 							val monthBugsFuture = (bugActor ? BugActor.Read_Bug_By_Month(months.availability)).mapTo[List[Bug]]
 							complete(monthBugsFuture)
 						}
 					} ~
-					path("RandomBugByMonth"){
+					path("SingleRandomBugByMonths"){
 						entity(as[Months]) { months =>
 							val oneBugFuture = (bugActor ? BugActor.Read_Bug_By_Random(months.availability)).mapTo[List[Bug]]
 							complete(oneBugFuture)
 						}
 					} ~
-					path("fishByMonths"){
+					path("ListFishByMonths"){
 						entity(as[Months]) { months =>
 							val monthFishesFuture = (fishActor ? FishActor.Read_Fish_By_Month(months.availability)).mapTo[List[Fish]]
 							complete(monthFishesFuture)
 						}
 					} ~
-					path("RandomFishByMonth") {
+					path("SingleRandomFishByMonths") {
 						entity(as[Months]) { months =>
 							val oneFishFuture = (fishActor ? FishActor.Read_Fish_By_Random(months.availability)).mapTo[List[Fish]]
 							complete(oneFishFuture)
