@@ -29,7 +29,7 @@ exports.postListBugByMonths = async(akkaPayload, twitchPayload, botResponse) => 
         let respFromAkka = await axios.post(`${root}/ListBugByMonths`, akkaPayload)
         let data = respFromAkka.data
         let respToTwitch = twitchPayload(data)
-        botResponse(respToTwitch.viewer, respToTwitch.message)
+        botResponse(respToTwitch.streamerChannel, respToTwitch.message)
     }catch(error){
         console.log(error)
     }
@@ -40,7 +40,7 @@ exports.postListFishByMonths = async(akkaPayload, twitchPayload, botResponse) =>
         let respFromAkka = await axios.post(`${root}/ListFishByMonths`, akkaPayload)
         let data = respFromAkka.data
         let respToTwitch = twitchPayload(data)
-        botResponse(respToTwitch.viewer, respToTwitch.message)
+        botResponse(respToTwitch.streamerChannel, respToTwitch.message)
     }catch(error){
         console.log(error)
     }
@@ -51,7 +51,7 @@ exports.postSingleFishByMonths = async (akkaPayload, twitchPayload, botResponse)
         let respFromAkka = await axios.post(`${root}/SingleRandomFishByMonths`, akkaPayload)
         let data = respFromAkka.data[0]
         let respToTwitch = twitchPayload(data)
-        botResponse(respToTwitch.viewer, respToTwitch.message)
+        botResponse(respToTwitch.streamerChannel, respToTwitch.message)
     }catch(error){
         console.log(error)
     }
@@ -62,7 +62,7 @@ exports.postSingleBugByMonths = async(akkaPayload, twitchPayload, botResponse) =
         let respFromAkka = await axios.post(`${root}/SingleRandomBugByMonths`, akkaPayload)
         let data = respFromAkka.data[0]
         let respToTwitch = twitchPayload(data)
-        botResponse(respToTwitch.viewer, respToTwitch.message)
+        botResponse(respToTwitch.streamerChannel, respToTwitch.message)
     }catch(error){
         console.log(error)
     }
@@ -73,7 +73,7 @@ exports.postRarestListBugByMonths = async(akkaPayload, twitchPayload, botRespons
         let respFromAkka = await axios.post(`${root}/ListRarestBugByMonths`, akkaPayload)
         let data = respFromAkka.data
         let respToTwitch = twitchPayload(data)
-        botResponse(respToTwitch.viewer, respToTwitch.message)
+        botResponse(respToTwitch.streamerChannel, respToTwitch.message)
     }catch(error){
         console.log(error)
     }
@@ -84,7 +84,7 @@ exports.postRarestListFishByMonths = async(akkaPayload, twitchPayload, botRespon
         let respFromAkka = await axios.post(`${root}/ListRarestFishByMonths`, akkaPayload)
         let data = respFromAkka.data
         let respToTwitch = twitchPayload(data)
-        botResponse(respToTwitch.viewer, respToTwitch.message)
+        botResponse(respToTwitch.streamerChannel, respToTwitch.message)
     }catch(error){
         console.log(error)
     }
