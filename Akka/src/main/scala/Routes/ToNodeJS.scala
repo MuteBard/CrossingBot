@@ -42,7 +42,7 @@ object ToExpress extends
 					} ~
 					path("bugId"/ IntNumber) {
 						id => {
-							val oneBugFuture = (bugActor ? BugActor.Read_Bug_By_Id(id)).mapTo[List[Bug]]
+							val oneBugFuture = (bugActor ? BugActor.Read_One_Bug_By_Id(id)).mapTo[List[Bug]]
 							complete(oneBugFuture)
 						}
 					} ~
@@ -52,7 +52,7 @@ object ToExpress extends
 					} ~
 					path("fishId"/ IntNumber) {
 						id => {
-							val oneFishFuture = (fishActor ? FishActor.Read_Fish_By_Id(id)).mapTo[List[Fish]]
+							val oneFishFuture = (fishActor ? FishActor.Read_One_Fish_By_Id(id)).mapTo[List[Fish]]
 							complete(oneFishFuture)
 						}
 					}
@@ -60,25 +60,25 @@ object ToExpress extends
 				post{
 					path("ListBugByMonths"){
 						entity(as[Months]) { months =>
-							val monthBugsFuture = (bugActor ? BugActor.Read_Bug_By_Month(months.availability)).mapTo[List[Bug]]
+							val monthBugsFuture = (bugActor ? BugActor.Read_All_Bug_By_Month(months.availability)).mapTo[List[Bug]]
 							complete(monthBugsFuture)
 						}
 					} ~
 					path("SingleRandomBugByMonths"){
 						entity(as[Months]) { months =>
-							val oneBugFuture = (bugActor ? BugActor.Read_Bug_By_Random(months.availability)).mapTo[List[Bug]]
+							val oneBugFuture = (bugActor ? BugActor.Read_One_Bug_By_Random(months.availability)).mapTo[List[Bug]]
 							complete(oneBugFuture)
 						}
 					} ~
 					path("ListFishByMonths"){
 						entity(as[Months]) { months =>
-							val monthFishesFuture = (fishActor ? FishActor.Read_Fish_By_Month(months.availability)).mapTo[List[Fish]]
+							val monthFishesFuture = (fishActor ? FishActor.Read_All_Fish_By_Month(months.availability)).mapTo[List[Fish]]
 							complete(monthFishesFuture)
 						}
 					} ~
 					path("SingleRandomFishByMonths") {
 						entity(as[Months]) { months =>
-							val oneFishFuture = (fishActor ? FishActor.Read_Fish_By_Random(months.availability)).mapTo[List[Fish]]
+							val oneFishFuture = (fishActor ? FishActor.Read_One_Fish_By_Random(months.availability)).mapTo[List[Fish]]
 							complete(oneFishFuture)
 						}
 					}
