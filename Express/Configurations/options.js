@@ -1,6 +1,6 @@
 let secret = require('./secret');
 let users = ["MuteBard"]
-exports.settings = {
+exports.settingsA = {
     options : {
       debug : true
     },
@@ -15,3 +15,9 @@ exports.settings = {
     channels: users
   };
   
+  exports.settingsB = {
+    headers: {
+        "Accept" : "application/vnd.twitchtv.v5+json",
+        "Client-ID": secret.security.oauth2
+    },
+  }

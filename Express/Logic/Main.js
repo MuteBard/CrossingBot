@@ -3,8 +3,8 @@ const CronJob = require('cron').CronJob
 const toAkka = require('../Controller/toAkka')
 const options = require('../Configurations/options')
 
-var publicConnection = new tmi.client(options.settings);
-var privateConnection = new tmi.client(options.settings);
+var publicConnection = new tmi.client(options.settingsA);
+var privateConnection = new tmi.client(options.settingsA);
 
 let currentMonth = () => {
     let monthNum = (new Date()).getMonth()
@@ -161,6 +161,7 @@ publicConnection.on('chat', (channel, userstate, message, self) => {
     let info = {
         streamerChannel : channel,
         viewer : userstate["display-name"]
+        
     }
     if(message == "!help") helpRequest(info)
     else if(message == "!bug" || message == "!Bug" ) bugCatchRequest(info)
@@ -169,6 +170,7 @@ publicConnection.on('chat', (channel, userstate, message, self) => {
     else if(message == "!listFish") fishListRequest(info)
     else if(message == "!listRareBug") rarestBugRequest(info)
     else if(message == "!listRareFish") rarestFishRequest(info)
+  
 }); 
 
 // userstate = { 'badge-info': null,
