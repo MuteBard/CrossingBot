@@ -1,6 +1,6 @@
 package Data
 
-import Model.Bug_.Bug
+import Model.OutBound.Bug_.Bug
 
 object BugData {
 	val Bugs = List(

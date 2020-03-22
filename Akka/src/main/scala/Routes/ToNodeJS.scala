@@ -1,9 +1,11 @@
 package Routes
 import Actors.{BugActor, FishActor, StartActor}
 import Logic.Main.system
-import Model.Bug_._
-import Model.Fish_._
-import Model.Months_._
+import Model.Inbound.AddingFish_._
+import Model.Inbound.AddingBug_._
+import Model.Inbound.Months_._
+import Model.OutBound.Bug_._
+import Model.OutBound.Fish_._
 import akka.actor.Props
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
@@ -15,10 +17,12 @@ import ch.megard.akka.http.cors.scaladsl.CorsDirectives._
 
 import scala.concurrent.duration._
 
-object ToExpress extends
+object ToNodeJS extends
 	BugJsonProtocol with
 	FishJsonProtocol with
 	MonthsJsonProtocol with
+	AddingBugJsonProtocol with
+	AddingFishJsonProtocol with
 	SprayJsonSupport {
 
 
@@ -70,6 +74,12 @@ object ToExpress extends
 							complete(oneBugFuture)
 						}
 					} ~
+					path("ListRarestBugByMonths"){
+						entity(as[Months]) { months =>
+							val rarestBugFuture = (bugActor ? BugActor.Read_All_Rarest_Bug_By_Month(months.availability)).mapTo[List[Bug]]
+							complete(rarestBugFuture)
+						}
+					} ~
 					path("ListFishByMonths"){
 						entity(as[Months]) { months =>
 							val monthFishesFuture = (fishActor ? FishActor.Read_All_Fish_By_Month(months.availability)).mapTo[List[Fish]]
@@ -81,7 +91,34 @@ object ToExpress extends
 							val oneFishFuture = (fishActor ? FishActor.Read_One_Fish_By_Random(months.availability)).mapTo[List[Fish]]
 							complete(oneFishFuture)
 						}
-					}
+					} ~
+					path("ListRarestFishByMonths") {
+						entity(as[Months]) { months =>
+							val rarestFishFuture = (fishActor ? FishActor.Read_All_Rarest_Fish_By_Month(months.availability)).mapTo[List[Fish]]
+							complete(rarestFishFuture)
+						}
+					} //~
+//					path("AddBugInPocket"){
+//						entity(as[AddingBug]) {data =>
+//							val addBugFuture = (userActor ? UserActor.Update_Add_One_Bug(data.username, data.bug))
+//							complete(StatusCodes.OK)
+//							complete(StatusCodes.NotFound)
+//						}
+//					} ~
+//					path("AddFishInPocket"){
+//						entity(as[AddingFish]) {data =>
+//							val addBugFuture = (userActor ? UserActor.Update_Add_One_Fish((data.username, data.bug)))
+//							complete(StatusCodes.OK)
+//							complete(StatusCodes.NotFound)
+//						}
+//					} ~
+//					path("AddUser"){
+//						entity(as[User]) { user =>
+//							val createUserFuture = (userActor ? UserActor.Create_One_User(user))
+//							complete(StatusCodes.OK)
+//							complete(StatusCodes.NotFound)
+//						}
+//					}
 				}
 			}
 		}

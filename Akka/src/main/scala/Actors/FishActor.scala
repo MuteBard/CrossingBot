@@ -6,9 +6,10 @@ import scala.util.Random
 
 object FishActor {
 	case object Read_Fish_All
-	case class Read_Fish_By_Id(id : Int)
-	case class Read_Fish_By_Random(list : List[String])
-	case class Read_Fish_By_Month(list : List[String])
+	case class Read_One_Fish_By_Id(id : Int)
+	case class Read_One_Fish_By_Random(month : List[String])
+	case class Read_All_Fish_By_Month(month : List[String])
+	case class Read_All_Rarest_Fish_By_Month(month : List[String])
 }
 
 class FishActor extends Actor with ActorLogging{
@@ -19,17 +20,21 @@ class FishActor extends Actor with ActorLogging{
 			log.info("Collecting all Fishes")
 			sender() ! FishOperations.readAll()
 
-		case Read_Fish_By_Random(list : List[String]) =>
+		case Read_One_Fish_By_Random(month : List[String]) =>
 			log.info(s"Selecting fish at random")
-			sender() ! FishOperations.readByRarityAndMonth(rarityValue, list)
+			sender() ! FishOperations.readOneByRarityAndMonth(rarityValue, month)
 
-		case Read_Fish_By_Id(id : Int) =>
+		case Read_One_Fish_By_Id(id : Int) =>
 			val fId = s"F$id"
 			log.info(s"Selecting fish $fId")
-			sender() ! FishOperations.readById(fId)
+			sender() ! FishOperations.readOneById(fId)
 
-		case Read_Fish_By_Month(list : List[String]) =>
-			sender() ! FishOperations.readByMonth(list)
+		case Read_All_Fish_By_Month(month : List[String]) =>
+			sender() ! FishOperations.readAllByMonth(month)
+
+		case Read_All_Rarest_Fish_By_Month(month : List[String]) =>
+			sender() ! FishOperations.readAllRarestByMonth(month)
+
 	}
 
 	def rarityValue : Int = {

@@ -1,7 +1,7 @@
 package Dao
 
 import Data.BugData.Bugs
-import Model.Bug_.Bug
+import Model.OutBound.Bug_.Bug
 import akka.stream.alpakka.mongodb.scaladsl.{MongoSink, MongoSource}
 import akka.stream.scaladsl.{Sink, Source}
 import org.bson.codecs.configuration.CodecRegistries.{fromProviders, fromRegistries}
@@ -38,14 +38,14 @@ object BugOperations extends MongoDBOperations{
 		bugSeq.toList
 	}
 
-	def readById(query : String) : List[Bug] = {
+	def readOneById(query : String) : List[Bug] = {
 		val source = MongoSource(allBugs.find(classOf[Bug])).filter(bugs => bugs.bugId == query)
 		val bugSeqFuture = source.runWith(Sink.seq)
 		val bugSeq : Seq[Bug] = Await.result(bugSeqFuture, 1 seconds)
 		bugSeq.toList
 	}
 
-	def readByRarity(query : Int) : List[Bug] = {
+	def readOneByRarity(query : Int) : List[Bug] = {
 		val source = MongoSource(allBugs.find(classOf[Bug])).filter(bugs => bugs.rarity == query)
 		val bugSeqFuture = source.runWith(Sink.seq)
 		val bugSeq : Seq[Bug] = Await.result(bugSeqFuture, 1 seconds)
@@ -53,18 +53,27 @@ object BugOperations extends MongoDBOperations{
 	}
 
 	//want to check if the contents of availability if they intersect with query, only those that have all of query's months with pass
-	def readByMonth(query : List[String]) : List[Bug] = {
+	def readAllByMonth(query : List[String]) : List[Bug] = {
 		val source = MongoSource(allBugs.find(classOf[Bug])).filter(bugs => bugs.availability.intersect(query) == query)
 		val bugSeqFuture = source.runWith(Sink.seq)
 		val bugSeq : Seq[Bug] = Await.result(bugSeqFuture, 1 seconds)
 		bugSeq.toList
 	}
 
-	def readByRarityAndMonth(queryInt : Int, queryList : List[String]) : List[Bug] = {
+	def readOneByRarityAndMonth(queryInt : Int, queryList : List[String]) : List[Bug] = {
 		val source = MongoSource(allBugs.find(classOf[Bug])).filter(bugs => (bugs.rarity == queryInt) && bugs.availability.intersect(queryList) == queryList)
 		val bugSeqFuture = source.runWith(Sink.seq)
 		val bugSeq : Seq[Bug] = Await.result(bugSeqFuture, 1 seconds)
 		List(Random.shuffle(bugSeq.toList).head)
 	}
+
+	def readAllRarestByMonth(queryList : List[String]) : List[Bug] = {
+		val source = MongoSource(allBugs.find(classOf[Bug])).filter(bugs => (bugs.rarity == 5 || bugs.rarity == 4 ) && bugs.availability.intersect(queryList) == queryList)
+		val bugSeqFuture = source.runWith(Sink.seq)
+		val bugSeq : Seq[Bug] = Await.result(bugSeqFuture, 1 seconds)
+		bugSeq.toList
+	}
+
+
 
 }

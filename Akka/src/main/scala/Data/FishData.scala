@@ -1,6 +1,6 @@
 package Data
 
-import Model.Fish_.Fish
+import Model.OutBound.Fish_.Fish
 
 object FishData {
 	val Fishes = List (
