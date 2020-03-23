@@ -1,5 +1,5 @@
-package Model.Inbound
-import Model.OutBound.Bug_.Bug
+package Model.Minor
+import Model.Major.Bug_.Bug
 
 object AddingBug_ {
 	import spray.json.DefaultJsonProtocol

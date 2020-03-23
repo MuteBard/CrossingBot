@@ -1,4 +1,4 @@
-package Model.OutBound
+package Model.Major
 
 object Fish_ {
 	import spray.json.DefaultJsonProtocol

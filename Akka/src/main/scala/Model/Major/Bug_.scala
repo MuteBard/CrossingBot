@@ -1,4 +1,4 @@
-package Model.OutBound
+package Model.Major
 
 object Bug_ {
 	import spray.json.DefaultJsonProtocol
