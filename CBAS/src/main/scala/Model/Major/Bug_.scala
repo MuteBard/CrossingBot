@@ -1,0 +1,20 @@
+package Model.Major
+
+object Bug_ {
+	import spray.json.DefaultJsonProtocol
+	case class Bug(
+		_id : Int,
+		bugId : String,
+		name : String,
+		bells : Int,
+		availability : List[String],
+		rarity : Int,
+		img : String
+	){
+		def getId : String = bugId
+	}
+
+	trait BugJsonProtocol extends DefaultJsonProtocol{
+		implicit val BugJson = jsonFormat7(Bug)
+	}
+}
