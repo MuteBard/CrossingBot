@@ -10,8 +10,8 @@ import org.mongodb.scala.bson.codecs.Macros._
 
 import scala.util.{Failure, Random, Success}
 import Logic.Main.system
-import akka.stream.alpakka.mongodb.DocumentUpdate
-import org.mongodb.scala.model.{Filters, Updates}
+//import akka.stream.alpakka.mongodb.DocumentUpdate
+//import org.mongodb.scala.model.{Filters, Updates}
 import system.dispatcher
 
 import scala.concurrent.duration._
@@ -28,7 +28,7 @@ object BugOperations extends MongoDBOperations{
 		val source = Source(Bugs)
 		val taskFuture = source.grouped(2).runWith(MongoSink.insertMany(allBugs))
 		taskFuture.onComplete{
-			case Success(_) => println(s"Successfully created ${Bugs.length} bugs")
+			case Success(_) => println(s"[BugOperations][createAll][Success] Created ${Bugs.length} BUG")
 			case Failure (ex) => println(s"Failed create: $ex")
 		}
 	}
@@ -40,11 +40,11 @@ object BugOperations extends MongoDBOperations{
 		bugSeq.toList
 	}
 
-	def readOneById(query : String) : Bug = {
+	def readOneById(query : String) : Seq[Bug] = {
 		val source = MongoSource(allBugs.find(classOf[Bug])).filter(bugs => bugs.bugId == query)
 		val bugSeqFuture = source.runWith(Sink.seq)
 		val bugSeq : Seq[Bug] = Await.result(bugSeqFuture, 1 seconds)
-		bugSeq.head
+		bugSeq
 	}
 
 //	def readOneByRarity(query : Int) : Bug = {
@@ -54,7 +54,6 @@ object BugOperations extends MongoDBOperations{
 //		Random.shuffle(bugSeq.toList).head
 //	}
 
-	//want to check if the contents of availability if they intersect with query, only those that have all of query's months with pass
 	def readAllByMonth(query : List[String]) : List[Bug] = {
 		val source = MongoSource(allBugs.find(classOf[Bug])).filter(bugs => bugs.availability.intersect(query) == query)
 		val bugSeqFuture = source.runWith(Sink.seq)
@@ -76,16 +75,16 @@ object BugOperations extends MongoDBOperations{
 		bugSeq.toList
 	}
 
-	def updateOne(/*id : String ,data : Bug*/): Unit = {
-		val id = "B1"
-		val source = MongoSource(allBugs.find(classOf[Bug]))  //FIND
-    		.map(bug => DocumentUpdate(filter = Filters.eq("bugId", id), update = Updates.set("bells", 90))) //UPDATE
-		val taskFuture = source.runWith(MongoSink.updateOne(allBugs)) //REPLACE
-		taskFuture.onComplete{
-			case Success(_) => println(s"Successfully updated")
-			case Failure (ex) => println(s"Failed update: $ex")
-		}
-	}
+//	def updateOne(/*id : String ,data : Bug*/): Unit = {
+//		val id = "B1"
+//		val source = MongoSource(allBugs.find(classOf[Bug]))  //FIND
+//    		.map(bug => DocumentUpdate(filter = Filters.eq("bugId", id), update = Updates.set("bells", 90))) //UPDATE
+//		val taskFuture = source.runWith(MongoSink.updateOne(allBugs)) //REPLACE
+//		taskFuture.onComplete{
+//			case Success(_) => println(s"[BugOperations][createAll][Success] Successfully updated BUG at $id")
+//			case Failure (ex) => println(s"Failed update: $ex")
+//		}
+//	}
 
 
 }

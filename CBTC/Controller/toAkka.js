@@ -70,7 +70,6 @@ exports.postRarestListFishByMonths = async(akkaPayload, twitchPayload, botRespon
 
 exports.postSingleFishByMonths = async (akkaPayload, twitchPayload, botResponse) => {
     try{
-        console.log(akkaPayload)
         let respFromAkka = await axios.post(`${root}/retrieveOneFishByMonths`, akkaPayload)
         let data = respFromAkka.data
         let respToTwitch = twitchPayload(data)

@@ -1,12 +1,14 @@
 package Actors
 
 import Dao.FishOperations
+import Model.Major.Fish_.Fish
 import akka.actor.{Actor, ActorLogging}
+
 import scala.util.Random
 
 object FishActor {
 	case object Read_Fish_All
-	case class Read_One_Fish_By_Id(id : Int)
+	case class Read_One_Fish_By_Id(fId : String)
 	case class Read_One_Fish_By_Random(month : List[String])
 	case class Read_All_Fish_By_Month(month : List[String])
 	case class Read_All_Rarest_Fish_By_Month(month : List[String])
@@ -17,22 +19,31 @@ class FishActor extends Actor with ActorLogging{
 
 	override def receive: Receive = {
 		case Read_Fish_All =>
-			log.info("Collecting all Fishes")
+			log.info("[Read_Bug_All] Selecting all FISH")
 			sender() ! FishOperations.readAll()
 
 		case Read_One_Fish_By_Random(month : List[String]) =>
-			log.info(s"Selecting fish at random")
+			log.info(s"[Read_One_Fish_By_Random] Selecting FISH by random")
 			sender() ! FishOperations.readOneByRarityAndMonth(rarityValue, month)
 
-		case Read_One_Fish_By_Id(id : Int) =>
-			val fId = s"F$id"
-			log.info(s"Selecting fish $fId")
-			sender() ! FishOperations.readOneById(fId)
+		case Read_One_Fish_By_Id(fId : String) =>
+			log.info(s"[Read_One_Fish_By_Id] Selecting FISH with id : $fId")
+			val fishSeq = FishOperations.readOneById(fId)
+			val fishExists = fishSeq.nonEmpty
+			if(fishExists){
+				log.info(s"[Read_One_User] BUG with id $fId found")
+				sender() ! fishSeq.head
+			}else {
+				log.info(s"[Read_One_User] BUG with id $fId does not exist")
+				sender() ! Fish()
+			}
 
 		case Read_All_Fish_By_Month(month : List[String]) =>
+			log.info(s"[Read_All_Fish_By_Month] Selecting FISH based on month(s) provided")
 			sender() ! FishOperations.readAllByMonth(month)
 
 		case Read_All_Rarest_Fish_By_Month(month : List[String]) =>
+			log.info(s"[Read_All_Rarest_Fish_By_Month] Selecting FISH based on rarity")
 			sender() ! FishOperations.readAllRarestByMonth(month)
 
 	}

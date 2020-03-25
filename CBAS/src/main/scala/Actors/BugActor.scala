@@ -1,12 +1,14 @@
 package Actors
 
 import Dao.BugOperations
+import Model.Major.Bug_.Bug
 import akka.actor.{Actor, ActorLogging}
+
 import scala.util.Random
 
 object BugActor {
 	case object Read_Bug_All
-	case class Read_One_Bug_By_Id(id : Int)
+	case class Read_One_Bug_By_Id(bId : String)
 	case class Read_One_Bug_By_Random(months : List[String])
 	case class Read_All_Bug_By_Month(months : List[String])
 	case class Read_All_Rarest_Bug_By_Month(month : List[String])
@@ -17,22 +19,33 @@ class BugActor extends Actor with ActorLogging{
 
 	override def receive: Receive = {
 		case Read_Bug_All =>
-			log.info("Collecting all Bugs")
+			log.info("[Read_Bug_All] Selecting all BUG")
 			sender() ! BugOperations.readAll()
 
 		case Read_One_Bug_By_Random(months : List[String]) =>
-			log.info(s"Selecting bug at random")
+			log.info(s"[Read_One_Bug_By_Random] Selecting BUG by random")
 			sender() ! BugOperations.readOneByRarityAndMonth(rarityValue, months)
 
-		case Read_One_Bug_By_Id(id : Int) =>
-			val bId = s"B$id"
-			log.info(s"Selecting bug $bId")
+		case Read_One_Bug_By_Id(bId : String) =>
+			log.info(s"[Read_One_Bug_By_Id] Selecting BUG with id : $bId")
+			val bugSeq = BugOperations.readOneById(bId)
+			val bugExists = bugSeq.nonEmpty
+			if(bugExists){
+				log.info(s"[Read_One_User] BUG with id $bId found")
+				sender() ! bugSeq.head
+			}else {
+				log.info(s"[Read_One_User] BUG with id $bId does not exist")
+				sender() ! Bug()
+			}
+
 			sender() ! BugOperations.readOneById(bId)
 
 		case Read_All_Bug_By_Month(months : List[String]) =>
+			log.info(s"[Read_All_Bug_By_Month] Selecting BUG based on month(s) provided")
 			sender() ! BugOperations.readAllByMonth(months)
 
 		case Read_All_Rarest_Bug_By_Month(months : List[String]) =>
+			log.info(s"[Read_All_Rarest_Bug_By_Month] Selecting BUG based on rarity")
 			sender() ! BugOperations.readAllRarestByMonth(months)
 	}
 

@@ -40,56 +40,57 @@ object ToNodeJS extends
 			pathPrefix("api"){
 				get{
 					path("AddAllBugFish"){
-						startupActor ! StartActor.Create_Animals_All
+						startupActor ! StartActor.Create_Creatures_All
 						complete(StatusCodes.OK)
 					} ~
-					path("bugAll") {
+					path("ListAllBug") {
 						val AllBugsFuture = (bugActor ? BugActor.Read_Bug_All).mapTo[List[Bug]]
 						complete(AllBugsFuture)
 					} ~
-					path("bugId"/ IntNumber) {
-						id => {
-							val oneBugFuture = (bugActor ? BugActor.Read_One_Bug_By_Id(id)).mapTo[Bug]
-							complete(oneBugFuture)
-						}
-					} ~
-					path("fishesAll"){
+					path("ListAllfFish"){
 						val AllFishesFuture = (fishActor ? FishActor.Read_Fish_All).mapTo[List[Fish]]
 						complete(AllFishesFuture)
 					} ~
-					path("fishId"/ IntNumber) {
-						id => {
-							val oneFishFuture = (fishActor ? FishActor.Read_One_Fish_By_Id(id)).mapTo[Fish]
-							complete(oneFishFuture)
+					path("bugId"/ Segment) {
+						bid : String => {
+							val oneBug = Await.result((bugActor ? BugActor.Read_One_Bug_By_Id(bid.toUpperCase)).mapTo[Bug], 2 seconds)
+							if (oneBug.name != "NULL/BUG") complete(oneBug)
+							else complete(StatusCodes.NotFound, s"Bug with id $bid does not exist")
+						}
+					} ~
+					path("fishId"/ Segment) {
+						fid : String => {
+							val oneFish = Await.result((fishActor ? FishActor.Read_One_Fish_By_Id(fid.toUpperCase)).mapTo[Fish], 2 seconds)
+							if (oneFish.name != "NULL/FISH") complete(oneFish)
+							else complete(StatusCodes.NotFound, s"Fish with id $fid does not exist")
 						}
 					} ~
 					path("user" / Segment) {
-						username => {
-							val oneUser : User = Await.result((userActor ? UserActor.Read_One_User(username)).mapTo[User], 3 seconds)
-							if (oneUser.username!="NULL/USER") complete(oneUser)
-							else complete(StatusCodes.NotFound)
-
-
+						username : String => {
+							val oneUser : User = Await.result((userActor ? UserActor.Read_One_User(username)).mapTo[User], 2 seconds)
+							if (oneUser.username != "NULL/USER") complete(oneUser)
+							else complete(StatusCodes.NotFound, s"User $username does not exist")
 						}
 					}
 				} ~
 				post{
-					path("ListBugByMonths"){
-						entity(as[Months]) { months =>
-							val monthBugsFuture = (bugActor ? BugActor.Read_All_Bug_By_Month(months.availability)).mapTo[List[Bug]]
-							complete(monthBugsFuture)
-						}
-					} ~
+
 					path("retrieveOneBugByMonths"){
 						entity(as[Months]) { months =>
 							val oneBugFuture = (bugActor ? BugActor.Read_One_Bug_By_Random(months.availability)).mapTo[Bug]
 							complete(oneBugFuture)
 						}
 					} ~
-					path("ListRarestBugByMonths"){
+					path("retrieveOneFishByMonths") {
 						entity(as[Months]) { months =>
-							val rarestBugFuture = (bugActor ? BugActor.Read_All_Rarest_Bug_By_Month(months.availability)).mapTo[List[Bug]]
-							complete(rarestBugFuture)
+							val oneFishFuture = (fishActor ? FishActor.Read_One_Fish_By_Random(months.availability)).mapTo[Fish]
+							complete(oneFishFuture)
+						}
+					} ~
+					path("ListBugByMonths"){
+						entity(as[Months]) { months =>
+							val monthBugsFuture = (bugActor ? BugActor.Read_All_Bug_By_Month(months.availability)).mapTo[List[Bug]]
+							complete(monthBugsFuture)
 						}
 					} ~
 					path("ListFishByMonths"){
@@ -98,10 +99,10 @@ object ToNodeJS extends
 							complete(monthFishesFuture)
 						}
 					} ~
-					path("retrieveOneFishByMonths") {
+					path("ListRarestBugByMonths"){
 						entity(as[Months]) { months =>
-							val oneFishFuture = (fishActor ? FishActor.Read_One_Fish_By_Random(months.availability)).mapTo[Fish]
-							complete(oneFishFuture)
+							val rarestBugFuture = (bugActor ? BugActor.Read_All_Rarest_Bug_By_Month(months.availability)).mapTo[List[Bug]]
+							complete(rarestBugFuture)
 						}
 					} ~
 					path("ListRarestFishByMonths") {
@@ -126,7 +127,6 @@ object ToNodeJS extends
 				}
 			}
 		}
-
 
 	Http().bindAndHandle(routes, "localhost", 4774)
 }

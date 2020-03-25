@@ -15,25 +15,33 @@ class UserActor extends Actor with ActorLogging{
 	import UserActor._
 	override def receive: Receive = {
 		case Read_One_User(username) =>
-			log.info(s"Getting user with username $username")
+			log.info(s"[Read_One_User] Getting USER with username $username")
+			val userSeq = UserOperations.readOneUser(username)
+			val userExists = userSeq.nonEmpty
 
-			val userList = UserOperations.readOneUser(username)
-			Option(userList.head) match {
-				case Some(user) => sender() ! user
-				case None => sender() ! User()
+			if(userExists){
+				log.info(s"[Read_One_User] USER $username found")
+				sender() ! userSeq.head
+			}else {
+				log.info(s"[Read_One_User] USER $username does not exist")
+				sender() ! User()
 			}
+
+
 		case Update_One_User_With_Creature(user) =>
-			log.info(s"Adding creature to ${user.username}'s pocket")
+			log.info(s"[Update_One_User_With_Creature] Adding BUG/FISH to ${user.username}'s pocket")
 			UserOperations.updateUser(user)
-			log.info(s"Checking to see if user ${user.username} exists")
+			log.info(s"[Update_One_User_With_Creature] Verifying if USER with username ${user.username} exists")
 			val exists = UserOperations.readOneUser(user.username).length == 1
 			if (exists){
-				log.info("User exists")
+				log.info("[Update_One_User_With_Creature] USER exists")
 			}else
-				log.info("User does not exist")
-			sender ! exists
+				log.info("[Update_One_User_With_Creature] USER does not exist")
+			sender() ! exists
+
+
 		case Create_One_User(user) =>
-			log.info(s"Inserting user in Database")
+			log.info(s"[Create_One_User] Inserting USER in Database")
 			UserOperations.createOneUser(user)
 
 

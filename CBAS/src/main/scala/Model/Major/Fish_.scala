@@ -3,13 +3,13 @@ package Model.Major
 object Fish_ {
 	import spray.json.DefaultJsonProtocol
 	case class Fish(
-		_id : Int,
-		fishId : String,
-		name : String,
-		bells : Int,
-		availability : List[String],
-		rarity : Int,
-		img : String
+		_id : Int = 0,
+		fishId : String = "",
+		name : String = "NULL/FISH",
+		bells : Int = 0,
+		availability : List[String] = List(),
+		rarity : Int = 0,
+		img : String = ""
     ){
 		def getId : String = fishId
 	}

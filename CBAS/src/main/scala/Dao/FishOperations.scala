@@ -26,7 +26,7 @@ object FishOperations extends MongoDBOperations {
 		val source = Source(Fishes)
 		val taskFuture = source.grouped(2).runWith(MongoSink.insertMany[Fish](allFishes))
 		taskFuture.onComplete{
-			case Success(_) => println(s"Successfully created ${Fishes.length} fishes")
+			case Success(_) => println(s"[FishOperations][createAll][Success] Successfully created ${Fishes.length} FISH")
 			case Failure (ex) => println(s"Failed create: $ex")
 		}
 	}
@@ -38,11 +38,11 @@ object FishOperations extends MongoDBOperations {
 		fishSeq.toList
 	}
 
-	def readOneById(query : String) : Fish = {
+	def readOneById(query : String) : Seq[Fish] = {
 		val source = MongoSource(allFishes.find(classOf[Fish])).filter(fishes => fishes.fishId == query)
 		val fishSeqFuture = source.runWith(Sink.seq)
 		val fishSeq : Seq[Fish] = Await.result(fishSeqFuture, 1 seconds)
-		fishSeq.head
+		fishSeq
 	}
 //	def readOneByRarity(query : Int) : Fish = {
 //		val source = MongoSource(allFishes.find(classOf[Fish])).filter(fishes => fishes.rarity == query)

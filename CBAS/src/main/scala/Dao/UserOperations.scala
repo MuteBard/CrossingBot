@@ -20,7 +20,7 @@ import scala.concurrent.Await
 
 object UserOperations extends MongoDBOperations {
 	val codecRegistryUser = fromRegistries(fromProviders(classOf[User],classOf[Pocket], classOf[Bug], classOf[Fish]), DEFAULT_CODEC_REGISTRY)
-
+	val codecRegistryPocket = fromRegistries(fromProviders(classOf[User],classOf[Pocket], classOf[Bug], classOf[Fish]), DEFAULT_CODEC_REGISTRY)
 
 	private val allUsers = db
 		.getCollection("user", classOf[User])
@@ -30,8 +30,8 @@ object UserOperations extends MongoDBOperations {
 		val source = Source(List(user))
 		val taskFuture = source.runWith(MongoSink.insertOne(allUsers))
 		taskFuture.onComplete{
-			case Success(_) => println(s"Added a user with no errors")
-			case Failure (ex) => println(s"Failed create: $ex")
+			case Success(_) => println(s"[UserOperations][updateUser][Success] Added USER ${user.username}")
+			case Failure (ex) => println(s"[UserOperations][updateUser][Failure] Failed to create USER: $ex")
 		}
 	}
 
@@ -43,70 +43,44 @@ object UserOperations extends MongoDBOperations {
 	}
 
 	def updateUser(data : User) : Unit = {
-		val creatureIdOption = Option(data.pocket.bug.head.getId).orElse(Option(data.pocket.fish.head.getId))
-		val pocketKey = creatureIdOption match {
-			case Some(id) => if(id.contains("B")) "bug" else "fish"
-			case None => throw new Exception
-		}
+
+		val pocketKey = getPocketKey(data)
+		
 		val source = MongoSource(allUsers.find(classOf[User]))
 			.map(user => {
-				val updatedPocketData = if (pocketKey == "bug") user.pocket.bug :+ data.pocket.bug else user.pocket.fish :+ data.pocket.fish
-				DocumentUpdate(filter = Filters.eq("username", data.username), update = Updates.set(pocketKey, updatedPocketData))
+				val updatedPocket = if (pocketKey == "bug") newPocket("bug", user.pocket, data.pocket) else newPocket("fish", user.pocket, data.pocket)
+
+				DocumentUpdate(filter = Filters.eq("username", data.username), update = Updates.set("pocket", updatedPocket))
 			})
 		val taskFuture = source.runWith(MongoSink.updateOne(allUsers))
 
 		taskFuture.onComplete{
-			case Success(_) => print("IDK")
+			case Success(_) =>
 				if(readOneUser(data.username).nonEmpty)
-					println(s"Updated ${data.username}'s successfully")
+					println(s"[UserOperations][updateUser][True Success] Updated ${data.username}'s pocket successfully")
 				else {
-					println(s"Failed to properly update, user ${data.username}'s does not exist. Creating new user")
-
-//					val pocket = List(data)
-//					val newSource = Source(pocket)
-//
-//					val taskFuture = newSource.runWith(MongoSink.insertOne(allUsers))
-//					taskFuture.onComplete {
-//						case Success(_) => println(s"Successfully created 1 user")
-//						case Failure(ex) => println(s"[UserOperations] [updateUser] : Failed create user: $ex")
-//					}
+					println(s"[UserOperations][updateUser][Partial Success] Failed to properly update, user ${data.username}'s does not exist. Creating new user")
 				}
 			case Failure (ex) =>
-				println(s"Failed update: $ex")
+				println(s"[UserOperations][updateUser][Failure] Failed update: $ex")
 		}
 	}
 
-//	def updatePocket(data : Pocket): Unit = {
-//		val creatureIdOption = Option(data.bug.head.getId).orElse(Option(data.fish.head.getId))
-//		val pocketKey = creatureIdOption match {
-//			case Some(id) => if(id.contains("B")) "bug" else "fish"
-//			case None => throw new Exception
-//		}
-//		val source = MongoSource(allPockets.find(classOf[Pocket]))
-//			.map(pocket => {
-//				val updatedPocketData = if (pocketKey == "bug") pocket.bug :+ data.bug else pocket.fish :+ data.fish
-//				DocumentUpdate(filter = Filters.eq("username", data.username), update = Updates.set(pocketKey, updatedPocketData))
-//			})
-//
-//		val taskFuture = source.runWith(MongoSink.updateOne(allPockets)) //REPLACE
-//		taskFuture.onComplete{
-//			case Success(_) =>
-//				if(readOnePocket(data.username).nonEmpty)
-//					println(s"Updated ${data.username}'s successfully")
-//				else {
-//					println(s"Failed to properly update, ${data.username}'s pocket does not exist. Creating new pocket")
-//
-//					val pocket = List(data)
-//					val newSource = Source(pocket)
-//
-//					val taskFuture = newSource.runWith(MongoSink.insertOne(allPockets))
-//					taskFuture.onComplete {
-//						case Success(_) => println(s"Successfully created 1 pocket")
-//						case Failure(ex) => println(s"[PocketOperations] [updatePocket] : Failed create: $ex")
-//					}
-//				}
-//			case Failure (ex) =>
-//				println(s"Failed update: $ex")
-//		}
-//	}
+	def newPocket(creature : String, databasePocket: Pocket , queryPocket: Pocket): Pocket = {
+		if(creature == "bug"){
+			val newBugList = databasePocket.bug :+ queryPocket.bug.head
+			Pocket(newBugList,databasePocket.fish)
+		} else {
+			val newFishList = databasePocket.fish :+ queryPocket.fish.head
+			Pocket(databasePocket.bug, newFishList)
+		}
+	}
+
+	def getPocketKey(data: User): String = {
+		if (data.pocket.bug.nonEmpty) {
+			"bug"
+		} else {
+			"fish"
+		}
+	}
 }
