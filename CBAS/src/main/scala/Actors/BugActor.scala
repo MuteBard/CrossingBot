@@ -23,8 +23,11 @@ class BugActor extends Actor with ActorLogging{
 			sender() ! BugOperations.readAll()
 
 		case Read_One_Bug_By_Random(months : List[String]) =>
+			val rare = rarityValue
 			log.info(s"[Read_One_Bug_By_Random] Selecting BUG by random")
-			sender() ! BugOperations.readOneByRarityAndMonth(rarityValue, months)
+			log.info(s"[Read_One_Bug_By_Random] Rarity value is $rare")
+
+			sender() ! BugOperations.readOneByRarityAndMonth(rare, months)
 
 		case Read_One_Bug_By_Id(bId : String) =>
 			log.info(s"[Read_One_Bug_By_Id] Selecting BUG with id : $bId")

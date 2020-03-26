@@ -1,4 +1,5 @@
 package Dao
+import Helper.Auxiliary.log
 import Model.Major.Fish_.Fish
 import akka.stream.alpakka.mongodb.scaladsl.{MongoSink, MongoSource}
 import akka.stream.scaladsl.{Sink, Source}
@@ -30,8 +31,8 @@ object UserOperations extends MongoDBOperations {
 		val source = Source(List(user))
 		val taskFuture = source.runWith(MongoSink.insertOne(allUsers))
 		taskFuture.onComplete{
-			case Success(_) => println(s"[UserOperations][updateUser][Success] Added USER ${user.username}")
-			case Failure (ex) => println(s"[UserOperations][updateUser][Failure] Failed to create USER: $ex")
+			case Success(_) => log.info("UserOperations","createOneUser","Success",s"Added USER ${user.username}")
+			case Failure (ex) => log.warn("UserOperations","createOneUser","Failure",s"Failed to create USER: $ex")
 		}
 	}
 
@@ -57,12 +58,12 @@ object UserOperations extends MongoDBOperations {
 		taskFuture.onComplete{
 			case Success(_) =>
 				if(readOneUser(data.username).nonEmpty)
-					println(s"[UserOperations][updateUser][True Success] Updated ${data.username}'s pocket successfully")
+					log.info("UserOperations","updateUser","True Success",s"Updated ${data.username}'s pocket successfully")
 				else {
-					println(s"[UserOperations][updateUser][Partial Success] Failed to properly update, user ${data.username}'s does not exist. Creating new user")
+					log.warn("UserOperations","updateUser","Partial Failure",s"Failed to properly update, user ${data.username}'s does not exist. Creating new user")
 				}
 			case Failure (ex) =>
-				println(s"[UserOperations][updateUser][Failure] Failed update: $ex")
+				log.warn("UserOperations","updateUser","Failure",s"Failed update: $ex")
 		}
 	}
 

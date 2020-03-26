@@ -1,6 +1,7 @@
 package Dao
 
 import Data.FishData.Fishes
+import Helper.Auxiliary.log
 import Model.Major.Fish_.Fish
 import akka.stream.alpakka.mongodb.scaladsl.{MongoSink, MongoSource}
 import akka.stream.scaladsl.{Sink, Source}
@@ -26,8 +27,8 @@ object FishOperations extends MongoDBOperations {
 		val source = Source(Fishes)
 		val taskFuture = source.grouped(2).runWith(MongoSink.insertMany[Fish](allFishes))
 		taskFuture.onComplete{
-			case Success(_) => println(s"[FishOperations][createAll][Success] Successfully created ${Fishes.length} FISH")
-			case Failure (ex) => println(s"Failed create: $ex")
+			case Success(_) => log.info("FishOperations","createAll","Success",s"Created ${Fishes.length} FISH")
+			case Failure (ex) => log.warn("FishOperations","createAll","Failure",s"Failed create: $ex")
 		}
 	}
 

@@ -1,6 +1,7 @@
 package Dao
 
 import Data.BugData.Bugs
+import Helper.Auxiliary.log
 import Model.Major.Bug_.Bug
 import akka.stream.alpakka.mongodb.scaladsl.{MongoSink, MongoSource}
 import akka.stream.scaladsl.{Sink, Source}
@@ -28,8 +29,8 @@ object BugOperations extends MongoDBOperations{
 		val source = Source(Bugs)
 		val taskFuture = source.grouped(2).runWith(MongoSink.insertMany(allBugs))
 		taskFuture.onComplete{
-			case Success(_) => println(s"[BugOperations][createAll][Success] Created ${Bugs.length} BUG")
-			case Failure (ex) => println(s"Failed create: $ex")
+			case Success(_) => log.info("BugOperations","createAll","Success",s"Created ${Bugs.length} BUG")
+			case Failure (ex) => log.warn("BugOperations","createAll","Failure",s"Failed create: $ex")
 		}
 	}
 
