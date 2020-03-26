@@ -4,25 +4,18 @@ const options = require('../Configurations/options')
 
 
 //GET
-// exports.getAllBugs = async () => {
-//     try{
-//         let res = await axios.get(`${root}/allBugs`);
-//         let data = res.data
-//         console.log(data);
-//     }catch (error){
-//         console.log(error)
-//     }
-// }
-
-// exports.getAllFishes = async () => {
-//     try{
-//         let res = await axios.get(`${root}/allFishes`);
-//         let data = res.data
-//         console.log(data);
-//     }catch (error){
-//         console.log(error)
-//     }
-// }
+exports.getPocketFromUser = async(akkaPayload, twitchPayload, botResponse) => {
+    try{
+        let respFromAkka = await axios.get(`${root}/user/${akkaPayload.username}`)
+        let data = respFromAkka.data
+        let creaturesList = (data.pocket.bug).concat(data.pocket.fish)
+        let respToTwitch = twitchPayload(creaturesList)
+        botResponse(respToTwitch.streamerChannel, respToTwitch.message)
+    }catch(error){
+        console.log(error)
+    }
+    
+}
 
 // POST
 exports.postListBugByMonths = async(akkaPayload, twitchPayload, botResponse) => {
@@ -30,7 +23,7 @@ exports.postListBugByMonths = async(akkaPayload, twitchPayload, botResponse) => 
         let respFromAkka = await axios.post(`${root}/ListBugByMonths`, akkaPayload)
         let data = respFromAkka.data
         let respToTwitch = twitchPayload(data)
-        botResponse(respToTwitch.viewer, respToTwitch.message)
+        botResponse(respToTwitch.streamerChannel, respToTwitch.message)
     }catch(error){
         console.log(error)
     }

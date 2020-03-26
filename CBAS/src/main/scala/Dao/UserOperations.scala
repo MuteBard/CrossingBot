@@ -45,7 +45,7 @@ object UserOperations extends MongoDBOperations {
 	def updateUser(data : User) : Unit = {
 
 		val pocketKey = getPocketKey(data)
-		
+
 		val source = MongoSource(allUsers.find(classOf[User]))
 			.map(user => {
 				val updatedPocket = if (pocketKey == "bug") newPocket("bug", user.pocket, data.pocket) else newPocket("fish", user.pocket, data.pocket)
