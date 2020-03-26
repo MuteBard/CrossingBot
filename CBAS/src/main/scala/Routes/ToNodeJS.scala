@@ -47,7 +47,7 @@ object ToNodeJS extends
 						val AllBugsFuture = (bugActor ? BugActor.Read_Bug_All).mapTo[List[Bug]]
 						complete(AllBugsFuture)
 					} ~
-					path("ListAllfFish"){
+					path("ListAllFish"){
 						val AllFishesFuture = (fishActor ? FishActor.Read_Fish_All).mapTo[List[Fish]]
 						complete(AllFishesFuture)
 					} ~
@@ -75,37 +75,37 @@ object ToNodeJS extends
 				} ~
 				post{
 
-					path("retrieveOneBugByMonths"){
+					path("retrieveOneBugByMonth"){
 						entity(as[Months]) { months =>
 							val oneBugFuture = (bugActor ? BugActor.Read_One_Bug_By_Random(months.availability)).mapTo[Bug]
 							complete(oneBugFuture)
 						}
 					} ~
-					path("retrieveOneFishByMonths") {
+					path("retrieveOneFishByMonth") {
 						entity(as[Months]) { months =>
 							val oneFishFuture = (fishActor ? FishActor.Read_One_Fish_By_Random(months.availability)).mapTo[Fish]
 							complete(oneFishFuture)
 						}
 					} ~
-					path("ListBugByMonths"){
+					path("ListBugByMonth"){
 						entity(as[Months]) { months =>
 							val monthBugsFuture = (bugActor ? BugActor.Read_All_Bug_By_Month(months.availability)).mapTo[List[Bug]]
 							complete(monthBugsFuture)
 						}
 					} ~
-					path("ListFishByMonths"){
+					path("ListFishByMonth"){
 						entity(as[Months]) { months =>
 							val monthFishesFuture = (fishActor ? FishActor.Read_All_Fish_By_Month(months.availability)).mapTo[List[Fish]]
 							complete(monthFishesFuture)
 						}
 					} ~
-					path("ListRarestBugByMonths"){
+					path("ListRarestBugByMonth"){
 						entity(as[Months]) { months =>
 							val rarestBugFuture = (bugActor ? BugActor.Read_All_Rarest_Bug_By_Month(months.availability)).mapTo[List[Bug]]
 							complete(rarestBugFuture)
 						}
 					} ~
-					path("ListRarestFishByMonths") {
+					path("ListRarestFishByMonth") {
 						entity(as[Months]) { months =>
 							val rarestFishFuture = (fishActor ? FishActor.Read_All_Rarest_Fish_By_Month(months.availability)).mapTo[List[Fish]]
 							complete(rarestFishFuture)

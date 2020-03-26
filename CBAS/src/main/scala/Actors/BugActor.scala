@@ -40,9 +40,6 @@ class BugActor extends Actor with ActorLogging{
 				log.info(s"[Read_One_User] BUG with id $bId does not exist")
 				sender() ! Bug()
 			}
-
-			sender() ! BugOperations.readOneById(bId)
-
 		case Read_All_Bug_By_Month(months : List[String]) =>
 			log.info(s"[Read_All_Bug_By_Month] Selecting BUG based on month(s) provided")
 			sender() ! BugOperations.readAllByMonth(months)
