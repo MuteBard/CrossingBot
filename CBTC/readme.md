@@ -1,1 +1,1 @@
-# Express Server with Twitch API
+# Node.js connecting Akka with Twitch API
