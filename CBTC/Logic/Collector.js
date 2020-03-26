@@ -116,49 +116,105 @@ let appraisal = (rarity) => {
 let helpRequest = (info) => {
     let message = 
             `!bug to catch a bug !listBug to list bugs available this month !listRareBug to list rare bugs available this month `+
-            `!fish to catch a fish !listFish to list fishes available this month !listRareFish to list rare fishes available this month `
+            `!fish to catch a fish !listFish to list fishes available this month !listRareFish to list rare fishes available this month `+
+            `!listPocket displays all bugs and fish in your pocket, !bells displays how much money you have`
     botResponse(info.streamerChannel, message)
 }
 
 let bugCatchRequest = (info) => {
     let akkaPayload = {"availability" : month } 
-    function twitchPayload (data) { return {"streamerChannel" : info.streamerChannel, "viewer":info.viewer, "message" : `${info.viewer} caught a ${data.name}, worth ${data.bells} bells! ${appraisal(data.rarity)} ${addFlower()}` }}
+    function twitchPayload (data) { 
+        return {
+            "streamerChannel" : info.streamerChannel, 
+            "viewer":info.viewer, 
+            "message" : `${info.viewer} caught a ${data.name}, worth ${data.bells} bells! ${appraisal(data.rarity)} ${addFlower()}` 
+        }
+    }
     toAkka.postSingleBugByMonths(akkaPayload,twitchPayload,botResponse)    
 } 
 
 let fishCatchRequest = (info) => {
     let akkaPayload = {"availability" : month } 
-    function twitchPayload (data) { return {"streamerChannel" : info.streamerChannel, "viewer":info.viewer, "message" : `${info.viewer} caught a ${data.name}, worth ${data.bells} bells! ${appraisal(data.rarity)} ${addFlower()}` }}
+    function twitchPayload (data) { 
+        return {
+            "streamerChannel" : info.streamerChannel, 
+            "viewer": info.viewer, 
+            "message" : `${info.viewer} caught a ${data.name}, worth ${data.bells} bells! ${appraisal(data.rarity)} ${addFlower()}` }}
     toAkka.postSingleFishByMonths(akkaPayload,twitchPayload,botResponse)    
 } 
 
 let pocketListRequest = (info) => {
     let akkaPayload = {"username" : info.viewer } 
-    function twitchPayload (data) { return {"streamerChannel" : info.streamerChannel, "viewer":info.viewer, "message" : (data.length == 0) ? `${info.viewer}, there are no bugs nor fishes in your pocket` : `${info.viewer} Here are all the bugs and fishes in your pocket! : ${data.map(creature => " "+creature.name)}  ${addFlower()}` }}
+    function twitchPayload (data) { 
+        let message = ""
+        if (data != null){
+            let creaturesList = (data.pocket.bug).concat(data.pocket.fish)
+            message = (data.length == 0) ? `${info.viewer}, there are no bugs nor fishes in your pocket` : `${info.viewer} Here are all the bugs and fishes in your pocket! : ${creaturesList.map(creature => " "+creature.name)}  ${addFlower()}` 
+        }else
+            message = `${info.viewer}, try !bug or !fish first. ${addFlower()}`
+        return {
+            "streamerChannel" : info.streamerChannel, 
+            "viewer": info.viewer, 
+            "message" : message
+        }
+    }
+    toAkka.getPocketFromUser(akkaPayload, twitchPayload, botResponse)
+}
+
+let bellsRequest = (info) => {
+    let akkaPayload = {"username" : info.viewer } 
+    function twitchPayload (data) { 
+        let message = ""
+        if (data != null){
+            message = `${info.viewer}, you have ${data.bells} bells! ${addFlower()}` 
+        }else
+            message = `${info.viewer}, try !bug or !fish first. ${addFlower()}`
+        return {
+            "streamerChannel" : info.streamerChannel,
+            "viewer": info.viewer,
+            "message" :  message
+        }
+    }
     toAkka.getPocketFromUser(akkaPayload, twitchPayload, botResponse)
 }
 
 let bugListRequest = (info) => {
     let akkaPayload = {"availability" : month } 
-    function twitchPayload (data) { return {"streamerChannel" : info.streamerChannel, "viewer":info.viewer, "message" : `${info.viewer}, here are bugs for ${userFriendlyMonth(month)} : ${data.map(bug => " "+bug.name )} ${addFlower()}`}}
+    function twitchPayload (data) { 
+        return {
+            "streamerChannel" : info.streamerChannel, 
+            "viewer": info.viewer, 
+            "message" : `${info.viewer}, here are bugs for ${userFriendlyMonth(month)} : ${data.map(bug => " "+bug.name )} ${addFlower()}`}}
     toAkka.postListBugByMonths(akkaPayload,twitchPayload,botResponse)    
 }
 
 let fishListRequest = (info) => {
     let akkaPayload = {"availability" : month } 
-    function twitchPayload (data) { return {"streamerChannel" : info.streamerChannel, "viewer":info.viewer, "message" : `${info.viewer}, here are fishes for ${userFriendlyMonth(month)} : ${data.map(fish => " "+fish.name )} ${addFlower()}`}}
+    function twitchPayload (data) { 
+        return {
+            "streamerChannel" : info.streamerChannel, 
+            "viewer": info.viewer, 
+            "message" : `${info.viewer}, here are fishes for ${userFriendlyMonth(month)} : ${data.map(fish => " "+fish.name )} ${addFlower()}`}}
     toAkka.postListFishByMonths(akkaPayload,twitchPayload,botResponse)    
 }
 
 let rarestBugRequest = (info) => {
     let akkaPayload = {"availability" : month } 
-    function twitchPayload (data) { return {"streamerChannel" : info.streamerChannel, "viewer":info.viewer, "message" : (Object.keys(data).length === 0) ? `${info.viewer}, there are no super rare bugs in ${userFriendlyMonth(month)} ${addFlower()}` :`${info.viewer}, here are some super rare bugs for ${userFriendlyMonth(month)} : ${data.map(bug => " "+bug.name )} ${addFlower()}`}}
+    function twitchPayload (data) { 
+        return {
+            "streamerChannel" : info.streamerChannel, 
+            "viewer": info.viewer, 
+            "message" : (Object.keys(data).length === 0) ? `${info.viewer}, there are no super rare bugs in ${userFriendlyMonth(month)} ${addFlower()}` :`${info.viewer}, here are some super rare bugs for ${userFriendlyMonth(month)} : ${data.map(bug => " "+bug.name )} ${addFlower()}`}}
     toAkka.postRarestListBugByMonths(akkaPayload,twitchPayload,botResponse)    
 }
 
 let rarestFishRequest = (info) => {
     let akkaPayload = {"availability" : month } 
-    function twitchPayload (data) { return {"streamerChannel" : info.streamerChannel, "viewer":info.viewer, "message" : (Object.keys(data).length === 0) ? `${info.viewer}, there are no super rare fishes in ${userFriendlyMonth(month)} ${addFlower()}` :`${info.viewer}, here are some super rare fishes for ${userFriendlyMonth(month)} : ${data.map(fish => " "+fish.name )} ${addFlower()}`}}
+    function twitchPayload (data) { 
+        return {
+            "streamerChannel" : info.streamerChannel, 
+            "viewer": info.viewer, 
+            "message" : (Object.keys(data).length === 0) ? `${info.viewer}, there are no super rare fishes in ${userFriendlyMonth(month)} ${addFlower()}` :`${info.viewer}, here are some super rare fishes for ${userFriendlyMonth(month)} : ${data.map(fish => " "+fish.name )} ${addFlower()}`}}
     toAkka.postRarestListFishByMonths(akkaPayload,twitchPayload,botResponse)    
 }
 
@@ -176,6 +232,7 @@ publicConnection.on('chat', (channel, userstate, message, self) => {
     else if(command == "!bug") bugCatchRequest(info)
     else if(command == "!fish") fishCatchRequest(info)
     else if(command == "!listpocket") pocketListRequest(info)
+    else if(command == "!bells") bellsRequest(info)
 
     // else if(message == "!bug $" ) bugSellRequest(info)
     // else if(message == "!fish $") fishSellRequest(info)

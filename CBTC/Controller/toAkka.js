@@ -8,11 +8,11 @@ exports.getPocketFromUser = async(akkaPayload, twitchPayload, botResponse) => {
     try{
         let respFromAkka = await axios.get(`${root}/user/${akkaPayload.username}`)
         let data = respFromAkka.data
-        let creaturesList = (data.pocket.bug).concat(data.pocket.fish)
-        let respToTwitch = twitchPayload(creaturesList)
+        let respToTwitch = twitchPayload(data)
         botResponse(respToTwitch.streamerChannel, respToTwitch.message)
     }catch(error){
-        console.log(error)
+        let respToTwitch = twitchPayload(null)
+        botResponse(respToTwitch.streamerChannel, respToTwitch.message)
     }
     
 }
