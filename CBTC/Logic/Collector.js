@@ -2,6 +2,8 @@ const tmi = require('tmi.js');
 const CronJob = require('cron').CronJob
 const toCBAS = require('../Controller/toCBAS')
 const options = require('../Configurations/options')
+const BUG = "bug"  
+const FISH  = "fish"  
 
 var publicConnection = new tmi.client(options.settingsA);
 // var privateConnection = new tmi.client(options.settingsA);
@@ -98,7 +100,6 @@ let addFlower = () => {
     toggle = !toggle
     if(toggle) return "❀" 
     else return "✿"
-
 } 
 
 let botResponse = (twitchPayload) =>{
@@ -112,14 +113,19 @@ let appraisal = (rarity) => {
     else return ""
 }
 
+let properlyCaseCreatureName = (command) => {
+    let commandAsListOfWords = command.trim().split(" ").map(word => word.substring(0,1).toUpperCase() + word.substring(1).toLowerCase()+" ")
+    let creatureNameProperlyCased = commandAsListOfWords.filter((word, idx) => idx > 1)
+    return creatureNameProperlyCased.join("").trim()
+}
 
 let helpRequest = (info) => {
-    let message = `${info.viewer} Check out -- for instructions! ${addFlower()}`
+    let message = `${info.viewer} Check out https://github.com/MuteBard/CrossingBot/tree/master/CBTC for instructions! ${addFlower()}`
     let twitchPayload = {"streamerChannel": info.streamerChannel , "message" : message}
     botResponse(twitchPayload)
 }
 
-let creatureCatchRequest = (info) => {
+let catchRequest = (info) => {
     info["availability"] = month
     function twitchPayload (data) { 
         let message = ""
@@ -133,23 +139,38 @@ let creatureCatchRequest = (info) => {
             "message" : message
         }
     }
-    toCBAS.postCreatureCatchRequest(info,twitchPayload,botResponse)    
+    toCBAS.postCatchRequest(info,twitchPayload,botResponse)    
 } 
 
-// let creatureSellRequest = (info) => {
-//     function twitchPayload(data) {
-//         let message = ""
-//         if (data != null){
-//             message = `${info.viewer} has successfully sold ${info.species} for ${data.bells} ${addFlower()}` 
-//         }else
-//             message = `${info.viewer}, that ${info.species} doesn't not exist in your pocket ${addFlower()}`
-//         return {
-//             "streamerChannel" : info.streamerChannel, 
-//             "message" : message
-//         }
-//     }
-//     toCBAS.postSellCreature(info, twitchPayload, botResponse)
-// }
+let sellOneRequest = (info) => {
+    function twitchPayload(data) {
+        let message = ""
+        if (data != null && data != 0){
+            message = `${info.viewer} has successfully sold ${info.creature} for ${data} bells! ${addFlower()}` 
+        }else
+            message = `${info.viewer}, that ${info.species} doesn't not exist in your pocket ${addFlower()}`
+        return {
+            "streamerChannel" : info.streamerChannel, 
+            "message" : message
+        }
+    }
+    toCBAS.postSellOne(info, twitchPayload, botResponse)
+}
+
+let sellAllRequest = (info) => {
+    function twitchPayload(data) {
+        let message = ""
+        if (data != null && data != 0){
+            message = `${info.viewer} has successfully sold everything for ${data} bells! ${addFlower()}` 
+        }else
+            message = `${info.viewer}, there is nothing in your pocket! ${addFlower()}`
+        return {
+            "streamerChannel" : info.streamerChannel, 
+            "message" : message
+        }
+    }
+    toCBAS.postSellAll(info, twitchPayload, botResponse)
+}
 
 let bellsRequest = (info) => {
     let akkaPayload = {"username" : info.viewer } 
@@ -164,7 +185,7 @@ let bellsRequest = (info) => {
             "message" :  message
         }
     }
-    toCBAS.getDataFromUser(akkaPayload, twitchPayload, botResponse)
+    toCBAS.getUser(akkaPayload, twitchPayload, botResponse)
 }
 
 let pocketListRequest = (info) => {
@@ -173,7 +194,7 @@ let pocketListRequest = (info) => {
         let message = ""
         if (data != null){
             let creaturesList = (data.pocket.bug).concat(data.pocket.fish)
-            message = (data.length == 0) ? `${info.viewer}, there are no bugs nor fishes in your pocket` : `${info.viewer} Here are all the bugs and fishes in your pocket! : ${creaturesList.map(creature => " "+creature.name)}  ${addFlower()}` 
+            message = (creaturesList.length == 0 ) ? `${info.viewer}, there are no bugs or fishes in your pocket` : `${info.viewer} Here are all the bugs and fishes in your pocket! : ${creaturesList.map(creature => " "+creature.name)}  ${addFlower()}` 
         }else
             message = `${info.viewer}, try !bug or !fish first. ${addFlower()}`
         return {
@@ -185,12 +206,12 @@ let pocketListRequest = (info) => {
     toCBAS.getUser(akkaPayload, twitchPayload, botResponse)
 }
 
-let creatureListRequest = (info) => {
+let listRequest = (info) => {
     info["availability"] = month
     function twitchPayload (data) { 
         let message = ""
         if (data != null){
-            message = `${info.viewer}, here are ${info.species == "Bug" ? "bugs" : "fishes"} for ${userFriendlyMonth(month)} : ${data.map(creature => " "+creature.name )} ${addFlower()}`
+            message = `${info.viewer}, here are ${info.species == BUG ? "bugs" : "fishes"} for ${userFriendlyMonth(month)} : ${data.map(creature => " "+creature.name )} ${addFlower()}`
         }else
             message = `Hey ${info.streamerChannel.split("#")[1]}, something went wrong with CrossingBot. Please contact MuteBard`
         return {
@@ -199,16 +220,16 @@ let creatureListRequest = (info) => {
             "message" : message
         }
     }
-    toCBAS.postListCreaturesByMonth(info,twitchPayload,botResponse)    
+    toCBAS.postListByMonth(info,twitchPayload,botResponse)    
 }
 
 
-let rarestCreaturesListRequest = (info) => {
+let rarestListRequest = (info) => {
     info["availability"] = month
     function twitchPayload (data) { 
         let message = ""
         if (data != null){
-            message = (Object.keys(data).length === 0) ? `${info.viewer}, there are no super rare ${info.species == "Bug" ? "bugs" : "fishes"} in ${userFriendlyMonth(month)} ${addFlower()}` :`${info.viewer}, here are some super rare fishes for ${userFriendlyMonth(month)} : ${data.map(fish => " "+fish.name )} ${addFlower()}`
+            message = (Object.keys(data).length === 0) ? `${info.viewer}, there are no super rare ${info.species == BUG ? "bugs" : "fishes"} in ${userFriendlyMonth(month)} ${addFlower()}` :`${info.viewer}, here are some super rare fishes for ${userFriendlyMonth(month)} : ${data.map(fish => " "+fish.name )} ${addFlower()}`
         }else
             message = `Hey ${info.streamerChannel.split("#")[1]}, something went wrong with CrossingBot. Please contact MuteBard`
         return {
@@ -216,7 +237,7 @@ let rarestCreaturesListRequest = (info) => {
             "message" : message
         }
     }
-    toCBAS.postRareCreaturesListByMonth(info,twitchPayload,botResponse)    
+    toCBAS.postRareListByMonth(info,twitchPayload,botResponse)    
 }
 
 
@@ -231,45 +252,48 @@ publicConnection.on('chat', (channel, userstate, message, self) => {
     if(command == "!help") helpRequest(info)
 
     else if(command == "!bug"){
-        info["species"] = "Bug"
-        creatureCatchRequest(info)
+        info["species"] = BUG
+        catchRequest(info)
     } 
     else if(command == "!fish"){
-        info["species"] = "Fish"
-        creatureCatchRequest(info)
+        info["species"] = FISH
+        catchRequest(info)
     } 
     else if(command == "!listpocket") pocketListRequest(info)
     else if(command == "!bells") bellsRequest(info)
 
-    // else if(command.includes("!sell bug")) {
-    //     info["bug"] = command.split("!sell bug")[1].trim()
-    //     info["species"] = "Bug"  
-    //     creatureSellRequest(info)
-    // }
+    else if(command.includes("!sell bug") || command.includes("!sell fish")) {
+        let name = properlyCaseCreatureName(command)
+        console.log(name)
+        info["creature"] = name
+        info["species"] = BUG  
+       sellOneRequest(info)
+    }
 
-    // else if(command.includes("!sell fish")) {
-    //     info["fish"] = command.split("sell fish")[1].trim()
-    //     info["species"] = "Fish"  
-    //     creatureSellRequest(info)
-    // }
-    // else if(message == "!all $")  creaturesSellRequest(info)
+    else if(command.includes("!sell fish")) {
+        let name = properlyCaseCreatureName(command)
+        info["creature"] = name
+        info["species"] = FISH
+        sellOneRequest(info)
+    }
+    else if(message == "!sell all")  
+        sellAllRequest(info)
 
     else if(command == "!listbug"){
-        info["species"] = "Bug"
-        creatureListRequest(info)
+        info["species"] = BUG
+        listRequest(info)
     } 
     else if(command == "!listfish"){
-        info["species"] = "Fish"
-        creatureListRequest(info)
+        info["species"] = FISH
+        listRequest(info)
     } 
     else if(command == "!listrarebug") {
-        info["species"] = "Bug"
-        rarestCreaturesListRequest(info)
+        info["species"] = BUG
+        rarestListRequest(info)
     }
     else if(command == "!listrarefish"){
-        
-        info["species"] = "Fish"
-        rarestCreaturesListRequest(info)
+        info["species"] = FISH
+        rarestListRequest(info)
     } 
   
 }); 

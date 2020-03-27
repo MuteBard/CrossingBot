@@ -2,7 +2,7 @@ package Dao
 import Helper.Auxiliary.log
 import Model.Major.Fish_.Fish
 import akka.stream.alpakka.mongodb.scaladsl.{MongoSink, MongoSource}
-import akka.stream.scaladsl.{Sink, Source}
+import akka.stream.scaladsl.{Flow, Sink, Source}
 import org.bson.codecs.configuration.CodecRegistries.{fromProviders, fromRegistries}
 import org.mongodb.scala.MongoClient.DEFAULT_CODEC_REGISTRY
 import org.mongodb.scala.bson.codecs.Macros._
@@ -12,6 +12,7 @@ import Logic.Main.system
 import Model.Major.Bug_.Bug
 import Model.Major.User_.User
 import Model.Major.Pocket_.Pocket
+import Model.Minor.Selling_.Selling
 import akka.stream.alpakka.mongodb.DocumentUpdate
 import org.mongodb.scala.model.{Filters, Updates}
 import system.dispatcher
@@ -44,17 +45,13 @@ object UserOperations extends MongoDBOperations {
 	}
 
 	def updateUser(data : User) : Unit = {
-
 		val pocketKey = getPocketKey(data)
-
 		val source = MongoSource(allUsers.find(classOf[User]))
 			.map(user => {
 				val updatedPocket = if (pocketKey == "bug") newPocket("bug", user.pocket, data.pocket) else newPocket("fish", user.pocket, data.pocket)
-
 				DocumentUpdate(filter = Filters.eq("username", data.username), update = Updates.set("pocket", updatedPocket))
 			})
 		val taskFuture = source.runWith(MongoSink.updateOne(allUsers))
-
 		taskFuture.onComplete{
 			case Success(_) =>
 				if(readOneUser(data.username).nonEmpty)
@@ -65,6 +62,56 @@ object UserOperations extends MongoDBOperations {
 			case Failure (ex) =>
 				log.warn("UserOperations","updateUser","Failure",s"Failed update: $ex")
 		}
+	}
+
+	def deleteOneForUser(data : Selling, creatureBells : Int): Unit = {
+		if (creatureBells != 0) {
+			val userList: List[User] = readOneUser(data.username).toList
+			val user: User = userList.head
+			val source = Source(userList).map(_ => Filters.eq("username", data.username))
+			val taskFuture = source.runWith(MongoSink.deleteOne(allUsers))
+			taskFuture.onComplete {
+				case Success(_) =>
+					val	bug = user.pocket.bug.filter(creature => creature.name != data.creature)
+					val	fish = user.pocket.fish.filter(creature => creature.name != data.creature)
+					val updatedPocket = Pocket(bug, fish)
+					val updatedBells = user.bells + creatureBells
+					val newUser = User(user._id, user.username, user.fishingPoleLvl, user.bugNetLvl, updatedBells, updatedPocket, user.turnips, user.img)
+					createOneUser(newUser)
+				case Failure(ex) =>
+					log.warn("UserOperations", "deleteOneForUser", "Failure", s"Failed to delete one USER: $ex")
+			}
+		}else{
+			log.warn("UserOperations", "deleteOneForUser", "Failure", s"Failed to delete one USER: Creature did not exist")
+		}
+	}
+
+	def deleteAllForUser(data : Selling): Int = {
+		val userList: List[User] = readOneUser(data.username).toList
+		val user: User = userList.head
+		val bugBells = Await.result(Source(user.pocket.bug).via(Flow[Bug].fold[Int](0)(_ + _.bells)).runWith(Sink.head), 1 second)
+		val fishBells = Await.result(Source(user.pocket.fish).via(Flow[Fish].fold[Int](0)(_ + _.bells)).runWith(Sink.head), 1 second)
+		val creatureBells = bugBells + fishBells
+		if (creatureBells != 0) {
+			val source = Source(userList).map(_ => Filters.eq("username", data.username))
+			val taskFuture = source.runWith(MongoSink.deleteMany(allUsers))
+			taskFuture.onComplete {
+				case Success(_) =>
+					log.info("UserOperations", "deleteAllForUser", "Success", s"Deleted USER ${data.username}")
+					val bug : List[Bug] = List()
+					val fish : List[Fish] = List()
+					val updatedPocket = Pocket(bug, fish)
+					val updatedBells = user.bells + creatureBells
+					val newUser = User(user._id, user.username, user.fishingPoleLvl, user.bugNetLvl, updatedBells, updatedPocket, user.turnips, user.img)
+					createOneUser(newUser)
+				case Failure(ex) =>
+					log.warn("UserOperations", "deleteAllForUser", "Failure", s"Failed to delete one USER: $ex")
+			}
+		}else{
+			log.warn("UserOperations", "deleteAllForUser", "Failure", s"Failed to delete one USER: Nothing in pocket")
+
+		}
+		creatureBells
 	}
 
 	def newPocket(creature : String, databasePocket: Pocket , queryPocket: Pocket): Pocket = {

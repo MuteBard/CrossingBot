@@ -45,6 +45,13 @@ object FishOperations extends MongoDBOperations {
 		val fishSeq : Seq[Fish] = Await.result(fishSeqFuture, 1 seconds)
 		fishSeq
 	}
+
+	def readOneByName(query : String) : Seq[Fish] = {
+		val source = MongoSource(allFishes.find(classOf[Fish])).filter(fishes => fishes.name == query)
+		val fishSeqFuture = source.runWith(Sink.seq)
+		val fishSeq : Seq[Fish] = Await.result(fishSeqFuture, 1 seconds)
+		fishSeq
+	}
 //	def readOneByRarity(query : Int) : Fish = {
 //		val source = MongoSource(allFishes.find(classOf[Fish])).filter(fishes => fishes.rarity == query)
 //		val fishSeqFuture = source.runWith(Sink.seq)

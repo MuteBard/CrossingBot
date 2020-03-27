@@ -11,30 +11,28 @@ object Auxiliary {
 		val hour = if (dt.get(Calendar.HOUR) < 10) "0"+dt.get(Calendar.HOUR) else dt.get(Calendar.HOUR)
 		val minute = if (dt.get(Calendar.MINUTE) < 10) "0"+dt.get(Calendar.MINUTE) else dt.get(Calendar.MINUTE)
 		val second = if (dt.get(Calendar.SECOND) < 10) "0"+dt.get(Calendar.SECOND) else dt.get(Calendar.SECOND)
-		val millisecond = dt.get(Calendar.MILLISECOND)
+		val millisecond = if (dt.get(Calendar.MILLISECOND) < 10) "00"+dt.get(Calendar.MILLISECOND) else if (dt.get(Calendar.MILLISECOND) < 100) "0"+dt.get(Calendar.MILLISECOND) else dt.get(Calendar.MILLISECOND)
 		s"$month/$day/$year $hour:$minute:$second:$millisecond"
 	}
 
 	object log {
 		def info(className : String, message : String): Unit = {
-			println(s"[INFO] [${date()}] [$className] $message")
+			println(s"[INFO] [${date()}] [#####################################] [$className] $message")
 		}
 		def info(className : String, method: String, message : String): Unit = {
-			println(s"[INFO] [${date()}] [$className] [$method] $message")
+			println(s"[INFO] [${date()}] [#####################################] [$className] [$method] $message")
 		}
 		def info(className : String, method: String, status: String, message : String): Unit = {
-			println(s"[INFO] [${date()}] [$className] [$method] [$status] $message")
+			println(s"[INFO] [${date()}] [#####################################] [$className] [$method] [$status] $message")
 		}
-
-
 		def warn(className : String, message : String) : Unit = {
-			println(s"[WARN] [${date()}] [$className] $message")
+			println(s"[WARN] [${date()}] [#####################################] [$className] $message")
 		}
 		def warn(className : String, method: String, message : String): Unit = {
-			println(s"[INFO] [${date()}] [$className] [$method] $message")
+			println(s"[WARN] [${date()}] [#####################################] [$className] [$method] $message")
 		}
 		def warn(className : String, method: String, status: String, message : String): Unit = {
-			println(s"[INFO] [${date()}] [$className] [$method] [$status] $message")
+			println(s"[WARN] [${date()}] [#####################################] [$className] [$method] [$status] $message")
 		}
 	}
 

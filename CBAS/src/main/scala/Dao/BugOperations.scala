@@ -48,6 +48,13 @@ object BugOperations extends MongoDBOperations{
 		bugSeq
 	}
 
+	def readOneByName(query : String) : Seq[Bug] = {
+		val source = MongoSource(allBugs.find(classOf[Bug])).filter(bugs => bugs.name == query)
+		val bugSeqFuture = source.runWith(Sink.seq)
+		val bugSeq : Seq[Bug] = Await.result(bugSeqFuture, 1 seconds)
+		bugSeq
+	}
+
 //	def readOneByRarity(query : Int) : Bug = {
 //		val source = MongoSource(allBugs.find(classOf[Bug])).filter(bugs => bugs.rarity == query)
 //		val bugSeqFuture = source.runWith(Sink.seq)
