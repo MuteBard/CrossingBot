@@ -22,6 +22,14 @@
 
 - **!listPocket** displays all bugs and fish in your pocket
 
+## How to sell bugs and/or fishes that you own
+
+- **!sell bug <Name of Bug here>** removes a bug from your pocket and you get its value in bells stored to your own bells
+
+- **!sell fish <Name of Fish here>** removes a fish from your pocket and you get its value in bells stored to your own bells
+
+- **!sell all** removes everything from your pocket and you get the total value in bells added to your own bells
+
 ### How to display how much money you have
 
 - **!bells** displays current bells owned`

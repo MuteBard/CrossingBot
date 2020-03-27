@@ -113,21 +113,21 @@ let postUpdateUserPocket = async (userPayload) => {
 let postCreateUserData = async (userPayload) => {
 
     try{
-        // let respFromTwitch = await axios({
-        //     method: 'GET',
-        //     url: `https://api.twitch.tv/helix/users?login=${username}`,
-        //     headers: options.settingsB.headers
-        // })
+        let respFromTwitch = await axios({
+            method: 'GET',
+            url: `https://api.twitch.tv/helix/users?login=${username}`,
+            headers: options.settingsB.headers
+        })
 
         let newUserPayload = {
-            "_id" :  77777,//Number(respFromTwitch.data.data[0].id),
+            "_id" :  Number(respFromTwitch.data.data[0].id),
             "username" : userPayload.username,
             "fishingPoleLvl" : 1,
             "bugNetLvl" : 1,
             "bells" : 0,
             "pocket" : userPayload.pocket,
             "turnips" : 0,
-            "img" : "png"//respFromTwitch.data.data[0].profile_image_url
+            "img" : respFromTwitch.data.data[0].profile_image_url
         }
         
         await axios.post(`${root}/addUser`, newUserPayload)
