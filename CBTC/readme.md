@@ -32,4 +32,4 @@
 
 ### How to display how much money you have
 
-- **!bells** displays current bells owned`
+- **!bells** displays current bells owned
