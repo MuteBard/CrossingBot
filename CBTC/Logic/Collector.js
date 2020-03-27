@@ -262,7 +262,7 @@ publicConnection.on('chat', (channel, userstate, message, self) => {
     else if(command == "!listpocket") pocketListRequest(info)
     else if(command == "!bells") bellsRequest(info)
 
-    else if(command.includes("!sell bug") || command.includes("!sell fish")) {
+    else if(command.includes("!sell bug")) {
         let name = properlyCaseCreatureName(command)
         console.log(name)
         info["creature"] = name
