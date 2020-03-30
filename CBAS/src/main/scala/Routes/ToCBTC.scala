@@ -1,10 +1,11 @@
 package Routes
-import Actors.{BugActor, FishActor, StartActor, UserActor}
+import Actors.{BugActor, FishActor, MarketActor, StartActor, UserActor}
 import Logic.Main._
 import Model.Major.Pocket_._
 import Model.Minor.Months_._
 import Model.Major.Bug_._
 import Model.Major.Fish_._
+import Model.Major.MovementRecord_.{MovementRecord, MovementRecordJsonProtocol}
 import Model.Major.User_._
 import Model.Minor.Selling_._
 import akka.http.scaladsl.Http
@@ -25,6 +26,7 @@ object ToCBTC extends
 	MonthsJsonProtocol with
 	PocketJsonProtocol with
 	SellingJsonProtocol with
+	MovementRecordJsonProtocol with
 	SprayJsonSupport {
 
 	import system.dispatcher
@@ -41,6 +43,14 @@ object ToCBTC extends
 						startupActor ! StartActor.Create_Creatures_All
 						complete(StatusCodes.OK)
 					} ~
+					path("startMarket"){
+						startupActor ! StartActor.StartMarketTimers
+						complete(StatusCodes.OK)
+					} ~
+					path("stopMarket"){
+						startupActor ! StartActor.StopMarketTimers
+						complete(StatusCodes.OK)
+					}
 					path("list" / Segment) {
 						creatureType => {
 							if (creatureType == BUG || creatureType == FISH) {
@@ -79,6 +89,18 @@ object ToCBTC extends
 							if (oneUser.username != "NULL/USER") complete(oneUser)
 							else complete(StatusCodes.NotFound, s"User $username does not exist")
 						}
+					} ~
+					path("turnips"){
+						val turnipPrice = Await.result((marketActor ? MarketActor.RequestTurnipPrice).mapTo[Int], 3 seconds)
+						complete(StatusCodes.OK, ""+turnipPrice)
+					} ~
+					path("latestMarketDay"){
+						val MovementRecord = Await.result((marketActor ? MarketActor.Read_Latest_Movement_Record_Day).mapTo[MovementRecord], 3 seconds)
+						complete(MovementRecord)
+					} ~
+					path("latestMarketMonth"){
+						val MovementRecordList = Await.result((marketActor ? MarketActor.Read_Selected_Movement_Records_Month).mapTo[List[MovementRecord]], 3 seconds)
+						complete(MovementRecordList)
 					}
 				} ~
 				post{

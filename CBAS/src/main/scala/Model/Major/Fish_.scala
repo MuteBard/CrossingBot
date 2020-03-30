@@ -10,9 +10,7 @@ object Fish_ {
 		availability : List[String] = List(),
 		rarity : Int = 0,
 		img : String = ""
-    ){
-		def getId : String = fishId
-	}
+    )
 
 	trait FishJsonProtocol extends DefaultJsonProtocol{
 		implicit val FishJson = jsonFormat7(Fish)

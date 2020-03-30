@@ -119,20 +119,12 @@ let postCreateUserData = async (userPayload) => {
             headers: options.settingsB.headers
         })
 
-        let newUserPayload = {
-            "_id" :  Number(respFromTwitch.data.data[0].id),
-            "username" : userPayload.username,
-            "fishingPoleLvl" : 1,
-            "bugNetLvl" : 1,
-            "bells" : 0,
-            "pocket" : userPayload.pocket,
-            "turnips" : 0,
-            "img" : respFromTwitch.data.data[0].profile_image_url
-        }
+        userPayload["_id"] = Number(respFromTwitch.data.data[0].id)
+        userPayload["img"] = respFromTwitch.data.data[0].profile_image_url
         
         await axios.post(`${root}/addUser`, newUserPayload)
     }catch(error){
-        errorLog(error, newUserPayload)
+        errorLog(error, userPayload)
     }
 }
 
@@ -149,5 +141,3 @@ let errorLog = (error, payload) => {
     console.log("\nSomething might be wrong payloads :", payload)
     
 }
-
-

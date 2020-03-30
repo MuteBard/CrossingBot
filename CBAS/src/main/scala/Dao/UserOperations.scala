@@ -48,7 +48,7 @@ object UserOperations extends MongoDBOperations {
 		val pocketKey = getPocketKey(data)
 		val source = MongoSource(allUsers.find(classOf[User]))
 			.map(user => {
-				val updatedPocket = if (pocketKey == "bug") newPocket("bug", user.pocket, data.pocket) else newPocket("fish", user.pocket, data.pocket)
+				val updatedPocket = newPocket(pocketKey, user.pocket, data.pocket)
 				DocumentUpdate(filter = Filters.eq("username", data.username), update = Updates.set("pocket", updatedPocket))
 			})
 		val taskFuture = source.runWith(MongoSink.updateOne(allUsers))
@@ -114,8 +114,8 @@ object UserOperations extends MongoDBOperations {
 		creatureBells
 	}
 
-	def newPocket(creature : String, databasePocket: Pocket , queryPocket: Pocket): Pocket = {
-		if(creature == "bug"){
+	def newPocket(species : String, databasePocket: Pocket , queryPocket: Pocket): Pocket = {
+		if(species == "bug"){
 			val newBugList = databasePocket.bug :+ queryPocket.bug.head
 			Pocket(newBugList,databasePocket.fish)
 		} else {

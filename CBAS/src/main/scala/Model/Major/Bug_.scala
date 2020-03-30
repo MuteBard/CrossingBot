@@ -10,9 +10,7 @@ object Bug_ {
 		availability : List[String] = List(),
 		rarity : Int = 0,
 		img : String = ""
-	){
-		def getId : String = bugId
-	}
+	)
 
 	trait BugJsonProtocol extends DefaultJsonProtocol{
 		implicit val BugJson = jsonFormat7(Bug)

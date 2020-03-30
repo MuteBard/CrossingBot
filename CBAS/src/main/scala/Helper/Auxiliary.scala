@@ -3,9 +3,9 @@ package Helper
 import java.util.Calendar
 object Auxiliary {
 
-	def date() = {
+	def date(): String = {
 		val dt = Calendar.getInstance()
-		val month = if (dt.get(Calendar.MONTH) < 10) "0"+(dt.get(Calendar.MONTH)+1) else dt.get(Calendar.HOUR)+1
+		val month = if (dt.get(Calendar.MONTH) < 10) "0"+(dt.get(Calendar.MONTH)+1) else dt.get(Calendar.MONTH)+1
 		val day = dt.get(Calendar.DAY_OF_MONTH)
 		val year = dt.get(Calendar.YEAR)
 		val hour = if (dt.get(Calendar.HOUR) < 10) "0"+dt.get(Calendar.HOUR) else dt.get(Calendar.HOUR)
@@ -13,6 +13,26 @@ object Auxiliary {
 		val second = if (dt.get(Calendar.SECOND) < 10) "0"+dt.get(Calendar.SECOND) else dt.get(Calendar.SECOND)
 		val millisecond = if (dt.get(Calendar.MILLISECOND) < 10) "00"+dt.get(Calendar.MILLISECOND) else if (dt.get(Calendar.MILLISECOND) < 100) "0"+dt.get(Calendar.MILLISECOND) else dt.get(Calendar.MILLISECOND)
 		s"$month/$day/$year $hour:$minute:$second:$millisecond"
+	}
+
+	def dateId(): String = {
+		val dt = Calendar.getInstance()
+		val month = if (dt.get(Calendar.MONTH) < 10) "0"+(dt.get(Calendar.MONTH)+1) else dt.get(Calendar.MONTH)+1
+		val day = dt.get(Calendar.DAY_OF_MONTH)
+		val year = dt.get(Calendar.YEAR)
+		s"$year$month$day"
+	}
+
+	def month(): String = {
+		val dt = Calendar.getInstance()
+		val month = dt.get(Calendar.MONTH)+1
+		s"$month"
+	}
+
+	def day(): String = {
+		val dt = Calendar.getInstance()
+		val day = dt.get(Calendar.DAY_OF_MONTH)
+		s"$day"
 	}
 
 	object log {
