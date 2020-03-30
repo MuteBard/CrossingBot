@@ -132,7 +132,8 @@ let catchRequest = (info) => {
         if (data != null){
             message = `${info.viewer} caught a ${data.name}, worth ${data.bells} bells! ${appraisal(data.rarity)} ${addFlower()}`
         }else
-            message = `Hey ${info.streamerChannel.split("#")[1]}, something went wrong with CrossingBot. Please contact MuteBard`
+            message = `Hey ${info.streamerChannel.split("#")[1]}, something went wrong with CrossingBot. Please contact MuteBard ${addFlower()}`
+        
         return {
             "streamerChannel" : info.streamerChannel, 
             "viewer" : info.viewer,
@@ -149,6 +150,7 @@ let sellOneRequest = (info) => {
             message = `${info.viewer} has successfully sold ${info.creature} for ${data} bells! ${addFlower()}` 
         }else
             message = `${info.viewer}, that ${info.species} doesn't not exist in your pocket ${addFlower()}`
+        
         return {
             "streamerChannel" : info.streamerChannel, 
             "message" : message
@@ -164,6 +166,7 @@ let sellAllRequest = (info) => {
             message = `${info.viewer} has successfully sold everything for ${data} bells! ${addFlower()}` 
         }else
             message = `${info.viewer}, there is nothing in your pocket! ${addFlower()}`
+        
         return {
             "streamerChannel" : info.streamerChannel, 
             "message" : message
@@ -180,6 +183,7 @@ let bellsRequest = (info) => {
             message = `${info.viewer}, you have ${data.bells} bells! ${addFlower()}` 
         }else
             message = `${info.viewer}, try !bug or !fish first. ${addFlower()}`
+        
         return {
             "streamerChannel" : info.streamerChannel,
             "message" :  message
@@ -197,6 +201,7 @@ let pocketListRequest = (info) => {
             message = (creaturesList.length == 0 ) ? `${info.viewer}, there are no bugs or fishes in your pocket` : `${info.viewer} Here are all the bugs and fishes in your pocket! : ${creaturesList.map(creature => " "+creature.name)}  ${addFlower()}` 
         }else
             message = `${info.viewer}, try !bug or !fish first. ${addFlower()}`
+        
         return {
             "streamerChannel" : info.streamerChannel, 
             "viewer": info.viewer, 
@@ -213,7 +218,8 @@ let listRequest = (info) => {
         if (data != null){
             message = `${info.viewer}, here are ${info.species == BUG ? "bugs" : "fishes"} for ${userFriendlyMonth(month)} : ${data.map(creature => " "+creature.name )} ${addFlower()}`
         }else
-            message = `Hey ${info.streamerChannel.split("#")[1]}, something went wrong with CrossingBot. Please contact MuteBard`
+            message = `Hey ${info.streamerChannel.split("#")[1]}, something went wrong with CrossingBot. Please contact MuteBard ${addFlower()}`
+        
         return {
             "streamerChannel" : info.streamerChannel, 
             "viewer": info.viewer, 
@@ -231,7 +237,8 @@ let rarestListRequest = (info) => {
         if (data != null){
             message = (Object.keys(data).length === 0) ? `${info.viewer}, there are no super rare ${info.species == BUG ? "bugs" : "fishes"} in ${userFriendlyMonth(month)} ${addFlower()}` :`${info.viewer}, here are some super rare fishes for ${userFriendlyMonth(month)} : ${data.map(fish => " "+fish.name )} ${addFlower()}`
         }else
-            message = `Hey ${info.streamerChannel.split("#")[1]}, something went wrong with CrossingBot. Please contact MuteBard`
+            message = `Hey ${info.streamerChannel.split("#")[1]}, something went wrong with CrossingBot. Please contact MuteBard ${addFlower()}`
+        
         return {
             "streamerChannel" : info.streamerChannel, 
             "message" : message
@@ -240,6 +247,22 @@ let rarestListRequest = (info) => {
     toCBAS.postRareListByMonth(info,twitchPayload,botResponse)    
 }
 
+let retrieveTurnipsPrice = (info) => {
+    function twitchPayload(data){
+        let message = ""
+        if(data != null){
+            message = `${info.viewer}, the turnips are now at ${data} bells ${addFlower()}`
+        }else
+            message = `Hey ${info.streamerChannel.split("#")[1]}, something went wrong with CrossingBot. Please contact MuteBard ${addFlower()}`
+        
+        return {
+                "streamerChannel" : info.streamerChannel, 
+                "message" : message
+        }
+    }
+    toCBAS.getTurnips(info,twitchPayload,botResponse)    
+
+}
 
 publicConnection.connect().then(() => console.log("CBTC is ready to facilitate communication between CBAS and Twitch"))
 publicConnection.on('chat', (channel, userstate, message, self) => {
@@ -295,5 +318,8 @@ publicConnection.on('chat', (channel, userstate, message, self) => {
         info["species"] = FISH
         rarestListRequest(info)
     } 
+    else if(command == "!turnips"){
+        retrieveTurnipsPrice(info)
+    }
   
 }); 

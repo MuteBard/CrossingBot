@@ -36,7 +36,7 @@ class MarketActor extends Actor with ActorLogging {
 		//AUTOMATED
 		case Create_New_Movement_Record  =>
 			val dt = Calendar.getInstance()
-			val newHourBlockId = dt.get(Calendar.HOUR)
+			val newHourBlockId = dt.get(Calendar.HOUR_OF_DAY)
 			val newQuarterBlockId = dt.get(Calendar.MINUTE) / 15
 			val prevMR = MarketOperations.readLatestMovementRecord()
 //			log.info(s"[Create_New_Movement_Record] Checking for difference in block ids")
@@ -53,8 +53,8 @@ class MarketActor extends Actor with ActorLogging {
 
 					val newTurnipPrice = prevMR.latestTurnipPrice + todayMarket.getQuarterBlock(newHourBlockId, newQuarterBlockId).change
 					val _id = dateId()
-					val high = Math.max(newTurnipPrice, prevMR.latestTurnipPrice)
-					val low = Math.min(newTurnipPrice, prevMR.latestTurnipPrice)
+					val high = Math.max(newTurnipPrice, prevMR.todayHigh)
+					val low = Math.min(newTurnipPrice, prevMR.todayLow)
 					val latestHourBlock = todayMarket.getHourBlock(newHourBlockId)
 					val latestHourBlockName = todayMarket.getHourBlock(newHourBlockId).name
 					val latestQuarterBlock = todayMarket.getQuarterBlock(newHourBlockId, newQuarterBlockId)

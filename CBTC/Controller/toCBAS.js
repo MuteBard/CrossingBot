@@ -6,14 +6,23 @@ const FISH  = "fish"
 
 //GET 
 //${root}/user/Mutebard`
-exports.getUser = async(akkaPayload, twitchPayload, botResponse) => {
+exports.getUser = async(info, twitchPayload, botResponse) => {
     try{
-        let CBAS_response = await axios.get(`${root}/user/${akkaPayload.username}`)
-        let data = CBAS_response.data
+        let CBAS_response = await axios.get(`${root}/user/${info.username}`)
         botResponse(twitchPayload(CBAS_response.data))
     }catch(error){
         botResponse(twitchPayload(null))
         errorLog(error, info)
+    }
+}
+
+exports.getTurnips = async(info, twitchPayload, botResponse) => {
+    try{
+        let CBAS_response = await axios.get(`${root}/turnips`)
+        botResponse(twitchPayload(CBAS_response.data))
+    }catch(error){
+        botResponse(twitchPayload(null))
+        errorLog(error, info)    
     }
 }
 
@@ -139,5 +148,5 @@ let errorLog = (error, payload) => {
     console.log("\nRestart CBAS And CBTC for applying recent path changes")
     console.log("\nSomething might be wrong with request :", response)
     console.log("\nSomething might be wrong payloads :", payload)
-    
+    console.log(error)
 }

@@ -8,7 +8,7 @@ object Auxiliary {
 		val month = if (dt.get(Calendar.MONTH) < 10) "0"+(dt.get(Calendar.MONTH)+1) else dt.get(Calendar.MONTH)+1
 		val day = dt.get(Calendar.DAY_OF_MONTH)
 		val year = dt.get(Calendar.YEAR)
-		val hour = if (dt.get(Calendar.HOUR) < 10) "0"+dt.get(Calendar.HOUR) else dt.get(Calendar.HOUR)
+		val hour = if (dt.get(Calendar.HOUR_OF_DAY) < 10) "0"+dt.get(Calendar.HOUR_OF_DAY) else dt.get(Calendar.HOUR_OF_DAY)
 		val minute = if (dt.get(Calendar.MINUTE) < 10) "0"+dt.get(Calendar.MINUTE) else dt.get(Calendar.MINUTE)
 		val second = if (dt.get(Calendar.SECOND) < 10) "0"+dt.get(Calendar.SECOND) else dt.get(Calendar.SECOND)
 		val millisecond = if (dt.get(Calendar.MILLISECOND) < 10) "00"+dt.get(Calendar.MILLISECOND) else if (dt.get(Calendar.MILLISECOND) < 100) "0"+dt.get(Calendar.MILLISECOND) else dt.get(Calendar.MILLISECOND)
