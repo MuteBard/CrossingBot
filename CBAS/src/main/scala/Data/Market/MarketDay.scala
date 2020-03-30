@@ -1,15 +1,13 @@
 package Data.Market
+import Data.Market.MarketHourBlock.{HourBlock, HourBlockJsonProtocol}
 import Data.Market.MarketQuarterBlock.{QuarterBlock, QuarterBlockJsonProtocol}
 import Helper.Auxiliary.date
+
 import scala.util.Random
 
 object MarketDay {
-	import Data.Market.MarketHourBlock.{HourBlock, HourJsonProtocolQuarter}
-	import spray.json.DefaultJsonProtocol
 
-	trait DayJsonProtocolQuarter extends DefaultJsonProtocol with HourJsonProtocolQuarter with QuarterBlockJsonProtocol{
-		implicit val DayJson = jsonFormat4(Day)
-	}
+	import spray.json.DefaultJsonProtocol
 
 	case class Day(hourBlocks : List[HourBlock] = null, quarterBlockChanges: List[Int] = null, net : Int = 0, timestamp : String = ""){
 		def generate() : Day = {
@@ -65,10 +63,12 @@ object MarketDay {
 
 		def getQuarterBlockHistory(indexH : Int, indexQ : Int) : List[QuarterBlock] = {
 			val trueIndexH = indexH + 1
-			println(trueIndexH)
 			val trueIndexQ = (indexH * 4 + indexQ) + 1
-			println(trueIndexQ)
 			getHourBlockHistory(trueIndexH).flatMap(hour => hour.quarterBlocks).slice(0, trueIndexQ)
 		}
+	}
+
+	trait DayJsonProtocolQuarter extends DefaultJsonProtocol with HourBlockJsonProtocol with QuarterBlockJsonProtocol{
+		implicit val DayJson = jsonFormat4(Day)
 	}
 }

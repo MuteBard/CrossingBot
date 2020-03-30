@@ -1,7 +1,7 @@
 package Actors
 
 import Dao.{UserOperations}
-import Logic.Main._
+import App.Main._
 import Model.Major.Bug_.Bug
 import Model.Major.Fish_.Fish
 import Model.Major.User_._

@@ -10,7 +10,7 @@ import org.mongodb.scala.MongoClient.DEFAULT_CODEC_REGISTRY
 import org.mongodb.scala.bson.codecs.Macros._
 
 import scala.util.{Failure, Random, Success}
-import Logic.Main.system
+import App.Main.system
 //import akka.stream.alpakka.mongodb.DocumentUpdate
 //import org.mongodb.scala.model.{Filters, Updates}
 import system.dispatcher

@@ -9,8 +9,7 @@ import akka.stream.scaladsl.{Sink, Source}
 import org.bson.codecs.configuration.CodecRegistries.{fromProviders, fromRegistries}
 import org.mongodb.scala.MongoClient.DEFAULT_CODEC_REGISTRY
 import org.mongodb.scala.bson.codecs.Macros._
-import Logic.Main.system
-import Model.Major.Date_.Date
+import App.Main.system
 import akka.stream.alpakka.mongodb.DocumentUpdate
 import org.mongodb.scala.model.{Filters, Updates}
 import system.dispatcher
@@ -24,7 +23,7 @@ object  MarketOperations extends MongoDBOperations {
 	val codecRegistryStalks = fromRegistries(fromProviders(classOf[MovementRecord],classOf[HourBlock], classOf[QuarterBlock]), DEFAULT_CODEC_REGISTRY)
 
 	private val allMR = db
-		.getCollection("stalks", classOf[MovementRecord])
+		.getCollection("MovementRecord", classOf[MovementRecord])
 		.withCodecRegistry(codecRegistryStalks)
 
 	def createMovementRecord(mr : MovementRecord): Unit = {
@@ -37,27 +36,28 @@ object  MarketOperations extends MongoDBOperations {
 		}
 	}
 
-	def updateMovementRecord(mr : MovementRecord) : Unit = {
+	def updateMovementRecordField[A](mr : MovementRecord, key :String, value : A) : Unit = {
 		val source = MongoSource(allMR.find(classOf[MovementRecord]))
-    		.map(_ => {
-			    DocumentUpdate(filter = Filters.eq("_id", mr._id), update = Updates.set("hourBlockId", mr.hourBlockId))
-			    DocumentUpdate(filter = Filters.eq("_id", mr._id), update = Updates.set("quarterBlockId", mr.quarterBlockId))
-			    DocumentUpdate(filter = Filters.eq("_id", mr._id), update = Updates.set("date", mr.date))
-			    DocumentUpdate(filter = Filters.eq("_id", mr._id), update = Updates.set("todayHigh", mr.todayHigh))
-			    DocumentUpdate(filter = Filters.eq("_id", mr._id), update = Updates.set("todayLow", mr.todayLow))
-			    DocumentUpdate(filter = Filters.eq("_id", mr._id), update = Updates.set("latestHourBlock", mr.latestHourBlock))
-			    DocumentUpdate(filter = Filters.eq("_id", mr._id), update = Updates.set("hourBlockHistory", mr.hourBlockHistory))
-			    DocumentUpdate(filter = Filters.eq("_id", mr._id), update = Updates.set("latestQuarterBlock", mr.latestQuarterBlock))
-			    DocumentUpdate(filter = Filters.eq("_id", mr._id), update = Updates.set("quarterBlockHistory", mr.quarterBlockHistory))
-			    DocumentUpdate(filter = Filters.eq("_id", mr._id), update = Updates.set("turnipPrice", mr.turnipPrice))
-		    })
+    		.map(_ => DocumentUpdate(filter = Filters.eq("_id", mr._id), update = Updates.set(key, value)))
 		val taskFuture = source.runWith(MongoSink.updateOne(allMR))
 		taskFuture.onComplete{
 			case Success(_) =>
-				log.info("MarketOperations","updateMovementRecord","Success",s"Updated 1 MovementRecord")
+				log.info("MarketOperations","updateMovementRecord","Success",s"Updated MovementRecord ${mr._id}'s $key")
 			case Failure (ex) =>
-				log.warn("MarketOperations","updateMovementRecord","Failure",s"Failed update MovementRecord ${mr._id}: $ex")
+				log.warn("MarketOperations","updateMovementRecord","Failure",s"Failed to update MovementRecord ${mr._id}'s $key: $ex")
 		}
+	}
+
+	def massUpdateMovementRecord(mr : MovementRecord) : Unit = {
+		updateMovementRecordField(mr, "hourBlockId", mr.hourBlockId)
+		updateMovementRecordField(mr, "quarterBlockId", mr.quarterBlockId)
+		updateMovementRecordField(mr, "todayHigh", mr.todayHigh)
+		updateMovementRecordField(mr, "todayLow", mr.todayLow)
+		updateMovementRecordField(mr, "latestHourBlock", mr.latestHourBlock)
+		updateMovementRecordField(mr, "hourBlockHistory", mr.hourBlockHistory)
+		updateMovementRecordField(mr, "latestQuarterBlock", mr.latestQuarterBlock)
+		updateMovementRecordField(mr, "quarterBlockHistory", mr.quarterBlockHistory)
+		updateMovementRecordField(mr, "turnipPrice", mr.turnipPrice)
 	}
 
 	def readEarliestMovementRecord(): MovementRecord = readMovementRecord().head
@@ -78,7 +78,7 @@ object  MarketOperations extends MongoDBOperations {
 		daySeq.toList
 	}
 
-	def deleteOldestMovementRecords(month : String) :  Unit = {
+	def deleteOldestMovementRecords(month : Int) :  Unit = {
 		val mrList  = readMovementRecord().toList
 		val source = Source(mrList).map(_ => Filters.eq("month", month))
 		val taskFuture = source.runWith(MongoSink.deleteMany(allMR))

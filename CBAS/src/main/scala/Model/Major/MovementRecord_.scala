@@ -1,7 +1,5 @@
 package Model.Major
-
-import Model.Major.Date_.{Date, DateJsonProtocol}
-import Data.Market.MarketHourBlock.{HourBlock, HourJsonProtocolQuarter}
+import Data.Market.MarketHourBlock.{HourBlock, HourBlockJsonProtocol}
 import Data.Market.MarketQuarterBlock.{QuarterBlock, QuarterBlockJsonProtocol}
 
 object MovementRecord_ {
@@ -18,11 +16,11 @@ object MovementRecord_ {
 		                         quarterBlockHistory : List[QuarterBlock],
 		                         month : Int,
 		                         day : Int,
-		                         turnipPrice : Int,
+		                         turnipPrice : Int
 
 	)
 
-	trait MovementRecordJsonProtocol extends DefaultJsonProtocol with HourJsonProtocolQuarter with QuarterBlockJsonProtocol with DateJsonProtocol{
+	trait MovementRecordJsonProtocol extends DefaultJsonProtocol with HourBlockJsonProtocol with QuarterBlockJsonProtocol{
 		implicit val StalkJson = jsonFormat12(MovementRecord)
 	}
 }

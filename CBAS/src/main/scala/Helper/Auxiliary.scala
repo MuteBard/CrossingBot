@@ -23,16 +23,16 @@ object Auxiliary {
 		s"$year$month$day"
 	}
 
-	def month(): String = {
+	def month(): Int = {
 		val dt = Calendar.getInstance()
 		val month = dt.get(Calendar.MONTH)+1
-		s"$month"
+		month
 	}
 
-	def day(): String = {
+	def day(): Int= {
 		val dt = Calendar.getInstance()
 		val day = dt.get(Calendar.DAY_OF_MONTH)
-		s"$day"
+		day
 	}
 
 	object log {

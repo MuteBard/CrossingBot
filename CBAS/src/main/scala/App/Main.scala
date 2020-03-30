@@ -1,4 +1,4 @@
-package Logic
+package App
 
 import java.util.Calendar
 
@@ -17,8 +17,8 @@ object Main extends App{
 	log.info("Main", "CBAS booting up...")
 	ToCBTC
 	log.info("Main", "CBAS listening at localhost:4774/api/")
-	StalkMarket
-	log.info("Main", "CBAS stalk market cron jobs running")
+
+
 
 
 

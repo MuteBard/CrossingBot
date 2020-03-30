@@ -1,12 +1,11 @@
 package Actors
 
-import Logic.Main._
+import App.Main._
 import Actors.MarketActor._
 import Dao.{BugOperations, FishOperations}
 import system.dispatcher
 
 import scala.concurrent.duration._
-import Logic.StalkMarket
 import akka.actor.{Actor, ActorLogging, Cancellable}
 
 object StartActor {
@@ -29,10 +28,12 @@ class StartActor extends Actor with ActorLogging{
 			sender() ! "Completed"
 
 		case StartMarketTimers =>
+			log.info("[StartMarketTimers] Starting Scheduler Jobs")
 			createMovementRecords = system.scheduler.scheduleWithFixedDelay(Duration.Zero, 1 minute, marketActor, Create_New_Movement_Record)
-			deleteOldMovementRecords = system.scheduler.scheduleWithFixedDelay(Duration.Zero, 10 days, marketActor, Delete_Earliest_Movement_Records)
+			deleteOldMovementRecords = system.scheduler.scheduleWithFixedDelay(60 days, 10 days, marketActor, Delete_Earliest_Movement_Records)
 
 		case StopMarketTimers =>
+			log.info("[StartMarketTimers] Starting Scheduler Jobs")
 			createMovementRecords.cancel()
 			deleteOldMovementRecords.cancel()
 

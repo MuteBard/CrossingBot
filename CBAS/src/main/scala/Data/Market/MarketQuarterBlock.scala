@@ -5,9 +5,6 @@ import scala.util.Random
 object MarketQuarterBlock {
 	import spray.json.DefaultJsonProtocol
 
-	trait QuarterBlockJsonProtocol extends DefaultJsonProtocol{
-		implicit val QuarterBlockJson = jsonFormat7(QuarterBlock)
-	}
 	case class QuarterBlock(name : String, hourBlockId: Int, quarterblockId: Int, max : Int, min : Int, sign: String, change : Int = 0){
 		def create(hbId : Int, qbId: Int) : QuarterBlock = {
 			val random = new Random
@@ -25,5 +22,9 @@ object MarketQuarterBlock {
 				}
 			}
 		}
+	}
+
+	trait QuarterBlockJsonProtocol extends DefaultJsonProtocol{
+		implicit val QuarterBlockJson = jsonFormat7(QuarterBlock)
 	}
 }

@@ -1,6 +1,6 @@
 package Routes
 import Actors.{BugActor, FishActor, MarketActor, StartActor, UserActor}
-import Logic.Main._
+import App.Main._
 import Model.Major.Pocket_._
 import Model.Minor.Months_._
 import Model.Major.Bug_._
@@ -50,7 +50,7 @@ object ToCBTC extends
 					path("stopMarket"){
 						startupActor ! StartActor.StopMarketTimers
 						complete(StatusCodes.OK)
-					}
+					} ~
 					path("list" / Segment) {
 						creatureType => {
 							if (creatureType == BUG || creatureType == FISH) {

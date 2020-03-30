@@ -26,7 +26,8 @@ class MarketActor extends Actor with ActorLogging {
 	var currentQuarterBlockId: Int = -1
 	var turnipPrice = 10000
 	var isTodayMarketNotUpdated = true
-	val isDayNotInitialized : Boolean = currentHourBlockId == -1 && currentQuarterBlockId == -1
+	var areMovementRecordsEmpty = true
+	var isDayNotInitialized : Boolean = currentHourBlockId == -1 && currentQuarterBlockId == -1
 	val isNewDay :  Boolean  = currentHourBlockId == 0 && currentQuarterBlockId == 0
 
 	override def receive: Receive = {
@@ -34,7 +35,11 @@ class MarketActor extends Actor with ActorLogging {
 		case Start_Todays_Market =>
 			log.info(s"[Start_Todays_Market] Generating all block patterns for the day")
 			todayMarket = Day().generate()
+			log.info(s"[Start_Todays_Market] Today's Market: $todayMarket")
 			isTodayMarketNotUpdated = false
+			isDayNotInitialized = false
+			currentHourBlockId = 0
+			currentQuarterBlockId = 0
 			self ! Create_New_Movement_Record
 
 		//AUTOMATED
@@ -43,12 +48,12 @@ class MarketActor extends Actor with ActorLogging {
 			val newHourBlockId = dt.get(Calendar.HOUR)
 			val newQuarterBlockId = dt.get(Calendar.MINUTE) / 15
 			log.info(s"[Create_New_Movement_Record] Checking for difference in block ids")
-			if(currentQuarterBlockId != newQuarterBlockId) {
+			if(currentQuarterBlockId != newQuarterBlockId || areMovementRecordsEmpty) {
 				if(isDayNotInitialized){
-					log.info(s"[Start_Todays_Market] Initialize Stalk Market")
+					log.info(s"[Start_Todays_Market] Initializing Stalk Market")
 					self ! Start_Todays_Market
 				}
-				if(isNewDay && isTodayMarketNotUpdated){
+				else if(isNewDay && isTodayMarketNotUpdated){
 					log.info(s"[Create_New_Movement_Record] A new day has been detected")
 					self ! Start_Todays_Market
 				}else{
@@ -58,20 +63,20 @@ class MarketActor extends Actor with ActorLogging {
 					val low = todayMarket.getMin2DBy(newHourBlockId, newQuarterBlockId)
 					val patternHour = todayMarket.getHourBlock(newHourBlockId)
 					val patternHourHistory = todayMarket.getHourBlockHistory(newHourBlockId)
-					val patternBlock = todayMarket.getQuarterBlock(newHourBlockId, newQuarterBlockId)
-					val patternBlockHistory = todayMarket.getQuarterBlockHistory(newHourBlockId, newQuarterBlockId)
-					val month = month()
-					val day = day()
+					val patternQuarter = todayMarket.getQuarterBlock(newHourBlockId, newQuarterBlockId)
+					val patternQuarterHistory = todayMarket.getQuarterBlockHistory(newHourBlockId, newQuarterBlockId)
+					val monthForMR = month()
+					val dayForMR  = day()
 					turnipPrice = turnipPrice + todayMarket.getQuarterBlock(newHourBlockId, newQuarterBlockId).change
 
-					val mr = MovementRecord(_id, newHourBlockId, newQuarterBlockId, high, low, patternHour, patternHourHistory, patternBlock, patternBlockHistory, month, day, turnipPrice)
+					val mr = MovementRecord(_id, newHourBlockId, newQuarterBlockId, high, low, patternHour, patternHourHistory, patternQuarter, patternQuarterHistory, monthForMR, dayForMR, turnipPrice)
 					log.info(s"[Create_New_Movement_Record] Creating new Movement Record")
-					if(isNewDay){
+					if(isNewDay || areMovementRecordsEmpty){
 						MarketOperations.createMovementRecord(mr)
 					}else{
-						MarketOperations.updateMovementRecord(mr)
+						MarketOperations.massUpdateMovementRecord(mr)
 					}
-
+					areMovementRecordsEmpty = false
 				}
 
 				currentHourBlockId = newHourBlockId
@@ -83,7 +88,7 @@ class MarketActor extends Actor with ActorLogging {
 			log.info(s"[Delete_Earliest_Movement_Records] Getting earliest Movement Record")
 			val dt = Calendar.getInstance()
 			val currentMonth  = dt.get(Calendar.MONTH)+1
-			val oldMonth = MarketOperations.readEarliestMovementRecord().date.month
+			val oldMonth = MarketOperations.readEarliestMovementRecord().month
 			if (currentMonth - oldMonth > 2){
 				log.info(s"[Delete_Earliest_Movement_Records] Deleting old Movement Records")
 				MarketOperations.deleteOldestMovementRecords(oldMonth)

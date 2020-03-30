@@ -8,20 +8,7 @@ object MarketHourBlock {
 	import Data.Market.MarketQuarterBlock.{QuarterBlock, QuarterBlockJsonProtocol}
 	import spray.json.DefaultJsonProtocol
 
-	trait HourJsonProtocolQuarter extends DefaultJsonProtocol with QuarterBlockJsonProtocol{
-		implicit val HourJson = jsonFormat2(HourBlock)
-	}
 	case class HourBlock(quarterBlocks : List[QuarterBlock] = null, name : String = ""){
-		val block : Map[String, QuarterBlock] = Map(
-			"a" -> QuarterBlock("heavenly", 0, 0, 100, 50, "+"),
-			"b" -> QuarterBlock("awesome", 0, 0, 35, 15, "+"),
-			"c" -> QuarterBlock("good", 0, 0,15, 5, "+"),
-			"d" -> QuarterBlock("neutral",0, 0, 5, 0, "#"),
-			"e" -> QuarterBlock("bad", 0, 0, 15, 5, "-"),
-			"f" -> QuarterBlock("awful",0, 0, 35, 15, "-"),
-			"g" -> QuarterBlock("hellish", 0, 0, 100, 50, "-")
-		)
-
 
 		def mechanism(p1 : QuarterBlock, p2 : QuarterBlock, p3 : QuarterBlock, name: String, hourBlockId : Int ) : HourBlock = {
 			val random = new Random
@@ -77,5 +64,20 @@ object MarketHourBlock {
 				}
 			}).toList, "risky")
 		}
+	}
+
+
+	val block : Map[String, QuarterBlock] = Map(
+		"a" -> QuarterBlock("heavenly", 0, 0, 100, 50, "+"),
+		"b" -> QuarterBlock("awesome", 0, 0, 35, 15, "+"),
+		"c" -> QuarterBlock("good", 0, 0,15, 5, "+"),
+		"d" -> QuarterBlock("neutral",0, 0, 5, 0, "#"),
+		"e" -> QuarterBlock("bad", 0, 0, 15, 5, "-"),
+		"f" -> QuarterBlock("awful",0, 0, 35, 15, "-"),
+		"g" -> QuarterBlock("hellish", 0, 0, 100, 50, "-")
+	)
+
+	trait HourBlockJsonProtocol extends DefaultJsonProtocol with QuarterBlockJsonProtocol{
+		implicit val HourBlockJson = jsonFormat2(HourBlock)
 	}
 }
