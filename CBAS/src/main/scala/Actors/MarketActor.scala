@@ -24,12 +24,6 @@ class MarketActor extends Actor with ActorLogging {
 	var todayMarket = Day()
 	var currentHourBlockId: Int = -1
 	var currentQuarterBlockId: Int = -1
-	var currentTurnipPrice = 1000
-	val turnipPriceList = List(currentTurnipPrice)
-	var isTodayMarketNotUpdated = true
-	var areMovementRecordsEmpty = true
-	var isDayNotInitialized : Boolean = currentHourBlockId == -1 && currentQuarterBlockId == -1
-	val isNewDay :  Boolean  = currentHourBlockId == 0 && currentQuarterBlockId == 0
 
 	override def receive: Receive = {
 		//AUTOMATED
@@ -37,10 +31,6 @@ class MarketActor extends Actor with ActorLogging {
 			log.info(s"[Start_Todays_Market] Generating all block patterns for the day")
 			todayMarket = Day().generate()
 			log.info(s"[Start_Todays_Market] Today's Market: $todayMarket")
-			isTodayMarketNotUpdated = false
-			isDayNotInitialized = false
-			currentHourBlockId = 0
-			currentQuarterBlockId = 0
 			self ! Create_New_Movement_Record
 
 		//AUTOMATED
@@ -48,73 +38,48 @@ class MarketActor extends Actor with ActorLogging {
 			val dt = Calendar.getInstance()
 			val newHourBlockId = dt.get(Calendar.HOUR)
 			val newQuarterBlockId = dt.get(Calendar.MINUTE) / 15
-			log.info(s"[Create_New_Movement_Record] Checking for difference in block ids")
-			if(currentQuarterBlockId != newQuarterBlockId || areMovementRecordsEmpty) {
-				if(isDayNotInitialized){
+			val prevMR = MarketOperations.readLatestMovementRecord()
+//			log.info(s"[Create_New_Movement_Record] Checking for difference in block ids")
+			if(currentQuarterBlockId != newQuarterBlockId || prevMR._id == "") {
+				if(currentHourBlockId == -1 && currentQuarterBlockId == -1){
 					log.info(s"[Start_Todays_Market] Initializing Stalk Market")
 					self ! Start_Todays_Market
 				}
-				else if(isNewDay && isTodayMarketNotUpdated){
+				else if(currentHourBlockId == 0 && currentQuarterBlockId == 0){
 					log.info(s"[Create_New_Movement_Record] A new day has been detected")
 					self ! Start_Todays_Market
 				}else{
 					log.info(s"[Create_New_Movement_Record] Change in block ids found")
-					val newTurnipPrice = currentTurnipPrice + todayMarket.getQuarterBlock(newHourBlockId, newQuarterBlockId).change
+
+					val newTurnipPrice = prevMR.latestTurnipPrice + todayMarket.getQuarterBlock(newHourBlockId, newQuarterBlockId).change
 					val _id = dateId()
-					val high = Math.max(newTurnipPrice, currentTurnipPrice)
-					val low = Math.min(newTurnipPrice, currentTurnipPrice)
+					val high = Math.max(newTurnipPrice, prevMR.latestTurnipPrice)
+					val low = Math.min(newTurnipPrice, prevMR.latestTurnipPrice)
 					val latestHourBlock = todayMarket.getHourBlock(newHourBlockId)
 					val latestHourBlockName = todayMarket.getHourBlock(newHourBlockId).name
 					val latestQuarterBlock = todayMarket.getQuarterBlock(newHourBlockId, newQuarterBlockId)
 					val quarterBlockHistory = todayMarket.getQuarterBlockHistory(newHourBlockId, newQuarterBlockId)
-					val turnipPriceHistory =  newTurnipPrice +: turnipPriceList
-					currentTurnipPrice = newTurnipPrice
+					val turnipPriceHistory =  newTurnipPrice +: prevMR.turnipPriceHistory
 					val monthForMR = month()
 					val dayForMR  = day()
 
 
-					val mr = MovementRecord(
-						_id,
-						newHourBlockId,
-						newQuarterBlockId,
-						high,
-						low,
-						latestHourBlockName,
-						latestHourBlock,
-						latestQuarterBlock,
-						quarterBlockHistory,
-						currentTurnipPrice,
-						turnipPriceHistory,
-						monthForMR,
-						dayForMR,
-
+					val mr = MovementRecord(_id,newHourBlockId,newQuarterBlockId,high,low,latestHourBlockName,latestHourBlock,
+						latestQuarterBlock,quarterBlockHistory,newTurnipPrice,turnipPriceHistory,monthForMR,dayForMR
 					)
-//					_id : String,
-//					hourBlockId : Int,
-//					quarterBlockId : Int,
-//					todayHigh: Int,
-//					todayLow : Int,
-//					latestHourBlock : HourBlock,
-//					hourBlockName : String,
-//					latestQuarterBlock : QuarterBlock,
-//					quarterBlockHistory : List[QuarterBlock],
-//					startingTurnipPrice : Int ,
-//					currentTurnipPrice : Int,
-//					turnipNet: Int,
-//					month : Int,
-//					day : Int,
-					log.info(s"[Create_New_Movement_Record] Creating new Movement Record")
-					if(isNewDay || areMovementRecordsEmpty){
+
+
+					if(currentHourBlockId == 0 && currentQuarterBlockId == 0  || prevMR._id == ""){
+						log.info(s"[Create_New_Movement_Record] Creating new Movement Record")
 						MarketOperations.createMovementRecord(mr)
 					}else{
+						log.info(s"[Create_New_Movement_Record] Updating Movement Record")
 						MarketOperations.massUpdateMovementRecord(mr)
 					}
-					areMovementRecordsEmpty = false
 				}
 
 				currentHourBlockId = newHourBlockId
 				currentQuarterBlockId = newQuarterBlockId
-				isTodayMarketNotUpdated = true
 			}
 		//AUTOMATED
 		case Delete_Earliest_Movement_Records  =>

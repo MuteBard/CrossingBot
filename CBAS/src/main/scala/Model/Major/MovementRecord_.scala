@@ -5,19 +5,19 @@ import Data.Market.MarketQuarterBlock.{QuarterBlock, QuarterBlockJsonProtocol}
 object MovementRecord_ {
 	import spray.json.DefaultJsonProtocol
 	case class MovementRecord(
-		                         _id : String,
-		                         hourBlockId : Int,
-		                         quarterBlockId : Int,
-		                         todayHigh: Int,
-		                         todayLow : Int,
-		                         hourBlockName : String,
-		                         latestHourBlock : HourBlock,
-		                         latestQuarterBlock : QuarterBlock,
-		                         quarterBlockHistory : List[QuarterBlock],
-		                         latestTurnipPrice : Int,
-		                         turnipPriceHistory : List[Int],
-		                         month : Int,
-		                         day : Int,
+		                         _id : String = "",
+		                         hourBlockId : Int = 0,
+		                         quarterBlockId : Int = 0,
+		                         todayHigh: Int = 0,
+		                         todayLow : Int = 0,
+		                         hourBlockName : String = "",
+		                         latestHourBlock : HourBlock = null,
+		                         latestQuarterBlock : QuarterBlock = null,
+		                         quarterBlockHistory : List[QuarterBlock] = List(),
+		                         latestTurnipPrice : Int = 1000,
+		                         turnipPriceHistory : List[Int] = List(1000),
+		                         month : Int = 0,
+		                         day : Int = 0,
 
 
 	)

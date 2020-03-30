@@ -36,22 +36,6 @@ object MarketHourBlock {
 			mechanism(block("d"), block("e"), block("f"), "bad", hourBlockId )
 		}
 
-		def random(hourBlockId : Int) : HourBlock = {
-			val random = new Random
-			HourBlock((0 to 3).map(QuarterBlockId => {
-				val value = random.nextInt(7) + 1
-				value match {
-					case 1 => block("a").create(hourBlockId, QuarterBlockId)
-					case 2 => block("b").create(hourBlockId, QuarterBlockId)
-					case 3 => block("c").create(hourBlockId, QuarterBlockId)
-					case 4 => block("d").create(hourBlockId, QuarterBlockId)
-					case 5 => block("e").create(hourBlockId, QuarterBlockId)
-					case 6 => block("f").create(hourBlockId, QuarterBlockId)
-					case 7 => block("g").create(hourBlockId, QuarterBlockId)
-				}
-			}).toList, "random")
-		}
-
 		def risky(hourBlockId : Int) : HourBlock = {
 			val random = new Random
 			HourBlock((0 to 3).map(quarterBlockId => {
