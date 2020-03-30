@@ -24,7 +24,8 @@ class MarketActor extends Actor with ActorLogging {
 	var todayMarket = Day()
 	var currentHourBlockId: Int = -1
 	var currentQuarterBlockId: Int = -1
-	var turnipPrice = 10000
+	var currentTurnipPrice = 1000
+	val turnipPriceList = List(currentTurnipPrice)
 	var isTodayMarketNotUpdated = true
 	var areMovementRecordsEmpty = true
 	var isDayNotInitialized : Boolean = currentHourBlockId == -1 && currentQuarterBlockId == -1
@@ -58,18 +59,50 @@ class MarketActor extends Actor with ActorLogging {
 					self ! Start_Todays_Market
 				}else{
 					log.info(s"[Create_New_Movement_Record] Change in block ids found")
+					val newTurnipPrice = currentTurnipPrice + todayMarket.getQuarterBlock(newHourBlockId, newQuarterBlockId).change
 					val _id = dateId()
-					val high = todayMarket.getMax2DBy(newHourBlockId, newQuarterBlockId)
-					val low = todayMarket.getMin2DBy(newHourBlockId, newQuarterBlockId)
-					val patternHour = todayMarket.getHourBlock(newHourBlockId)
-					val patternHourHistory = todayMarket.getHourBlockHistory(newHourBlockId)
-					val patternQuarter = todayMarket.getQuarterBlock(newHourBlockId, newQuarterBlockId)
-					val patternQuarterHistory = todayMarket.getQuarterBlockHistory(newHourBlockId, newQuarterBlockId)
+					val high = Math.max(newTurnipPrice, currentTurnipPrice)
+					val low = Math.min(newTurnipPrice, currentTurnipPrice)
+					val latestHourBlock = todayMarket.getHourBlock(newHourBlockId)
+					val latestHourBlockName = todayMarket.getHourBlock(newHourBlockId).name
+					val latestQuarterBlock = todayMarket.getQuarterBlock(newHourBlockId, newQuarterBlockId)
+					val quarterBlockHistory = todayMarket.getQuarterBlockHistory(newHourBlockId, newQuarterBlockId)
+					val turnipPriceHistory =  newTurnipPrice +: turnipPriceList
+					currentTurnipPrice = newTurnipPrice
 					val monthForMR = month()
 					val dayForMR  = day()
-					turnipPrice = turnipPrice + todayMarket.getQuarterBlock(newHourBlockId, newQuarterBlockId).change
 
-					val mr = MovementRecord(_id, newHourBlockId, newQuarterBlockId, high, low, patternHour, patternHourHistory, patternQuarter, patternQuarterHistory, monthForMR, dayForMR, turnipPrice)
+
+					val mr = MovementRecord(
+						_id,
+						newHourBlockId,
+						newQuarterBlockId,
+						high,
+						low,
+						latestHourBlockName,
+						latestHourBlock,
+						latestQuarterBlock,
+						quarterBlockHistory,
+						currentTurnipPrice,
+						turnipPriceHistory,
+						monthForMR,
+						dayForMR,
+
+					)
+//					_id : String,
+//					hourBlockId : Int,
+//					quarterBlockId : Int,
+//					todayHigh: Int,
+//					todayLow : Int,
+//					latestHourBlock : HourBlock,
+//					hourBlockName : String,
+//					latestQuarterBlock : QuarterBlock,
+//					quarterBlockHistory : List[QuarterBlock],
+//					startingTurnipPrice : Int ,
+//					currentTurnipPrice : Int,
+//					turnipNet: Int,
+//					month : Int,
+//					day : Int,
 					log.info(s"[Create_New_Movement_Record] Creating new Movement Record")
 					if(isNewDay || areMovementRecordsEmpty){
 						MarketOperations.createMovementRecord(mr)
@@ -100,7 +133,7 @@ class MarketActor extends Actor with ActorLogging {
 
 		case RequestTurnipPrice =>
 			log.info(s"[RequestTurnipPrice] Getting turnip price")
-			sender() ! MarketOperations.readLatestMovementRecord().turnipPrice
+			sender() ! MarketOperations.readLatestMovementRecord().latestTurnipPrice
 
 		case Read_Selected_Movement_Records_Month =>
 			val dt = Calendar.getInstance()

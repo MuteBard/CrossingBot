@@ -53,11 +53,12 @@ object  MarketOperations extends MongoDBOperations {
 		updateMovementRecordField(mr, "quarterBlockId", mr.quarterBlockId)
 		updateMovementRecordField(mr, "todayHigh", mr.todayHigh)
 		updateMovementRecordField(mr, "todayLow", mr.todayLow)
+		updateMovementRecordField(mr, "hourBlockName", mr.hourBlockName)
 		updateMovementRecordField(mr, "latestHourBlock", mr.latestHourBlock)
-		updateMovementRecordField(mr, "hourBlockHistory", mr.hourBlockHistory)
 		updateMovementRecordField(mr, "latestQuarterBlock", mr.latestQuarterBlock)
 		updateMovementRecordField(mr, "quarterBlockHistory", mr.quarterBlockHistory)
-		updateMovementRecordField(mr, "turnipPrice", mr.turnipPrice)
+		updateMovementRecordField(mr, "latestTurnipPrice", mr.latestTurnipPrice)
+		updateMovementRecordField(mr, "turnipPriceHistory", mr.turnipPriceHistory)
 	}
 
 	def readEarliestMovementRecord(): MovementRecord = readMovementRecord().head

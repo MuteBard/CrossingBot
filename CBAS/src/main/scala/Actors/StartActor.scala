@@ -33,7 +33,8 @@ class StartActor extends Actor with ActorLogging{
 			deleteOldMovementRecords = system.scheduler.scheduleWithFixedDelay(60 days, 10 days, marketActor, Delete_Earliest_Movement_Records)
 
 		case StopMarketTimers =>
-			log.info("[StartMarketTimers] Starting Scheduler Jobs")
+			log.info("[StartMarketTimers] Stopping Scheduler Jobs")
+			//TODO handle null with option
 			createMovementRecords.cancel()
 			deleteOldMovementRecords.cancel()
 

@@ -1,7 +1,5 @@
 package Data.Market
 
-
-
 import scala.util.Random
 
 object MarketHourBlock {

@@ -10,17 +10,19 @@ object MovementRecord_ {
 		                         quarterBlockId : Int,
 		                         todayHigh: Int,
 		                         todayLow : Int,
+		                         hourBlockName : String,
 		                         latestHourBlock : HourBlock,
-		                         hourBlockHistory : List[HourBlock],
 		                         latestQuarterBlock : QuarterBlock,
 		                         quarterBlockHistory : List[QuarterBlock],
+		                         latestTurnipPrice : Int,
+		                         turnipPriceHistory : List[Int],
 		                         month : Int,
 		                         day : Int,
-		                         turnipPrice : Int
+
 
 	)
 
 	trait MovementRecordJsonProtocol extends DefaultJsonProtocol with HourBlockJsonProtocol with QuarterBlockJsonProtocol{
-		implicit val StalkJson = jsonFormat12(MovementRecord)
+		implicit val StalkJson = jsonFormat13(MovementRecord)
 	}
 }
