@@ -1,6 +1,6 @@
 package App
 
-import Actors.StartActor.StartMarketTimers
+import Actors.StartActor.Start_Market_Timers
 import Actors._
 import Helper.Auxiliary._
 import Routes.ToCBTC
@@ -16,7 +16,7 @@ object Main extends App{
 
 	log.info("Main", "CBAS booting up...")
 	log.info("Main", "CBAS starting up schedulers")
-	marketActor ! StartMarketTimers
+	startupActor ! Start_Market_Timers
 	ToCBTC
 	log.info("Main", "CBAS listening at localhost:4774/api/")
 }

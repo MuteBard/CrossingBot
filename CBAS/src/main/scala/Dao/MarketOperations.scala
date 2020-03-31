@@ -68,8 +68,8 @@ object  MarketOperations extends MongoDBOperations {
 	def readMovementRecord(): Seq[MovementRecord] = {
 		val source = MongoSource(allMR.find(classOf[MovementRecord]))
 		val daySeqFuture = source.runWith(Sink.seq)
-		val daySeq : Seq[MovementRecord] = Await.result(daySeqFuture, 1 seconds)
-		if(daySeq.length == 0){
+		val daySeq : Seq[MovementRecord] = Await.result(daySeqFuture, 3 seconds)
+		if(daySeq.isEmpty){
 			List(MovementRecord())
 		}else{
 			daySeq
@@ -79,7 +79,7 @@ object  MarketOperations extends MongoDBOperations {
 	def readMovementRecordListByMonth(month :  Int): List[MovementRecord] = {
 		val source = MongoSource(allMR.find(classOf[MovementRecord])).filter(mr => mr.month == month)
 		val daySeqFuture = source.runWith(Sink.seq)
-		val daySeq : Seq[MovementRecord] = Await.result(daySeqFuture, 1 seconds)
+		val daySeq : Seq[MovementRecord] = Await.result(daySeqFuture, 3 seconds)
 		daySeq.toList
 	}
 

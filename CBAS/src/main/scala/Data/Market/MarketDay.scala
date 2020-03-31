@@ -13,9 +13,9 @@ object MarketDay {
 			val hourBlocks = (0 to 23).map(hourBlockId => {
 				val value = random.nextInt(10) + 1
 				value match {
-					case x if (1 to 4).contains(x) => hour.sleepy(hourBlockId)
-					case x if (5 to 7).contains(x) =>  hour.normal(hourBlockId)
-					case 8 => hour.good(hourBlockId)
+					case x if (1 to 3).contains(x) => hour.sleepy(hourBlockId)
+					case x if (4 to 5).contains(x) =>  hour.normal(hourBlockId)
+					case x if (6 to 8).contains(x) => hour.good(hourBlockId)
 					case 9 => hour.bad(hourBlockId)
 					case 10 => hour.risky(hourBlockId)
 				}

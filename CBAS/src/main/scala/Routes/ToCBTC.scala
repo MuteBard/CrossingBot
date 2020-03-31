@@ -5,9 +5,10 @@ import Model.Major.Pocket_._
 import Model.Minor.Months_._
 import Model.Major.Bug_._
 import Model.Major.Fish_._
-import Model.Major.MovementRecord_.{MovementRecord, MovementRecordJsonProtocol}
+import Model.Major.MovementRecord_._
 import Model.Major.User_._
-import Model.Minor.Selling_._
+import Model.Minor.CreatureSell_._
+import Model.Minor.TurnipTransaction_._
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.model.StatusCodes
@@ -25,8 +26,9 @@ object ToCBTC extends
 	FishJsonProtocol with
 	MonthsJsonProtocol with
 	PocketJsonProtocol with
-	SellingJsonProtocol with
+	CreatureSellJsonProtocol with
 	MovementRecordJsonProtocol with
+	TurnipTransactionJsonProtocol with
 	SprayJsonSupport {
 
 	import system.dispatcher
@@ -44,11 +46,11 @@ object ToCBTC extends
 						complete(StatusCodes.OK)
 					} ~
 					path("startMarket"){
-						startupActor ! StartActor.StartMarketTimers
+						startupActor ! StartActor.Start_Market_Timers
 						complete(StatusCodes.OK)
 					} ~
 					path("stopMarket"){
-						startupActor ! StartActor.StopMarketTimers
+						startupActor ! StartActor.Stop_Market_Timers
 						complete(StatusCodes.OK)
 					} ~
 					path("list" / Segment) {
@@ -91,7 +93,7 @@ object ToCBTC extends
 						}
 					} ~
 					path("turnips"){
-						val turnipPrice = Await.result((marketActor ? MarketActor.RequestTurnipPrice).mapTo[Int], 3 seconds)
+						val turnipPrice = Await.result((marketActor ? MarketActor.Request_Turnip_Price).mapTo[Int], 3 seconds)
 						complete(StatusCodes.OK, ""+turnipPrice)
 					} ~
 					path("latestMarketDay"){
@@ -169,17 +171,30 @@ object ToCBTC extends
 						}
 					} ~
 					path("sell" / "one"){
-						entity(as[Selling]){ selling =>
+						entity(as[CreatureSell]){ selling : CreatureSell=>
 							val bells : Int = Await.result((userActor ? UserActor.Delete_One_Creature_From_Pocket(selling)).mapTo[Int], 3 seconds)
 							complete(StatusCodes.OK, ""+bells)
 						}
 					} ~
 					path("sell" / "all"){
-						entity(as[Selling]){ selling =>
+						entity(as[CreatureSell]){ selling  : CreatureSell=>
 							val bells : Int = Await.result((userActor ? UserActor.Delete_All_Creature_From_Pocket(selling)).mapTo[Int], 3 seconds)
 							complete(StatusCodes.OK, ""+bells)
 						}
+					} ~
+					path("pendingTurnipTransaction"){
+						entity(as[TurnipTransaction]){ turnipTransaction =>
+							val turnipInqury : TurnipTransaction = Await.result((userActor ? UserActor.Read_One_User_With_Pending_Turnip_Transaction(turnipTransaction)).mapTo[TurnipTransaction], 5 seconds)
+							complete(StatusCodes.OK, turnipInqury)
+						}
+					} ~
+					path("executingTurnipTransaction"){
+						entity(as[TurnipTransaction]){ turnipTransaction =>
+							val turnipProcesses : TurnipTransaction = Await.result((userActor ? UserActor.Update_One_User_With_Executing_Turnip_Transaction(turnipTransaction)).mapTo[TurnipTransaction], 5 seconds)
+							complete(StatusCodes.OK, turnipProcesses)
+						}
 					}
+
 				}
 			}
 		}

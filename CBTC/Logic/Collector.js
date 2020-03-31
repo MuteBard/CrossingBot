@@ -113,6 +113,32 @@ let appraisal = (rarity) => {
     else return ""
 }
 
+let additionalInfo = (info, command) => {
+    commandAsList = command.trim().split(" ")
+    let business = commandAsList[1].toLowerCase().trim()
+    let amount = Number(commandAsList[2].trim())
+
+    if(commandAsList.length > 3){
+        return {error : `Try formatting like this: !turnips buy 1`}
+    }else if(business != "buy" && business != "sell"){
+        return {error : `You can only buy and sell`}
+    }else if(amount <= "0"){
+        return {error : `Please ${business} 1 or more turnips`}
+    }else if(!amount){
+        return {error : `Please provide a number of turnips to ${business}`}
+    }else{
+        return {
+            username : info.viewer,
+            business: business,
+            amount: amount,
+            marketPrice : -1,
+            totalBells: -1,
+            message : ""
+        }
+    }
+}
+
+
 let properlyCaseCreatureName = (command) => {
     let commandAsListOfWords = command.trim().split(" ").map(word => word.substring(0,1).toUpperCase() + word.substring(1).toLowerCase()+" ")
     let creatureNameProperlyCased = commandAsListOfWords.filter((word, idx) => idx > 1)
@@ -264,6 +290,65 @@ let retrieveTurnipsPrice = (info) => {
 
 }
 
+let pendingTurnipBusiness = (info) => {
+    let message = ""
+    if(info.error != undefined){
+        message = `${info.viewer}, ${info.error} ${addFlower()}`
+        let twitchPayload = {"streamerChannel": info.streamerChannel , "message" : message}
+        botResponse(twitchPayload)
+    }
+    else{    
+        function twitchPayload(data){
+            let message = ""
+            if(data != null){
+                if(data.message == "Authorized"){
+                    pendingAuthorizedTransactionDict[info.viewer] = data 
+                    if(data.business == "buy"){
+                        message = `${info.viewer}, you are buying ${info.transaction.amount} turnip(s) at market price of ${data.marketPrice} ${info.transaction.amount != 1 ? `for a total of ${data.totalBells}` : ""}. Type !confirm or !cancel ${addFlower()}`
+                    }else{
+                        message = `${info.viewer}, you are selling ${info.transaction.amount} turnip(s) at market price of ${data.marketPrice} ${info.transaction.amount != 1 ? `for a total of ${data.totalBells}` : ""}. Type !confirm or !cancel ${addFlower()}`
+                    }
+                }else if(data.message == "Insufficient bells")  message = `${info.viewer}, you do not have enough bells to buy ${info.transaction.amount} turnip(s) ${addFlower()}` 
+                else if(data.message == "Insufficient turnips") message = `${info.viewer}, you do not have ${info.transaction.amount} turnip(s) to sell ${addFlower()}` 
+                else if(data.message == "User does not exist")  message = `${info.viewer}, try !bug or !fish first. ${addFlower()}`
+            }else
+                message = `Hey ${info.streamerChannel.split("#")[1]}, something went wrong with CrossingBot. Please contact MuteBard ${addFlower()}`
+            
+            return {
+                    "streamerChannel" : info.streamerChannel, 
+                    "message" : message
+            }
+        }
+        toCBAS.postPendingTransaction(info,twitchPayload,botResponse) 
+    }
+
+}
+
+let executingTurnipBusiness = (info) => {
+    let message = ""
+    if(info.status == "cancelled"){
+        message = `${info.viewer}, you ${info.status} ${info.transaction.business == "buy" ? "buying" : "selling"} turnips ${addFlower()}`
+        let twitchPayload = {"streamerChannel": info.streamerChannel , "message" : message}
+        botResponse(twitchPayload)
+    }else if(info.status == "confirmed"){
+        function twitchPayload(data){
+            let message = ""
+            if(data != null){
+                message = `Congrats! ${info.viewer}, you ${info.transaction.business == "buy" ? "bought" : "sold"} ${data.amount} turnips at a market price of ${data.marketPrice}}`
+            }else
+                message = `Hey ${info.streamerChannel.split("#")[1]}, something went wrong with CrossingBot. Please contact MuteBard ${addFlower()}`
+            
+            return {
+                    "streamerChannel" : info.streamerChannel, 
+                    "message" : message
+            }
+        }
+        toCBAS.postExecuteTransaction(info,twitchPayload,botResponse)  
+    }
+}
+
+
+let pendingAuthorizedTransactionDict = {}
 publicConnection.connect().then(() => console.log("CBTC is ready to facilitate communication between CBAS and Twitch"))
 publicConnection.on('chat', (channel, userstate, message, self) => {
 
@@ -271,6 +356,7 @@ publicConnection.on('chat', (channel, userstate, message, self) => {
         streamerChannel : channel,
         viewer : userstate["display-name"]    
     }
+    
     let command = message.toLowerCase().trim()
     if(command == "!help") helpRequest(info)
 
@@ -287,7 +373,6 @@ publicConnection.on('chat', (channel, userstate, message, self) => {
 
     else if(command.includes("!sell bug")) {
         let name = properlyCaseCreatureName(command)
-        console.log(name)
         info["creature"] = name
         info["species"] = BUG  
        sellOneRequest(info)
@@ -318,8 +403,46 @@ publicConnection.on('chat', (channel, userstate, message, self) => {
         info["species"] = FISH
         rarestListRequest(info)
     } 
-    else if(command == "!turnips"){
+    else if(command == "!turnipmarket"){
         retrieveTurnipsPrice(info)
     }
+    
+    else if(command.includes("!turnip buy") || command.includes("!turnip sell")){
+        let transaction = additionalInfo(info, command)
+        if(transaction.error == undefined){
+            info["transaction"] = transaction
+            pendingTurnipBusiness(info)
+
+        }else{
+            info["error"] = transaction.error
+            pendingTurnipBusiness(info)
+        }
+    }
+    
+    else if (command == "!confirm" && pendingAuthorizedTransactionDict[info.viewer].username == info.viewer){
+        console.log(pendingAuthorizedTransactionDict)
+        // console.log(transaction)
+        // info["transaction 
+
+    }
+
+    else if (command == "!cancel" && pendingAuthorizedTransactionDict[info.viewer].username == info.viewer){
+        info["transaction"] = pendingAuthorizedTransactionDict[info.viewer]
+        info["status"] = "cancelled"
+        delete pendingAuthorizedTransactionDict[info.viewer]
+        console.log("Does not make a request to do many calculations")
+        executingTurnipBusiness(info)
+    }
+
+
+    // else if(command == "!turnipowened") Easy
+    // else if(command == "!turnip buy") Hard
+    
+    
+
   
 }); 
+
+
+// when buying and selling turnips, we want them to confirm
+// keep an array of payload with viewer, buy sell objects with nimber of turnips and price

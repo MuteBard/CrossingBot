@@ -10,8 +10,8 @@ import akka.actor.{Actor, ActorLogging, Cancellable}
 
 object StartActor {
 	case object Create_Creatures_All
-	case object StartMarketTimers
-	case object StopMarketTimers
+	case object Start_Market_Timers
+	case object Stop_Market_Timers
 }
 
 class StartActor extends Actor with ActorLogging{
@@ -27,12 +27,13 @@ class StartActor extends Actor with ActorLogging{
 			FishOperations.createAll()
 			sender() ! "Completed"
 
-		case StartMarketTimers =>
+		case Start_Market_Timers =>
 			log.info("[StartMarketTimers] Starting Scheduler Jobs")
-			createMovementRecords = system.scheduler.scheduleWithFixedDelay(Duration.Zero, 1 minute, marketActor, Create_New_Movement_Record)
+			marketActor ! Start_Todays_Market
+			createMovementRecords = system.scheduler.scheduleWithFixedDelay(5 seconds, 1 minute, marketActor, Create_New_Movement_Record)
 			deleteOldMovementRecords = system.scheduler.scheduleWithFixedDelay(60 days, 10 days, marketActor, Delete_Earliest_Movement_Records)
 
-		case StopMarketTimers =>
+		case Stop_Market_Timers =>
 			log.info("[StartMarketTimers] Stopping Scheduler Jobs")
 			//TODO handle null with option
 			createMovementRecords.cancel()

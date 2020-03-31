@@ -12,7 +12,7 @@ import App.Main.system
 import Model.Major.Bug_.Bug
 import Model.Major.User_.User
 import Model.Major.Pocket_.Pocket
-import Model.Minor.Selling_.Selling
+import Model.Minor.CreatureSell_.CreatureSell
 import akka.stream.alpakka.mongodb.DocumentUpdate
 import org.mongodb.scala.model.{Filters, Updates}
 import system.dispatcher
@@ -64,7 +64,7 @@ object UserOperations extends MongoDBOperations {
 		}
 	}
 
-	def deleteOneForUser(data : Selling, creatureBells : Int): Unit = {
+	def deleteOneForUser(data : CreatureSell, creatureBells : Int): Unit = {
 		if (creatureBells != 0) {
 			val userList: List[User] = readOneUser(data.username).toList
 			val user: User = userList.head
@@ -86,7 +86,7 @@ object UserOperations extends MongoDBOperations {
 		}
 	}
 
-	def deleteAllForUser(data : Selling): Int = {
+	def deleteAllForUser(data : CreatureSell): Int = {
 		val userList: List[User] = readOneUser(data.username).toList
 		val user: User = userList.head
 		val bugBells = Await.result(Source(user.pocket.bug).via(Flow[Bug].fold[Int](0)(_ + _.bells)).runWith(Sink.head), 1 second)

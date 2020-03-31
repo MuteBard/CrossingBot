@@ -50,6 +50,28 @@ exports.postSellAll = async(info, twitchPayload, botResponse) => {
     }
 }
 
+exports.postPendingTransaction = async(info, twitchPayload, botResponse) => {
+    let payload = info.transaction
+    try{
+        let CBAS_response = await axios.post(`${root}/pendingTurnipTransaction`, payload)
+        botResponse(twitchPayload(CBAS_response.data))
+    }catch(error){
+        botResponse(twitchPayload(null))
+        // errorLog(error, info)
+    }
+}
+
+exports.postExecuteTransaction = async(info, twitchPayload, botResponse) => {
+    let payload = info.transaction
+    try{
+        let CBAS_response = await axios.post(`${root}/executingTurnipTransaction`, payload)
+        botResponse(twitchPayload(CBAS_response.data))
+    }catch(error){
+        botResponse(twitchPayload(null))
+        // errorLog(error, info)
+    }
+}
+
 // `${root}/listByMonth/bug` or `${root}/listByMonth/fish`
 exports.postListByMonth = async(info, twitchPayload, botResponse) => {
     let availability = {"availability" : info.availability}
@@ -80,7 +102,9 @@ exports.postCatchRequest = async (info, twitchPayload, botResponse) => {
     let availability = {"availability" : info.availability}
     try{
         let CBAS_response = await axios.post(`${root}/retrieveOneByMonth/${info.species}`, availability)
-        let data = CBAS_response.data                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+        let data = CBAS_response.data     
+
+        console.log(data)
         let twitchData = twitchPayload(CBAS_response.data)
         botResponse(twitchData)
 
@@ -102,7 +126,7 @@ exports.postCatchRequest = async (info, twitchPayload, botResponse) => {
         postUpdateUserPocket(userPayload)
     }catch(error){
         botResponse(twitchPayload(null))
-        errorLog(error, info)
+        errorLog(error, info)          
     }
 }
 
@@ -122,31 +146,31 @@ let postUpdateUserPocket = async (userPayload) => {
 let postCreateUserData = async (userPayload) => {
 
     try{
-        let respFromTwitch = await axios({
-            method: 'GET',
-            url: `https://api.twitch.tv/helix/users?login=${username}`,
-            headers: options.settingsB.headers
-        })
+        // let respFromTwitch = await axios({
+        //     method: 'GET',
+        //     url: `https://api.twitch.tv/helix/users?login=${username}`,
+        //     headers: options.settingsB.headers
+        // })
 
-        userPayload["_id"] = Number(respFromTwitch.data.data[0].id)
-        userPayload["img"] = respFromTwitch.data.data[0].profile_image_url
+        userPayload["_id"] = 7777 //Number(respFromTwitch.data.data[0].id)
+        userPayload["img"] = "k"//respFromTwitch.data.data[0].profile_image_url
         
-        await axios.post(`${root}/addUser`, newUserPayload)
+        await axios.post(`${root}/addUser`, userPayload)
     }catch(error){
         errorLog(error, userPayload)
     }
 }
 
 let errorLog = (error, payload) => {
-    response = {
-        url : error.config.url,
-        method : error.config.method,
-        data: error.config.data,
-        headers: error.config.headers
-    }
-    console.log("\n\nCheck to see if CBAS and CBTC paths match")
-    console.log("\nRestart CBAS And CBTC for applying recent path changes")
-    console.log("\nSomething might be wrong with request :", response)
+    // response = {
+    //     // url : error.config.url,
+    //     method : error.config.method,
+    //     data: error.config.data,
+    //     headers: error.config.headers
+    // }
+    // console.log("\n\nCheck to see if CBAS and CBTC paths match")
+    // console.log("\nRestart CBAS And CBTC for applying recent path changes")
+    // console.log("\nSomething might be wrong with request :", response)
     console.log("\nSomething might be wrong payloads :", payload)
     console.log(error)
 }
