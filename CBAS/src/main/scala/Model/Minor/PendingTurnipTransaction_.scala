@@ -1,9 +1,9 @@
 package Model.Minor
 
-object TurnipTransaction_ {
+object PendingTurnipTransaction_ {
 	import spray.json.DefaultJsonProtocol
 
-	case class TurnipTransaction(
+	case class PendingTurnipTransaction(
 		                    username : String,
 		                    business: String,
 		                    amount: Int,
@@ -12,7 +12,7 @@ object TurnipTransaction_ {
 		                    message: String,
 	                    )
 
-	trait TurnipTransactionJsonProtocol extends DefaultJsonProtocol{
-		implicit val TurnipTransactionJson = jsonFormat6(TurnipTransaction)
+	trait PendingTurnipTransactionJsonProtocol extends DefaultJsonProtocol{
+		implicit val PendingTurnipTransactionJson = jsonFormat6(PendingTurnipTransaction)
 	}
 }

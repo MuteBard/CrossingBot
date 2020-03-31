@@ -41,8 +41,7 @@ object  MarketOperations extends MongoDBOperations {
     		.map(_ => DocumentUpdate(filter = Filters.eq("_id", mr._id), update = Updates.set(key, value)))
 		val taskFuture = source.runWith(MongoSink.updateOne(allMR))
 		taskFuture.onComplete{
-			case Success(_) =>
-				log.info("MarketOperations","updateMovementRecord","Success",s"Updated MovementRecord ${mr._id}'s $key")
+			case Success(_) => None
 			case Failure (ex) =>
 				log.warn("MarketOperations","updateMovementRecord","Failure",s"Failed to update MovementRecord ${mr._id}'s $key: $ex")
 		}
@@ -59,6 +58,7 @@ object  MarketOperations extends MongoDBOperations {
 		updateMovementRecordField(mr, "quarterBlockHistory", mr.quarterBlockHistory)
 		updateMovementRecordField(mr, "latestTurnipPrice", mr.latestTurnipPrice)
 		updateMovementRecordField(mr, "turnipPriceHistory", mr.turnipPriceHistory)
+		log.info("MarketOperations","updateMovementRecord","Success",s"Updated ${mr._id}'s MovementRecord")
 	}
 
 	def readEarliestMovementRecord(): MovementRecord = readMovementRecord().head

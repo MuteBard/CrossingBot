@@ -6,7 +6,7 @@ import Model.Major.Bug_.Bug
 import Model.Major.Fish_.Fish
 import Model.Major.User_._
 import Model.Minor.CreatureSell_.CreatureSell
-import Model.Minor.TurnipTransaction_.TurnipTransaction
+import Model.Minor.PendingTurnipTransaction_.PendingTurnipTransaction
 import akka.actor.{Actor, ActorLogging}
 import akka.pattern.ask
 import akka.util.Timeout
@@ -17,8 +17,8 @@ import scala.concurrent.duration._
 object UserActor {
 	case class Create_One_User(user : User )
 	case class Read_One_User(username : String)
-	case class Read_One_User_With_Pending_Turnip_Transaction(turnipTransaction : TurnipTransaction)
-	case class Update_One_User_With_Executing_Turnip_Transaction(turnipTransaction : TurnipTransaction)
+	case class Read_One_User_With_Pending_Turnip_Transaction(turnipTransaction : PendingTurnipTransaction)
+	case class Update_One_User_With_Executing_Turnip_Transaction(turnipTransaction : PendingTurnipTransaction)
 	case class Update_One_User_With_Creature(user : User)
 	case class Delete_One_Creature_From_Pocket(selling : CreatureSell)
 	case class Delete_All_Creature_From_Pocket(selling : CreatureSell)
@@ -61,26 +61,26 @@ class UserActor extends Actor with ActorLogging{
 				val user = userSeq.head
 				if (tt.business == "buy") {
 					if (totalCost < user.bells) {
-						sender() ! TurnipTransaction(tt.username, tt.business, tt.amount, turnipPrice, totalCost, "Authorized")
+						sender() ! PendingTurnipTransaction(tt.username, tt.business, tt.amount, turnipPrice, totalCost, "Authorized")
 					} else {
-						sender() ! TurnipTransaction(tt.username, tt.business, tt.amount, turnipPrice, totalCost, "Insufficient bells")
+						sender() ! PendingTurnipTransaction(tt.username, tt.business, tt.amount, turnipPrice, totalCost, "Insufficient bells")
 					}
 				} else if (tt.business == "sell") {
-					if (tt.amount < user.turnips) {
-						sender() ! TurnipTransaction(tt.username, tt.business, tt.amount, turnipPrice, totalCost, "Authorized")
+					if (tt.amount < user.turnips.head.amount) {
+						sender() ! PendingTurnipTransaction(tt.username, tt.business, tt.amount, turnipPrice, totalCost, "Authorized")
 					} else {
-						sender() ! TurnipTransaction(tt.username, tt.business, tt.amount, turnipPrice, totalCost, "Insufficient turnips")
+						sender() ! PendingTurnipTransaction(tt.username, tt.business, tt.amount, turnipPrice, totalCost, "Insufficient turnips")
 					}
 				}
 			} else {
-				sender() ! TurnipTransaction(tt.username, tt.business, tt.amount, turnipPrice, totalCost, "User does not exist")
+				sender() ! PendingTurnipTransaction(tt.username, tt.business, tt.amount, turnipPrice, totalCost, "User does not exist")
 			}
 
 
 
 		case Update_One_User_With_Executing_Turnip_Transaction(tt) =>
 			log.info(s"[Update_One_User_With_Executing_Turnip_Transaction] Inquiring MarketActor of turnip prices")
-			//update the user's turnip Object
+			//update the user's turnip Objecthjbn
 
 
 

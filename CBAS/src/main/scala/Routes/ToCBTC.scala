@@ -8,7 +8,7 @@ import Model.Major.Fish_._
 import Model.Major.MovementRecord_._
 import Model.Major.User_._
 import Model.Minor.CreatureSell_._
-import Model.Minor.TurnipTransaction_._
+import Model.Minor.PendingTurnipTransaction_._
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.model.StatusCodes
@@ -28,7 +28,7 @@ object ToCBTC extends
 	PocketJsonProtocol with
 	CreatureSellJsonProtocol with
 	MovementRecordJsonProtocol with
-	TurnipTransactionJsonProtocol with
+	PendingTurnipTransactionJsonProtocol with
 	SprayJsonSupport {
 
 	import system.dispatcher
@@ -183,14 +183,14 @@ object ToCBTC extends
 						}
 					} ~
 					path("pendingTurnipTransaction"){
-						entity(as[TurnipTransaction]){ turnipTransaction =>
-							val turnipInqury : TurnipTransaction = Await.result((userActor ? UserActor.Read_One_User_With_Pending_Turnip_Transaction(turnipTransaction)).mapTo[TurnipTransaction], 5 seconds)
+						entity(as[PendingTurnipTransaction]){ turnipTransaction =>
+							val turnipInqury : PendingTurnipTransaction = Await.result((userActor ? UserActor.Read_One_User_With_Pending_Turnip_Transaction(turnipTransaction)).mapTo[PendingTurnipTransaction], 5 seconds)
 							complete(StatusCodes.OK, turnipInqury)
 						}
 					} ~
 					path("executingTurnipTransaction"){
-						entity(as[TurnipTransaction]){ turnipTransaction =>
-							val turnipProcesses : TurnipTransaction = Await.result((userActor ? UserActor.Update_One_User_With_Executing_Turnip_Transaction(turnipTransaction)).mapTo[TurnipTransaction], 5 seconds)
+						entity(as[PendingTurnipTransaction]){ turnipTransaction =>
+							val turnipProcesses : PendingTurnipTransaction = Await.result((userActor ? UserActor.Update_One_User_With_Executing_Turnip_Transaction(turnipTransaction)).mapTo[PendingTurnipTransaction], 5 seconds)
 							complete(StatusCodes.OK, turnipProcesses)
 						}
 					}

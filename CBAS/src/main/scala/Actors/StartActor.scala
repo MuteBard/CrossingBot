@@ -1,5 +1,7 @@
 package Actors
 
+import java.util.Calendar
+
 import App.Main._
 import Actors.MarketActor._
 import Dao.{BugOperations, FishOperations}
@@ -30,7 +32,14 @@ class StartActor extends Actor with ActorLogging{
 		case Start_Market_Timers =>
 			log.info("[StartMarketTimers] Starting Scheduler Jobs")
 			marketActor ! Start_Todays_Market
-			createMovementRecords = system.scheduler.scheduleWithFixedDelay(5 seconds, 1 minute, marketActor, Create_New_Movement_Record)
+			createMovementRecords = system.scheduler.scheduleWithFixedDelay(
+				5 seconds,
+				1 minute,
+				marketActor,
+				Create_New_Movement_Record(
+					Calendar.getInstance().get(Calendar.HOUR_OF_DAY),
+					Calendar.getInstance().get(Calendar.MINUTE)/15
+				))
 			deleteOldMovementRecords = system.scheduler.scheduleWithFixedDelay(60 days, 10 days, marketActor, Delete_Earliest_Movement_Records)
 
 		case Stop_Market_Timers =>
