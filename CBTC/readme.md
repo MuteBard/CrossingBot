@@ -38,14 +38,14 @@
 
 ### How to work with turnips
 
--- **!stalkMarket** Displays the prices of turnips on the ever changing Stalk Market
+- **!stalkMarket** Displays the prices of turnips on the ever changing Stalk Market
 
--- **!turnips** Displays how many turnips you own and how they are faring in the market
+- **!turnips** Displays how many turnips you own and how they are faring in the market
 
--- **!turnip buy *Amount to purchase here*** Allows you to buy turnips
+- **!turnip buy *Amount to purchase here*** Allows you to buy turnips
 
--- **!turnip sell *Amount to purchase here*** Allows you to sell turnips
+- **!turnip sell *Amount to purchase here*** Allows you to sell turnips
 
--- **!confirm** Allows to execute a turnip transaction after entering for example !turnip buy 1 or !turnip sell 1
+- **!confirm** Allows to execute a turnip transaction after entering for example !turnip buy 1 or !turnip sell 1
 
--- **!confirm** Allows to terminate a turnip transaction
+- **!confirm** Allows to terminate a turnip transaction

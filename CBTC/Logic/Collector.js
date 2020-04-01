@@ -430,7 +430,7 @@ publicConnection.on('chat', (channel, userstate, message, self) => {
         info["species"] = FISH
         rarestListRequest(info)
     } 
-    else if(command == "!turnip"){
+    else if(command == "!stalkMarket"){
         retrieveTurnipsPrice(info)
     }
     
@@ -461,7 +461,7 @@ publicConnection.on('chat', (channel, userstate, message, self) => {
         executingTurnipBusiness(info)
     }
 
-    else if(command == "!gains"){
+    else if(command == "!turnips"){
         statsRequest(info)
     }
 
