@@ -49,6 +49,3 @@
 -- **!confirm** Allows to execute a turnip transaction after entering for example !turnip buy 1 or !turnip sell 1
 
 -- **!confirm** Allows to terminate a turnip transaction
-
-
-
