@@ -65,7 +65,6 @@ exports.postExecuteTransaction = async(info, twitchPayload, botResponse) => {
     let payload = info.transaction
     console.log(payload)
     try{
-
         let CBAS_response = await axios.post(`${root}/executingTurnipTransaction`, payload)
         console.log(CBAS_response.data)
         botResponse(twitchPayload(CBAS_response.data))
@@ -115,7 +114,14 @@ exports.postCatchRequest = async (info, twitchPayload, botResponse) => {
             "fish" : info.species == FISH ? [data] : []
         }
 
-        let turnips = []
+        liveTurnips = {
+            "business": "",
+            "quantity": 0,
+            "marketPrice" :  0,
+            "totalBells": 0,
+            "netGainLossAsBells" :  0,
+            "netGainLossAsPercentage":  0
+        }
 
         let userPayload = {
             "_id" :  0,
@@ -124,7 +130,8 @@ exports.postCatchRequest = async (info, twitchPayload, botResponse) => {
             "bugNetLvl" : 1,
             "bells" : 0,
             "pocket" : pocket,
-            "turnips" : turnips,
+            "liveTurnips" : liveTurnips,
+            "turnipTransactionHistory" : [],
             "img" : "-"
         }
         postUpdateUserPocket(userPayload)
@@ -166,15 +173,15 @@ let postCreateUserData = async (userPayload) => {
 }
 
 let errorLog = (error, payload) => {
-    response = {
-        // url : error.config.url,
-        method : error.config.method,
-        data: error.config.data,
-        headers: error.config.headers
-    }
-    console.log("\n\nCheck to see if CBAS and CBTC paths match")
-    console.log("\nRestart CBAS And CBTC for applying recent path changes")
-    console.log("\nSomething might be wrong with request :", response)
+    // response = {
+    //     url : error.config.url,
+    //     method : error.config.method,
+    //     data: error.config.data,
+    //     headers: error.config.headers
+    // }
+    // console.log("\n\nCheck to see if CBAS and CBTC paths match")
+    // console.log("\nRestart CBAS And CBTC for applying recent path changes")
+    // console.log("\nSomething might be wrong with request :", response)
     console.log("\nSomething might be wrong payloads :", payload)
     console.log(error)
 }

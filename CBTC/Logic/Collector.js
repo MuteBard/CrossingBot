@@ -115,22 +115,22 @@ let appraisal = (rarity) => {
 
 let additionalInfo = (info, command) => {
     commandAsList = command.trim().split(" ")
-    let business = commandAsList[1].toLowerCase().trim()
-    let amount = Number(commandAsList[2].trim())
+    let business = (commandAsList[0].toLowerCase().trim()).substring(1)
+    let quantity = Number(commandAsList[1].trim())
 
     if(commandAsList.length > 3){
-        return {error : `Try formatting like this: !turnips buy 1`}
+        return {error : `Try formatting like this: !buy 1 turnips`}
     }else if(business != "buy" && business != "sell"){
         return {error : `You can only buy and sell`}
-    }else if(amount <= "0"){
+    }else if(quantity <= "0"){
         return {error : `Please ${business} 1 or more turnips`}
-    }else if(!amount){
+    }else if(!quantity){
         return {error : `Please provide a number of turnips to ${business}`}
     }else{
         return {
             username : info.viewer,
             business: business,
-            amount: amount,
+            quantity: quantity,
             marketPrice : -1,
             totalBells: -1,
             message : ""
@@ -304,12 +304,12 @@ let pendingTurnipBusiness = (info) => {
                 if(data.message == "Authorized"){
                     pendingAuthorizedTransactionDict[info.viewer] = data 
                     if(data.business == "buy"){
-                        message = `${info.viewer}, you are buying ${info.transaction.amount} turnip(s) at market price of ${data.marketPrice} ${info.transaction.amount != 1 ? `for a total of ${data.totalBells}` : ""}. Type !confirm or !cancel ${addFlower()}`
-                    }else{
-                        message = `${info.viewer}, you are selling ${info.transaction.amount} turnip(s) at market price of ${data.marketPrice} ${info.transaction.amount != 1 ? `for a total of ${data.totalBells}` : ""}. Type !confirm or !cancel ${addFlower()}`
+                        message = `${info.viewer}, you are buying ${info.transaction.quantity} turnip(s) at market price of ${data.marketPrice} ${info.transaction.quantity != 1 ? `for a total of ${data.totalBells}` : ""}. Type !confirm or !cancel ${addFlower()}`
+                    }else if(data.business == "sell"){
+                        message = `${info.viewer}, you are selling ${info.transaction.quantity} turnip(s) at market price of ${data.marketPrice} ${info.transaction.quantity != 1 ? `for a total of ${data.totalBells}` : ""}. Type !confirm or !cancel ${addFlower()}`
                     }
-                }else if(data.message == "Insufficient bells")  message = `${info.viewer}, you do not have enough bells to buy ${info.transaction.amount} turnip(s) ${addFlower()}` 
-                else if(data.message == "Insufficient turnips") message = `${info.viewer}, you do not have ${info.transaction.amount} turnip(s) to sell ${addFlower()}` 
+                }else if(data.message == "Insufficient bells")  message = `${info.viewer}, you do not have enough bells to buy ${info.transaction.quantity} turnip(s) ${addFlower()}` 
+                else if(data.message == "Insufficient turnips") message = `${info.viewer}, you do not have ${info.transaction.quantity} turnip(s) to sell ${addFlower()}` 
                 else if(data.message == "User does not exist")  message = `${info.viewer}, try !bug or !fish first. ${addFlower()}`
             }else
                 message = `Hey ${info.streamerChannel.split("#")[1]}, something went wrong with CrossingBot. Please contact MuteBard ${addFlower()}`
@@ -333,8 +333,9 @@ let executingTurnipBusiness = (info) => {
     }else if(info.status == "confirmed"){
         function twitchPayload(data){
             let message = ""
+            console.log(data.turnipTransactionHistory[0])
             if(data != null){
-                message = `Congrats! ${info.viewer}, you ${data.turnips[0].business == "buy" ? "bought" : "sold"} ${data.turnips[0].amount} turnips at a market price of ${data.turnips[0].marketPrice} bells! ${addFlower()}`
+                message = `Congrats! ${info.viewer}, you ${data.turnipTransactionHistory[0].business == "buy" ? "bought" : "sold"} ${data.turnipTransactionHistory[0].quantity} turnips at a market price of ${data.turnipTransactionHistory[0].marketPrice} bells! ${addFlower()}`
             }else
                 message = `Hey ${info.streamerChannel.split("#")[1]}, something went wrong with CrossingBot. Please contact MuteBard ${addFlower()}`
             
@@ -351,14 +352,13 @@ let statsRequest = (info) => {
     let akkaPayload = {"username" : info.viewer } 
     function twitchPayload (data) { 
         let message = ""
-        let confirmedTurnipTransaction = data.turnips[0]
         if (data != null){
-            if (confirmedTurnipTransaction.netGainLossAsBells > 0){
-                message = `${info.viewer}, you have gained ${confirmedTurnipTransaction.netGainLossAsBells} bells so far with your ${confirmedTurnipTransaction.amount} turnips at the market price of ${confirmedTurnipTransaction.marketPrice}! ${addFlower()}` 
-            }else if(confirmedTurnipTransaction.netGainLossAsBells > 0){
-                message = `${info.viewer}, you have made exactly 0 ${confirmedTurnipTransaction.netGainLossAsBells} bells with your ${confirmedTurnipTransaction.amount} turnips at the market price of ${confirmedTurnipTransaction.marketPrice}! ${addFlower()}`
+            if (data.liveTurnips.netGainLossAsBells > 0){
+                message = `${info.viewer}, you have gained ${data.liveTurnips.netGainLossAsBells} bells so far with your ${data.liveTurnips.quantity} turnips at the market price of ${data.liveTurnips.marketPrice}! ${addFlower()}` 
+            }else if(data.liveTurnips.netGainLossAsBells > 0){
+                message = `${info.viewer}, you have made exactly 0 ${data.liveTurnips.netGainLossAsBells} bells with your ${data.liveTurnips.quantity} turnips at the market price of ${data.liveTurnips.marketPrice}! ${addFlower()}`
             }else{
-                message = `${info.viewer}, you have lost ${Math.abs(confirmedTurnipTransaction.netGainLossAsBells)} bells so far with your ${confirmedTurnipTransaction.amount} turnips at the market price of ${confirmedTurnipTransaction.marketPrice}! ${addFlower()}`
+                message = `${info.viewer}, you have lost ${Math.abs(data.liveTurnips.netGainLossAsBells)} bells so far with your ${data.liveTurnips.quantity} turnips at the market price of ${data.liveTurnips.marketPrice}! ${addFlower()}`
             }
         }else
             message = `${info.viewer}, try !bug or !fish first. ${addFlower()}`
@@ -395,8 +395,8 @@ publicConnection.on('chat', (channel, userstate, message, self) => {
         info["species"] = FISH
         catchRequest(info)
     } 
-    else if(command == "!pocket") pocketRequest(info)
-    else if(command == "!bells") bellsRequest(info)
+    else if(command == "!mypocket") pocketRequest(info)
+    else if(command == "!mybells") bellsRequest(info)
 
     else if(command.includes("!sell bug")) {
         let name = properlyCaseCreatureName(command)
@@ -430,11 +430,11 @@ publicConnection.on('chat', (channel, userstate, message, self) => {
         info["species"] = FISH
         rarestListRequest(info)
     } 
-    else if(command == "!stalkMarket"){
+    else if(command == "!stalkmarket"){
         retrieveTurnipsPrice(info)
     }
     
-    else if(command.includes("!turnip buy") || command.includes("!turnip sell")){
+    else if((command.includes("!buy ") && command.includes(" turnips")) || (command.includes("!sell ") && command.includes(" turnips"))){
         let transaction = additionalInfo(info, command)
         if(transaction.error == undefined){
             info["transaction"] = transaction
@@ -461,7 +461,7 @@ publicConnection.on('chat', (channel, userstate, message, self) => {
         executingTurnipBusiness(info)
     }
 
-    else if(command == "!turnips"){
+    else if(command == "!myturnips"){
         statsRequest(info)
     }
 

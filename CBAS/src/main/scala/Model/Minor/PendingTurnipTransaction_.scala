@@ -4,12 +4,12 @@ object PendingTurnipTransaction_ {
 	import spray.json.DefaultJsonProtocol
 
 	case class PendingTurnipTransaction(
-		                    username : String,
-		                    business: String,
-		                    amount: Int,
-		                    marketPrice : Int,
-		                    totalBells: Int,
-		                    message: String,
+		                                   username : String,
+		                                   business: String,
+		                                   quantity: Int,
+		                                   marketPrice : Int,
+		                                   totalBells: Int,
+		                                   message: String,
 	                    )
 
 	trait PendingTurnipTransactionJsonProtocol extends DefaultJsonProtocol{

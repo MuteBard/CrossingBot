@@ -6,8 +6,8 @@ import Model.Major.Fish_.{Fish, FishJsonProtocol}
 object Pocket_ {
 	import spray.json.DefaultJsonProtocol
 	case class Pocket(
-		bug : List[Bug],
-		fish : List[Fish]
+		bug : List[Bug] = List(),
+		fish : List[Fish] = List()
 	)
 
 	trait PocketJsonProtocol extends DefaultJsonProtocol with BugJsonProtocol with FishJsonProtocol{

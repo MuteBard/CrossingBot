@@ -10,7 +10,7 @@ import org.mongodb.scala.bson.codecs.Macros._
 import scala.util.{Failure, Success}
 import App.Main.system
 import Model.Major.Bug_.Bug
-import Model.Major.ConfirmedTurnipTranaction_.ConfirmedTurnipTransaction
+import Model.Major.TurnipTransaction_.TurnipTransaction
 import Model.Major.User_.User
 import Model.Major.Pocket_.Pocket
 import Model.Minor.CreatureSell_.CreatureSell
@@ -23,7 +23,7 @@ import scala.concurrent.duration._
 import scala.concurrent.Await
 
 object UserOperations extends MongoDBOperations {
-	val codecRegistryUser = fromRegistries(fromProviders(classOf[User], classOf[ConfirmedTurnipTransaction],classOf[Pocket], classOf[Bug], classOf[Fish]), DEFAULT_CODEC_REGISTRY)
+	val codecRegistryUser = fromRegistries(fromProviders(classOf[User], classOf[TurnipTransaction],classOf[Pocket], classOf[Bug], classOf[Fish]), DEFAULT_CODEC_REGISTRY)
 	val codecRegistryPocket = fromRegistries(fromProviders(classOf[User],classOf[Pocket], classOf[Bug], classOf[Fish]), DEFAULT_CODEC_REGISTRY)
 
 	private val allUsers = db
@@ -72,24 +72,27 @@ object UserOperations extends MongoDBOperations {
 		val taskFuture = source.runWith(MongoSink.updateOne(allUsers))
 		taskFuture.onComplete{
 			case Success(_) => ""
-			case Failure (ex) => log.warn("UserOperations","updateUserTurnipTransactions","Failure",s"Failed update $username's turnips: $ex")
+			case Failure (ex) => log.warn("UserOperations","updateUserTurnipTransactions","Failure",s"Failed update $username: $ex")
 		}
 	}
 
-	def massUpdateOneUserTurnipsAndBells(username : String, turnips : List[ConfirmedTurnipTransaction], bells : Int) : Unit = {
-		updateUserTurnipTransactions(username, "turnips", turnips)
-		updateUserTurnipTransactions(username, "bells", bells)
-		log.info("UserOperations","massUpdateOneUserTurnipsAndBells","Success",s"Updated $username's bells and turnips")
+	def massUpdateOneUser(user : User) : User = {
+		updateUserTurnipTransactions(user.username, "liveTurnips", user.liveTurnips)
+		updateUserTurnipTransactions(user.username, "turnipTransactionHistory", user.turnipTransactionHistory)
+		updateUserTurnipTransactions(user.username, "bells", user.bells)
+		log.info("UserOperations","massUpdateOneUserTurnipsAndBells","Success",s"Updated $user.username's bells and turnips")
+		readOneUser(user.username).head
 	}
 
-	def updateTurnipTransactionStatsUponRetrieval(username : String, turnips : List[ConfirmedTurnipTransaction]): Unit = {
+	def updateTurnipTransactionStatsUponRetrieval(username : String, liveTurnips : TurnipTransaction): User = {
 		val source = MongoSource(allUsers.find(classOf[User]))
-			.map(_ => DocumentUpdate(filter = Filters.eq("username", username), update = Updates.set("turnips", turnips)))
+			.map(_ => DocumentUpdate(filter = Filters.eq("username", username), update = Updates.set("liveTurnips", liveTurnips)))
 		val taskFuture = source.runWith(MongoSink.updateOne(allUsers))
 		taskFuture.onComplete{
 			case Success(_) => log.info("UserOperations","updateTurnipTransactionStatsUponRetrieval","Success",s"Updated $username's turnips")
-			case Failure (ex) => log.warn("UserOperations","updateTurnipTransactionStatsUponRetrieval","Failure",s"Failed update $username's turnips: $ex")
+			case Failure (ex)   => log.warn("UserOperations","updateTurnipTransactionStatsUponRetrieval","Failure",s"Failed update $username's turnips: $ex")
 		}
+		readOneUser(username).head
 	}
 
 
@@ -105,7 +108,7 @@ object UserOperations extends MongoDBOperations {
 					val	fish = user.pocket.fish.filter(creature => creature.name != data.creature)
 					val updatedPocket = Pocket(bug, fish)
 					val updatedBells = user.bells + creatureBells
-					val newUser = User(user._id, user.username, user.fishingPoleLvl, user.bugNetLvl, updatedBells, updatedPocket, user.turnips, user.img)
+					val newUser = User(user._id, user.username, user.fishingPoleLvl, user.bugNetLvl, updatedBells, updatedPocket, user.liveTurnips, user.turnipTransactionHistory, user.img)
 					createOneUser(newUser)
 				case Failure(ex) =>
 					log.warn("UserOperations", "deleteOneForUser", "Failure", s"Failed to delete one USER: $ex")
@@ -131,7 +134,7 @@ object UserOperations extends MongoDBOperations {
 					val fish : List[Fish] = List()
 					val updatedPocket = Pocket(bug, fish)
 					val updatedBells = user.bells + creatureBells
-					val newUser = User(user._id, user.username, user.fishingPoleLvl, user.bugNetLvl, updatedBells, updatedPocket, user.turnips, user.img)
+					val newUser = User(user._id, user.username, user.fishingPoleLvl, user.bugNetLvl, updatedBells, updatedPocket, user.liveTurnips , user.turnipTransactionHistory, user.img)
 					createOneUser(newUser)
 				case Failure(ex) =>
 					log.warn("UserOperations", "deleteAllForUser", "Failure", s"Failed to delete one USER: $ex")

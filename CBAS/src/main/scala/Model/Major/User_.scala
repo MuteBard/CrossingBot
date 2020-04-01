@@ -1,6 +1,6 @@
 package Model.Major
 
-import Model.Major.ConfirmedTurnipTranaction_.{ConfirmedTurnipTransaction, ConfirmedTurnipTransactionJsonProtocol}
+import Model.Major.TurnipTransaction_.{TurnipTransaction, TurnipTransactionJsonProtocol}
 import Pocket_.{Pocket, PocketJsonProtocol}
 
 object User_ {
@@ -11,12 +11,13 @@ object User_ {
 		               fishingPoleLvl : Int = 0,
 		               bugNetLvl : Int = 0,
 		               bells : Int = 0,
-		               pocket : Pocket = null,
-		               turnips : List[ConfirmedTurnipTransaction] = List(),
+		               pocket : Pocket = Pocket(),
+		               liveTurnips : TurnipTransaction = TurnipTransaction(),
+		               turnipTransactionHistory : List[TurnipTransaction] = List(),
 		               img : String = "",
 	               )
 
-	trait UserJsonProtocol extends DefaultJsonProtocol with PocketJsonProtocol with ConfirmedTurnipTransactionJsonProtocol {
-		implicit val UserJson = jsonFormat8(User)
+	trait UserJsonProtocol extends DefaultJsonProtocol with PocketJsonProtocol with TurnipTransactionJsonProtocol {
+		implicit val UserJson = jsonFormat9(User)
 	}
 }

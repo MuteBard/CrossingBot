@@ -4,7 +4,7 @@ import Actors.MarketActor.Update_Stalks_Purchased
 import Dao.UserOperations
 import App.Main._
 import Model.Major.Bug_.Bug
-import Model.Major.ConfirmedTurnipTranaction_.ConfirmedTurnipTransaction
+import Model.Major.TurnipTransaction_.TurnipTransaction
 import Model.Major.Fish_.Fish
 import Model.Major.User_._
 import Model.Minor.CreatureSell_.CreatureSell
@@ -47,16 +47,16 @@ class UserActor extends Actor with ActorLogging{
 			if (userExists) {
 				log.info(s"[Read_One_User] USER $username found")
 
-				if (userSeq.head.turnips.nonEmpty){
-					val ctt = userSeq.head.turnips.head
+				if (userSeq.head.liveTurnips.business != ""){
+					val liveTurnip = userSeq.head.liveTurnips
 					val marketTurnipPrice = Await.result((marketActor ? MarketActor.Request_Turnip_Price).mapTo[Int], 5 seconds)
-					val userTurnipPrice = ctt.marketPrice
+					val userTurnipPrice = liveTurnip.marketPrice
 					val netGainLossAsBells = marketTurnipPrice - userTurnipPrice
 					val netGainLossAsPercentage = (math rint(netGainLossAsBells.toDouble / marketTurnipPrice.toDouble)).toInt
-					val newCtt = ConfirmedTurnipTransaction(ctt.business,ctt.activelyInMarket,ctt.amount,ctt.marketPrice, ctt.totalBells, netGainLossAsBells, netGainLossAsPercentage)
-					val turnips =  newCtt +: userSeq.head.turnips.drop(1)
-					UserOperations.updateTurnipTransactionStatsUponRetrieval(username, turnips)
-					sender() ! UserOperations.readOneUser(username).head
+					val newLiveTurnip = TurnipTransaction(liveTurnip.business,liveTurnip.quantity,liveTurnip.marketPrice, liveTurnip.totalBells, netGainLossAsBells, netGainLossAsPercentage)
+
+					log.info(s"[Read_One_User] Returning modified USER")
+					sender() !  UserOperations.updateTurnipTransactionStatsUponRetrieval(username, newLiveTurnip)
 				}else{
 					sender() ! userSeq.head
 				}
@@ -65,102 +65,117 @@ class UserActor extends Actor with ActorLogging{
 				sender() ! User()
 			}
 
-//		case Read_One_User(username) =>
-//			log.info(s"[Read_One_User] Getting USER with username $username")
-//			val userSeq = UserOperations.readOneUser(username)
-//			val userExists = userSeq.nonEmpty
-//
-//			if (userExists) {
-//				log.info(s"[Read_One_User] USER $username found")
-//				sender() ! userSeq.head
-//			} else {
-//				log.info(s"[Read_One_User] USER $username does not exist")
-//				sender() ! User()
-//			}
-
 		//TODO will need to fudge with selling part later
 		case Read_One_User_With_Pending_Turnip_Transaction(tt) =>
 			log.info(s"[Read_One_User_Pending_Turnip_Transaction] Inquiring MarketActor of turnip prices")
 			val turnipPrice = Await.result((marketActor ? MarketActor.Request_Turnip_Price).mapTo[Int], 5 seconds)
-			val totalCost = turnipPrice * tt.amount
+			val totalCost = turnipPrice * tt.quantity
 
 			val userSeq = UserOperations.readOneUser(tt.username)
 			if (userSeq.nonEmpty) {
 				log.info(s"[Read_One_User] USER ${tt.username} found")
 				val user = userSeq.head
 				if (tt.business == "buy") {
-					if (totalCost < user.bells) {
-						sender() ! PendingTurnipTransaction(tt.username, tt.business, tt.amount, turnipPrice, totalCost, "Authorized")
+					if (totalCost <= user.bells) {
+						sender() ! PendingTurnipTransaction(tt.username, tt.business, tt.quantity, turnipPrice, totalCost, "Authorized")
 					} else {
-						sender() ! PendingTurnipTransaction(tt.username, tt.business, tt.amount, turnipPrice, totalCost, "Insufficient bells")
+						sender() ! PendingTurnipTransaction(tt.username, tt.business, tt.quantity, turnipPrice, totalCost, "Insufficient bells")
 					}
 				} else if (tt.business == "sell") {
-					if (tt.amount < user.turnips.head.amount) {
-						sender() ! PendingTurnipTransaction(tt.username, tt.business, tt.amount, turnipPrice, totalCost, "Authorized")
+					if (tt.quantity <= user.turnipTransactionHistory.head.quantity) {
+						println(PendingTurnipTransaction(tt.username, tt.business, tt.quantity, turnipPrice, totalCost, "Authorized"))
+						sender() ! PendingTurnipTransaction(tt.username, tt.business, tt.quantity, turnipPrice, totalCost, "Authorized")
 					} else {
-						sender() ! PendingTurnipTransaction(tt.username, tt.business, tt.amount, turnipPrice, totalCost, "Insufficient turnips")
+						sender() ! PendingTurnipTransaction(tt.username, tt.business, tt.quantity, turnipPrice, totalCost, "Insufficient turnips")
 					}
 				}
 			} else {
-				sender() ! PendingTurnipTransaction(tt.username, tt.business, tt.amount, turnipPrice, totalCost, "User does not exist")
+				sender() ! PendingTurnipTransaction(tt.username, tt.business, tt.quantity, turnipPrice, totalCost, "User does not exist")
 			}
 
 
 
 		case Update_One_User_With_Executing_Turnip_Transaction(pendingTurnipTransaction) =>
-			log.info(s"[Update_One_User_With_Executing_Turnip_Transaction] Inquiring MarketActor of turnip prices")
-//			marketActor ! Update_Stalks_Purchased(pendingTurnipTransaction.amount, pendingTurnipTransaction.business)
-			val userSeq = UserOperations.readOneUser(pendingTurnipTransaction.username)
+			log.info(s"[Update_One_User_With_Executing_Turnip_Transaction] Confirming pending transaction")
+			val user = UserOperations.readOneUser(pendingTurnipTransaction.username).head
+			println(pendingTurnipTransaction)
+			if(user.liveTurnips.business == ""){
+				val liveTurnips = TurnipTransaction(
+					pendingTurnipTransaction.business,
+					pendingTurnipTransaction.quantity,
+					pendingTurnipTransaction.marketPrice,
+					pendingTurnipTransaction.totalBells,
+				)
+				val turnipTransactionHistory = List(liveTurnips)
+				val updatedBells = user.bells - pendingTurnipTransaction.totalBells
+				marketActor ! Update_Stalks_Purchased(pendingTurnipTransaction.quantity, pendingTurnipTransaction.business)
+				val newUser = User(user._id, user.username, user.fishingPoleLvl, user.bugNetLvl, updatedBells,
+					user.pocket, liveTurnips, turnipTransactionHistory, user.img)
+				sender() ! UserOperations.massUpdateOneUser(newUser)
 
-			val ptta = pendingTurnipTransaction.amount
-			val pttmp = pendingTurnipTransaction.marketPrice
-
-			if (userSeq.head.turnips.nonEmpty){
-
-				val recentlyConfirmedTurnipTransaction = userSeq.head.turnips.head
-				val rctta = recentlyConfirmedTurnipTransaction.amount
-				val rcttmp = recentlyConfirmedTurnipTransaction.marketPrice
-
-				if (pendingTurnipTransaction.business == "buy" ) {
-					//check to see if they already have turnips
-
-					if(recentlyConfirmedTurnipTransaction.business == "buy"){
-						//develop an average based on the two seperate buys
-						val userTotalAmount = ptta + rctta
-						val rcTotal = rctta * rcttmp
-						val pTotal =  ptta * pttmp
-						val userTotalBells = rcTotal + pTotal
-						val userMarketPrice = (math rint(userTotalBells.toDouble / userTotalAmount.toDouble)).toInt
-						val activelyInMarket = userTotalAmount > 0
-						val ctt = ConfirmedTurnipTransaction("buy", activelyInMarket, userTotalAmount, userMarketPrice, userTotalBells,
-							recentlyConfirmedTurnipTransaction.netGainLossAsBells, recentlyConfirmedTurnipTransaction.netGainLossAsPercentage)
-						val turnips =  ctt +: userSeq.head.turnips
-
-						UserOperations.massUpdateOneUserTurnipsAndBells(pendingTurnipTransaction.username, turnips, userSeq.head.bells)
-
-					}else if(recentlyConfirmedTurnipTransaction.business == "sell"){
-
-						val userTotalAmount = rctta - ptta
-						val rcTotal = rctta * rcttmp
-						val pTotal =  ptta * pttmp
-						val userTotalBells = rcTotal - pTotal
-						val userMarketPrice = (math rint(userTotalBells.toDouble / userTotalAmount.toDouble)).toInt
-						val activelyInMarket = userTotalAmount == 0
-						val ctt = ConfirmedTurnipTransaction("sell", activelyInMarket, userTotalAmount, userMarketPrice, userTotalBells,
-							recentlyConfirmedTurnipTransaction.netGainLossAsBells, recentlyConfirmedTurnipTransaction.netGainLossAsPercentage)
-						val turnips =  ctt +: userSeq.head.turnips
-
-						UserOperations.massUpdateOneUserTurnipsAndBells(pendingTurnipTransaction.username, turnips, userSeq.head.bells)
-					}
-				}
 			}else{
-				val ctt = ConfirmedTurnipTransaction("buy", activelyInMarket = true,
-					pendingTurnipTransaction.amount,pendingTurnipTransaction.marketPrice, pendingTurnipTransaction.totalBells)
-				val turnips = List(ctt)
-				val bells = userSeq.head.bells - pendingTurnipTransaction.totalBells
-				UserOperations.massUpdateOneUserTurnipsAndBells(pendingTurnipTransaction.username, turnips, bells )
-			}
 
+				if(pendingTurnipTransaction.business == "buy"){
+					//average out the market prices
+					val newTotalBells = user.liveTurnips.totalBells + pendingTurnipTransaction.totalBells
+					val newQuanity = user.liveTurnips.quantity + pendingTurnipTransaction.quantity
+					val newUserMarketAverage = newTotalBells / newQuanity //aware of loss, just truncating for now
+
+					val liveTurnips = TurnipTransaction(
+						"buy",
+						newQuanity ,
+						newUserMarketAverage,
+						newTotalBells,
+					)
+					val liveTurnipTransactionRecord = TurnipTransaction(
+						pendingTurnipTransaction.business,
+						pendingTurnipTransaction.quantity ,
+						pendingTurnipTransaction.marketPrice,
+						pendingTurnipTransaction.totalBells,
+					)
+
+
+					val turnipTransactionHistory  = liveTurnipTransactionRecord +: user.turnipTransactionHistory
+					val updatedBells = user.bells - pendingTurnipTransaction.totalBells
+					marketActor ! Update_Stalks_Purchased(pendingTurnipTransaction.quantity, pendingTurnipTransaction.business)
+					val newUser = User(user._id, user.username, user.fishingPoleLvl, user.bugNetLvl, updatedBells,
+						user.pocket, liveTurnips, turnipTransactionHistory, user.img)
+					sender() ! UserOperations.massUpdateOneUser(newUser)
+
+				}else if(pendingTurnipTransaction.business == "sell") {
+					val newTotalBells = user.liveTurnips.totalBells - pendingTurnipTransaction.totalBells
+					val newQuantity = user.liveTurnips.quantity - pendingTurnipTransaction.quantity
+
+					val liveTurnips = TurnipTransaction(
+						"buy",
+						newQuantity,
+						pendingTurnipTransaction.marketPrice,
+						newTotalBells,
+					)
+
+					val liveTurnipTransactionRecord = TurnipTransaction(
+						pendingTurnipTransaction.business,
+						pendingTurnipTransaction.quantity ,
+						pendingTurnipTransaction.marketPrice,
+						pendingTurnipTransaction.totalBells,
+					)
+
+					val turnipTransactionHistory  = liveTurnipTransactionRecord +: user.turnipTransactionHistory
+					val updatedBells = user.bells + pendingTurnipTransaction.totalBells
+					marketActor ! Update_Stalks_Purchased(pendingTurnipTransaction.quantity, pendingTurnipTransaction.business)
+
+					if(newQuantity != 0){
+						val newUser = User(user._id, user.username, user.fishingPoleLvl, user.bugNetLvl, updatedBells,
+							user.pocket, liveTurnips, turnipTransactionHistory, user.img)
+						sender() ! UserOperations.massUpdateOneUser(newUser)
+					}else{
+						val newUser = User(user._id, user.username, user.fishingPoleLvl, user.bugNetLvl, updatedBells,
+							user.pocket, TurnipTransaction(), turnipTransactionHistory, user.img)
+						sender() ! UserOperations.massUpdateOneUser(newUser)
+					}
+
+				}
+			}
 
 		//TODO This might need to refactoring
 		case Update_One_User_With_Creature(user) =>

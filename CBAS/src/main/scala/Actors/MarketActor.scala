@@ -32,7 +32,7 @@ class MarketActor extends Actor with ActorLogging {
 		//AUTOMATED
 		case Create_New_Movement_Record(newHourBlockId, newQuarterBlockId)  =>
 
-			log.info(s"[Create_New_Movement_Record] Checking for difference in block ids ($newHourBlockId,$newQuarterBlockId)")
+//			log.info(s"[Create_New_Movement_Record] Checking for difference in block ids ($newHourBlockId,$newQuarterBlockId)")
 			val suspectMovementRecord = MarketOperations.readLatestMovementRecord()
 			val mr =
 				if (suspectMovementRecord._id == todayDateId()){ //if this movement record is within today
@@ -51,7 +51,7 @@ class MarketActor extends Actor with ActorLogging {
 				}
 
 			if((currentQuarterBlockId != newQuarterBlockId)  || (currentHourBlockId == -1 && currentQuarterBlockId == -1)) {
-				log.info(s"[Create_New_Movement_Record] Change in block ids found")
+//				log.info(s"[Create_New_Movement_Record] Change in block ids found")
 
 				if(dateMarketCreated != todayDateId()) {
 					log.info(s"[Create_New_Movement_Record] A new day has been detected ($newHourBlockId,$newQuarterBlockId)")
