@@ -106,7 +106,7 @@ object ToCBTC extends
 					}
 				} ~
 				post{
-					path("retrieveOneByMonth" / Segment){
+						path("retrieveOneByMonth" / Segment){
 						creatureType => {
 							if (creatureType == BUG || creatureType == FISH) {
 								entity(as[Months]) { months =>
@@ -190,8 +190,8 @@ object ToCBTC extends
 					} ~
 					path("executingTurnipTransaction"){
 						entity(as[PendingTurnipTransaction]){ turnipTransaction =>
-							val turnipProcesses : PendingTurnipTransaction = Await.result((userActor ? UserActor.Update_One_User_With_Executing_Turnip_Transaction(turnipTransaction)).mapTo[PendingTurnipTransaction], 5 seconds)
-							complete(StatusCodes.OK, turnipProcesses)
+							val message = Await.result((userActor ? UserActor.Update_One_User_With_Executing_Turnip_Transaction(turnipTransaction)).mapTo[String], 5 seconds)
+							complete(StatusCodes.OK, message)
 						}
 					}
 

@@ -9,14 +9,14 @@ import Model.Major.MovementRecord_.MovementRecord
 import akka.actor.{Actor, ActorLogging}
 
 object MarketActor {
-
+	case class  Create_New_Movement_Record(hourBlock :Int, quarterBlock : Int)
+	case object Read_Latest_Movement_Record_Day
 	case object Read_Selected_Movement_Records_Month
 	case object Request_Turnip_Price
+	case class  Update_Stalks_Purchased(amount : Int, business : String)
 	case object Delete_Earliest_Movement_Records
-	case object Read_Latest_Movement_Record_Day
-//	case object Create_New_Movement_Record
-	case class Create_New_Movement_Record(h :Int, q : Int)
 	case object Start_Todays_Market
+
 }
 
 class MarketActor extends Actor with ActorLogging {
@@ -28,16 +28,8 @@ class MarketActor extends Actor with ActorLogging {
 	var currentQuarterBlockId: Int = -1
 
 	override def receive: Receive = {
-		//AUTOMATED
-		case Start_Todays_Market =>
-			log.info(s"[Start_Todays_Market] Generating all block patterns for the day")
-			todayMarket = Day().generate()
-			dateMarketCreated = todayDateId()
-			log.info(s"[Start_Todays_Market] Today's Market: $todayMarket")
-			self ! Create_New_Movement_Record
 
 		//AUTOMATED
-//		case Create_New_Movement_Record  =>
 		case Create_New_Movement_Record(newHourBlockId, newQuarterBlockId)  =>
 
 			log.info(s"[Create_New_Movement_Record] Checking for difference in block ids ($newHourBlockId,$newQuarterBlockId)")
@@ -53,40 +45,45 @@ class MarketActor extends Actor with ActorLogging {
 						latestTurnipPrice = suspectMovementRecord.latestTurnipPrice,
 						todayHigh = suspectMovementRecord.latestTurnipPrice,
 						todayLow = suspectMovementRecord.latestTurnipPrice,
+						stalksPurchased = suspectMovementRecord.stalksPurchased,
 						turnipPriceHistory = List(suspectMovementRecord.turnipPriceHistory.head)
 					)
 				}
-			if(currentQuarterBlockId != newQuarterBlockId) {
 
-				if(dateMarketCreated != todayDateId()){
+			if((currentQuarterBlockId != newQuarterBlockId)  || (currentHourBlockId == -1 && currentQuarterBlockId == -1)) {
+				log.info(s"[Create_New_Movement_Record] Change in block ids found")
+
+				if(dateMarketCreated != todayDateId()) {
 					log.info(s"[Create_New_Movement_Record] A new day has been detected ($newHourBlockId,$newQuarterBlockId)")
-					self ! Start_Todays_Market
+					log.info(s"[Start_Todays_Market] Generating all block patterns for the day")
+					todayMarket = Day().generate()
+					dateMarketCreated = todayDateId()
+					log.info(s"[Start_Todays_Market] Today's Market: $todayMarket")
+				}
+
+				val newTurnipPrice = mr.latestTurnipPrice + todayMarket.getQuarterBlock(newHourBlockId, newQuarterBlockId).change
+				val _id = todayDateId()
+				val high = Math.max(newTurnipPrice, mr.todayHigh)
+				val low = Math.min(newTurnipPrice, mr.todayLow)
+				val turnipPriceHistory =  newTurnipPrice +: mr.turnipPriceHistory
+				val stalksPurchased = mr.stalksPurchased
+				val latestHourBlock = todayMarket.getHourBlock(newHourBlockId)
+				val latestHourBlockName = todayMarket.getHourBlock(newHourBlockId).name
+				val latestQuarterBlock = todayMarket.getQuarterBlock(newHourBlockId, newQuarterBlockId)
+				val quarterBlockHistory = todayMarket.getQuarterBlockHistory(newHourBlockId, newQuarterBlockId)
+				val monthForMR = month()
+				val dayForMR  = day()
+
+				val newMr = MovementRecord(_id,newHourBlockId,newQuarterBlockId,high,low,stalksPurchased,newTurnipPrice,turnipPriceHistory,latestHourBlockName,latestHourBlock,
+					latestQuarterBlock,quarterBlockHistory,monthForMR,dayForMR
+				)
+
+				if((newHourBlockId == 0 && newQuarterBlockId == 0)  ||  ((currentHourBlockId == -1 && currentQuarterBlockId == -1) && mr._id == "")){
+					log.info(s"[Create_New_Movement_Record] Creating new Movement Record ($newHourBlockId,$newQuarterBlockId)")
+					MarketOperations.createMovementRecord(newMr)
 				}else{
-					log.info(s"[Create_New_Movement_Record] Change in block ids found")
-
-					val newTurnipPrice = mr.latestTurnipPrice + todayMarket.getQuarterBlock(newHourBlockId, newQuarterBlockId).change
-					val _id = todayDateId()
-					val high = Math.max(newTurnipPrice, mr.todayHigh)
-					val low = Math.min(newTurnipPrice, mr.todayLow)
-					val latestHourBlock = todayMarket.getHourBlock(newHourBlockId)
-					val latestHourBlockName = todayMarket.getHourBlock(newHourBlockId).name
-					val latestQuarterBlock = todayMarket.getQuarterBlock(newHourBlockId, newQuarterBlockId)
-					val quarterBlockHistory = todayMarket.getQuarterBlockHistory(newHourBlockId, newQuarterBlockId)
-					val turnipPriceHistory =  newTurnipPrice +: mr.turnipPriceHistory
-					val monthForMR = month()
-					val dayForMR  = day()
-
-					val newMr = MovementRecord(_id,newHourBlockId,newQuarterBlockId,high,low,newTurnipPrice,turnipPriceHistory,latestHourBlockName,latestHourBlock,
-						latestQuarterBlock,quarterBlockHistory,monthForMR,dayForMR
-					)
-
-					if(newHourBlockId == 0 && newQuarterBlockId == 0  ||  currentHourBlockId == -1 && currentQuarterBlockId == -1){
-						log.info(s"[Create_New_Movement_Record] Creating new Movement Record ($newHourBlockId,$newQuarterBlockId)")
-						MarketOperations.createMovementRecord(newMr)
-					}else{
-						log.info(s"[Create_New_Movement_Record] Updating Movement Record")
-						MarketOperations.massUpdateMovementRecord(newMr)
-					}
+					log.info(s"[Create_New_Movement_Record] Updating Movement Record")
+					MarketOperations.massUpdateMovementRecord(newMr)
 				}
 
 				currentHourBlockId = newHourBlockId
@@ -106,6 +103,15 @@ class MarketActor extends Actor with ActorLogging {
 		case Read_Latest_Movement_Record_Day =>
 			log.info(s"[Read_Latest_Movement_Record] Getting latest Movement Record")
 			sender() ! MarketOperations.readLatestMovementRecord()
+
+		case Update_Stalks_Purchased(amountBought, business) =>
+			log.info(s"[Read_Latest_Movement_Record] Updating total stalks purchased")
+			 if(business == "sell"){
+				 val amountSold = amountBought * -1
+				 MarketOperations.updateStalksPurchased(amountSold)
+			 } else{
+				 MarketOperations.updateStalksPurchased(amountBought)
+			 }
 
 		case Request_Turnip_Price =>
 			log.info(s"[Request_Turnip_Price] Getting turnip price")

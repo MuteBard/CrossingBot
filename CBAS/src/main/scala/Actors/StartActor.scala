@@ -31,15 +31,16 @@ class StartActor extends Actor with ActorLogging{
 
 		case Start_Market_Timers =>
 			log.info("[StartMarketTimers] Starting Scheduler Jobs")
-			marketActor ! Start_Todays_Market
-			createMovementRecords = system.scheduler.scheduleWithFixedDelay(
-				5 seconds,
-				1 minute,
-				marketActor,
-				Create_New_Movement_Record(
-					Calendar.getInstance().get(Calendar.HOUR_OF_DAY),
-					Calendar.getInstance().get(Calendar.MINUTE)/15
-				))
+
+			val task = new Runnable {
+				def run() {
+				val hourblock = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
+				val quarterblock = Calendar.getInstance().get(Calendar.MINUTE)/15
+				marketActor ! Create_New_Movement_Record(hourblock, quarterblock)
+				}
+			}
+
+			createMovementRecords = system.scheduler.scheduleWithFixedDelay(5 seconds, 1 minute){task}
 			deleteOldMovementRecords = system.scheduler.scheduleWithFixedDelay(60 days, 10 days, marketActor, Delete_Earliest_Movement_Records)
 
 		case Stop_Market_Timers =>

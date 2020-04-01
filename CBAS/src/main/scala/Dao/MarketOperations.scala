@@ -2,7 +2,7 @@ package Dao
 
 import Data.Market.MarketQuarterBlock.QuarterBlock
 import Data.Market.MarketHourBlock.HourBlock
-import Helper.Auxiliary.log
+import Helper.Auxiliary._
 import Model.Major.MovementRecord_.MovementRecord
 import akka.stream.alpakka.mongodb.scaladsl.{MongoSink, MongoSource}
 import akka.stream.scaladsl.{Sink, Source}
@@ -36,12 +36,22 @@ object  MarketOperations extends MongoDBOperations {
 		}
 	}
 
+	def updateStalksPurchased(amount : Int) : Unit = {
+		val source = MongoSource(allMR.find(classOf[MovementRecord]))
+			.map(mr => DocumentUpdate(filter = Filters.eq("_id", todayDateId()), update = Updates.set("stalksPurchased", mr.stalksPurchased + amount)))
+		val taskFuture = source.runWith(MongoSink.updateOne(allMR))
+		taskFuture.onComplete{
+			case Success(_) => log.info("MarketOperations","updateStalksPurchased","Success",s"Updated MovementRecord ${todayDateId()}'s stalksPurchased")
+			case Failure (ex) => log.warn("MarketOperations","updateStalksPurchased","Failure",s"Failed create 1 MovementRecord: $ex")
+		}
+	}
+
 	def updateMovementRecordField[A](mr : MovementRecord, key :String, value : A) : Unit = {
 		val source = MongoSource(allMR.find(classOf[MovementRecord]))
     		.map(_ => DocumentUpdate(filter = Filters.eq("_id", mr._id), update = Updates.set(key, value)))
 		val taskFuture = source.runWith(MongoSink.updateOne(allMR))
 		taskFuture.onComplete{
-			case Success(_) => None
+			case Success(_) => ""
 			case Failure (ex) =>
 				log.warn("MarketOperations","updateMovementRecord","Failure",s"Failed to update MovementRecord ${mr._id}'s $key: $ex")
 		}
@@ -52,12 +62,14 @@ object  MarketOperations extends MongoDBOperations {
 		updateMovementRecordField(mr, "quarterBlockId", mr.quarterBlockId)
 		updateMovementRecordField(mr, "todayHigh", mr.todayHigh)
 		updateMovementRecordField(mr, "todayLow", mr.todayLow)
+		updateMovementRecordField(mr, "stalksPurchased", mr.stalksPurchased)
+		updateMovementRecordField(mr, "latestTurnipPrice", mr.latestTurnipPrice)
+		updateMovementRecordField(mr, "turnipPriceHistory", mr.turnipPriceHistory)
 		updateMovementRecordField(mr, "hourBlockName", mr.hourBlockName)
 		updateMovementRecordField(mr, "latestHourBlock", mr.latestHourBlock)
 		updateMovementRecordField(mr, "latestQuarterBlock", mr.latestQuarterBlock)
 		updateMovementRecordField(mr, "quarterBlockHistory", mr.quarterBlockHistory)
-		updateMovementRecordField(mr, "latestTurnipPrice", mr.latestTurnipPrice)
-		updateMovementRecordField(mr, "turnipPriceHistory", mr.turnipPriceHistory)
+
 		log.info("MarketOperations","updateMovementRecord","Success",s"Updated ${mr._id}'s MovementRecord")
 	}
 
@@ -75,6 +87,7 @@ object  MarketOperations extends MongoDBOperations {
 			daySeq
 		}
 	}
+
 
 	def readMovementRecordListByMonth(month :  Int): List[MovementRecord] = {
 		val source = MongoSource(allMR.find(classOf[MovementRecord])).filter(mr => mr.month == month)

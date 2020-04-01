@@ -218,7 +218,7 @@ let bellsRequest = (info) => {
     toCBAS.getUser(akkaPayload, twitchPayload, botResponse)
 }
 
-let pocketListRequest = (info) => {
+let pocketRequest = (info) => {
     let akkaPayload = {"username" : info.viewer } 
     function twitchPayload (data) { 
         let message = ""
@@ -356,6 +356,9 @@ publicConnection.on('chat', (channel, userstate, message, self) => {
         streamerChannel : channel,
         viewer : userstate["display-name"]    
     }
+    if (pendingAuthorizedTransactionDict[info.viewer] == undefined){
+        pendingAuthorizedTransactionDict[info.viewer] = {"username" : ""}
+    } 
     
     let command = message.toLowerCase().trim()
     if(command == "!help") helpRequest(info)
@@ -368,7 +371,7 @@ publicConnection.on('chat', (channel, userstate, message, self) => {
         info["species"] = FISH
         catchRequest(info)
     } 
-    else if(command == "!listpocket") pocketListRequest(info)
+    else if(command == "!pocket") pocketRequest(info)
     else if(command == "!bells") bellsRequest(info)
 
     else if(command.includes("!sell bug")) {
@@ -403,7 +406,7 @@ publicConnection.on('chat', (channel, userstate, message, self) => {
         info["species"] = FISH
         rarestListRequest(info)
     } 
-    else if(command == "!turnipmarket"){
+    else if(command == "!turnip"){
         retrieveTurnipsPrice(info)
     }
     
@@ -420,10 +423,10 @@ publicConnection.on('chat', (channel, userstate, message, self) => {
     }
     
     else if (command == "!confirm" && pendingAuthorizedTransactionDict[info.viewer].username == info.viewer){
-        console.log(pendingAuthorizedTransactionDict)
-        // console.log(transaction)
-        // info["transaction 
-
+        info["transaction"] = pendingAuthorizedTransactionDict[info.viewer]
+        info["status"] = "confirmed"
+        delete pendingAuthorizedTransactionDict[info.viewer]
+        executingTurnipBusiness(info)
     }
 
     else if (command == "!cancel" && pendingAuthorizedTransactionDict[info.viewer].username == info.viewer){
@@ -433,7 +436,6 @@ publicConnection.on('chat', (channel, userstate, message, self) => {
         console.log("Does not make a request to do many calculations")
         executingTurnipBusiness(info)
     }
-
 
     // else if(command == "!turnipowened") Easy
     // else if(command == "!turnip buy") Hard

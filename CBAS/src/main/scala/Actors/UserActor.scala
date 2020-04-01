@@ -1,8 +1,10 @@
 package Actors
 
+import Actors.MarketActor.Update_Stalks_Purchased
 import Dao.UserOperations
 import App.Main._
 import Model.Major.Bug_.Bug
+import Model.Major.ConfirmedTurnipTranaction_.ConfirmedTurnipTransaction
 import Model.Major.Fish_.Fish
 import Model.Major.User_._
 import Model.Minor.CreatureSell_.CreatureSell
@@ -38,16 +40,43 @@ class UserActor extends Actor with ActorLogging{
 
 		case Read_One_User(username) =>
 			log.info(s"[Read_One_User] Getting USER with username $username")
+
 			val userSeq = UserOperations.readOneUser(username)
 			val userExists = userSeq.nonEmpty
 
 			if (userExists) {
 				log.info(s"[Read_One_User] USER $username found")
-				sender() ! userSeq.head
+
+				if (userSeq.head.turnips.nonEmpty){
+					val ctt = userSeq.head.turnips.head
+					val marketTurnipPrice = Await.result((marketActor ? MarketActor.Request_Turnip_Price).mapTo[Int], 5 seconds)
+					val userTurnipPrice = ctt.marketPrice
+					val netGainLossAsBells = marketTurnipPrice - userTurnipPrice
+					val netGainLossAsPercentage = (math rint(netGainLossAsBells.toDouble / marketTurnipPrice.toDouble)).toInt
+					val newCtt = ConfirmedTurnipTransaction(ctt.business,ctt.activelyInMarket,ctt.amount,ctt.marketPrice, ctt.totalBells, netGainLossAsBells, netGainLossAsPercentage)
+					val turnips =  newCtt +: userSeq.head.turnips.drop(1)
+					UserOperations.updateTurnipTransactionStatsUponRetrieval(username, turnips)
+					sender() ! UserOperations.readOneUser(username).head
+				}else{
+					sender() ! userSeq.head
+				}
 			} else {
 				log.info(s"[Read_One_User] USER $username does not exist")
 				sender() ! User()
 			}
+
+//		case Read_One_User(username) =>
+//			log.info(s"[Read_One_User] Getting USER with username $username")
+//			val userSeq = UserOperations.readOneUser(username)
+//			val userExists = userSeq.nonEmpty
+//
+//			if (userExists) {
+//				log.info(s"[Read_One_User] USER $username found")
+//				sender() ! userSeq.head
+//			} else {
+//				log.info(s"[Read_One_User] USER $username does not exist")
+//				sender() ! User()
+//			}
 
 		//TODO will need to fudge with selling part later
 		case Read_One_User_With_Pending_Turnip_Transaction(tt) =>
@@ -78,16 +107,67 @@ class UserActor extends Actor with ActorLogging{
 
 
 
-		case Update_One_User_With_Executing_Turnip_Transaction(tt) =>
+		case Update_One_User_With_Executing_Turnip_Transaction(pendingTurnipTransaction) =>
 			log.info(s"[Update_One_User_With_Executing_Turnip_Transaction] Inquiring MarketActor of turnip prices")
-			//update the user's turnip Objecthjbn
+			marketActor ! Update_Stalks_Purchased(pendingTurnipTransaction.amount, pendingTurnipTransaction.business)
+			val userSeq = UserOperations.readOneUser(pendingTurnipTransaction.username)
+			val recentlyConfirmedTurnipTransaction = userSeq.head.turnips.head
 
+			val ptta = pendingTurnipTransaction.amount
+			val pttmp = pendingTurnipTransaction.marketPrice
+
+			if (userSeq.head.turnips.nonEmpty){
+
+				val rctta = recentlyConfirmedTurnipTransaction.amount
+				val rcttmp = recentlyConfirmedTurnipTransaction.marketPrice
+
+				if (pendingTurnipTransaction.business == "buy" ) {
+					//check to see if they already have turnips
+
+					if(recentlyConfirmedTurnipTransaction.business == "buy"){
+						//develop an average based on the two seperate buys
+						val userTotalAmount = ptta + rctta
+						val rcTotal = rctta * rcttmp
+						val pTotal =  ptta * pttmp
+						val userTotalBells = rcTotal + pTotal
+						val userMarketPrice = (math rint(userTotalBells.toDouble / userTotalAmount.toDouble)).toInt
+						val activelyInMarket = userTotalAmount > 0
+						val ctt = ConfirmedTurnipTransaction("buy", activelyInMarket, userTotalAmount, userMarketPrice, userTotalBells,
+							recentlyConfirmedTurnipTransaction.netGainLossAsBells, recentlyConfirmedTurnipTransaction.netGainLossAsPercentage)
+						val turnips =  ctt +: userSeq.head.turnips
+
+						UserOperations.massUpdateOneUserTurnipsAndBells(pendingTurnipTransaction.username, turnips, userSeq.head.bells)
+
+					}else if(recentlyConfirmedTurnipTransaction.business == "sell"){
+
+						val userTotalAmount = rctta - ptta
+						val rcTotal = rctta * rcttmp
+						val pTotal =  ptta * pttmp
+						val userTotalBells = rcTotal - pTotal
+						val userMarketPrice = (math rint(userTotalBells.toDouble / userTotalAmount.toDouble)).toInt
+						val activelyInMarket = userTotalAmount == 0
+						val ctt = ConfirmedTurnipTransaction("sell", activelyInMarket, userTotalAmount, userMarketPrice, userTotalBells,
+							recentlyConfirmedTurnipTransaction.netGainLossAsBells, recentlyConfirmedTurnipTransaction.netGainLossAsPercentage)
+						val turnips =  ctt +: userSeq.head.turnips
+
+						UserOperations.massUpdateOneUserTurnipsAndBells(pendingTurnipTransaction.username, turnips, userSeq.head.bells)
+					}
+				}
+			}else{
+				val ctt = ConfirmedTurnipTransaction("buy", activelyInMarket = true,
+					pendingTurnipTransaction.amount,pendingTurnipTransaction.marketPrice, pendingTurnipTransaction.totalBells)
+				val turnips = List(ctt)
+				UserOperations.massUpdateOneUserTurnipsAndBells(pendingTurnipTransaction.username, turnips, userSeq.head.bells)
+			}
+
+
+			sender() ! "Confirmed"
 
 
 		//TODO This might need to refactoring
 		case Update_One_User_With_Creature(user) =>
 			log.info(s"[Update_One_User_With_Creature] Adding BUG/FISH to potential ${user.username}'s pocket")
-			UserOperations.updateUser(user)
+			UserOperations.updateUserPocket(user)
 			log.info(s"[Update_One_User_With_Creature] Verifying if USER with username ${user.username} exists")
 			val exists = UserOperations.readOneUser(user.username).length == 1
 			if (exists){

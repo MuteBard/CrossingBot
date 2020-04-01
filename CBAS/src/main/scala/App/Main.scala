@@ -1,6 +1,5 @@
 package App
 
-import Actors.MarketActor.{Create_New_Movement_Record, Start_Todays_Market}
 import Actors.StartActor.Start_Market_Timers
 import Actors._
 import Helper.Auxiliary._
@@ -16,9 +15,15 @@ object Main extends App{
 	val marketActor = system.actorOf(Props[MarketActor], "MarketActor")
 
 	log.info("Main", "CBAS booting up...")
-	log.info("Main", "CBAS starting up schedulers")
-	startupActor ! Start_Market_Timers
+//	log.info("Main", "CBAS starting up schedulers")
+//	startupActor ! Start_Market_Timers
 	ToCBTC
 	log.info("Main", "CBAS listening at localhost:4774/api/")
+
+
+
+
+
+
 
 }

@@ -63,6 +63,7 @@ exports.postPendingTransaction = async(info, twitchPayload, botResponse) => {
 
 exports.postExecuteTransaction = async(info, twitchPayload, botResponse) => {
     let payload = info.transaction
+    console.log(payload)
     try{
         let CBAS_response = await axios.post(`${root}/executingTurnipTransaction`, payload)
         botResponse(twitchPayload(CBAS_response.data))
@@ -98,13 +99,12 @@ exports.postRareListByMonth = async(info, twitchPayload, botResponse) => {
 
 // `${root}/retrieveOneByMonth/bug` or `${root}/retrieveOneByMonth/fish`
 exports.postCatchRequest = async (info, twitchPayload, botResponse) => {
-
     let availability = {"availability" : info.availability}
     try{
+
         let CBAS_response = await axios.post(`${root}/retrieveOneByMonth/${info.species}`, availability)
         let data = CBAS_response.data     
 
-        console.log(data)
         let twitchData = twitchPayload(CBAS_response.data)
         botResponse(twitchData)
 
@@ -113,6 +113,8 @@ exports.postCatchRequest = async (info, twitchPayload, botResponse) => {
             "fish" : info.species == FISH ? [data] : []
         }
 
+        let turnips = []
+
         let userPayload = {
             "_id" :  0,
             "username" : info.viewer,
@@ -120,7 +122,7 @@ exports.postCatchRequest = async (info, twitchPayload, botResponse) => {
             "bugNetLvl" : 1,
             "bells" : 0,
             "pocket" : pocket,
-            "turnips" : 0,
+            "turnips" : turnips,
             "img" : "-"
         }
         postUpdateUserPocket(userPayload)
