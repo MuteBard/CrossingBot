@@ -190,8 +190,9 @@ object ToCBTC extends
 					} ~
 					path("executingTurnipTransaction"){
 						entity(as[PendingTurnipTransaction]){ turnipTransaction =>
-							val message = Await.result((userActor ? UserActor.Update_One_User_With_Executing_Turnip_Transaction(turnipTransaction)).mapTo[String], 5 seconds)
-							complete(StatusCodes.OK, message)
+							userActor ! UserActor.Update_One_User_With_Executing_Turnip_Transaction(turnipTransaction)
+							val oneUser : User = Await.result((userActor ? UserActor.Read_One_User(turnipTransaction.username)).mapTo[User], 2 seconds)
+							complete(oneUser)
 						}
 					}
 

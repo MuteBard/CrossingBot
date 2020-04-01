@@ -18,7 +18,7 @@ object Auxiliary {
 	def todayDateId(): String = {
 		val dt = Calendar.getInstance()
 		val month = if (dt.get(Calendar.MONTH) < 10) "0"+(dt.get(Calendar.MONTH)+1) else dt.get(Calendar.MONTH)+1
-		val day = dt.get(Calendar.DAY_OF_MONTH)
+		val day = if (dt.get(Calendar.DAY_OF_MONTH) < 10) "0"+dt.get(Calendar.DAY_OF_MONTH) else dt.get(Calendar.DAY_OF_MONTH)
 		val year = dt.get(Calendar.YEAR)
 		s"$year$month$day"
 	}

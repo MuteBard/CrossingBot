@@ -23,7 +23,7 @@ import scala.concurrent.duration._
 import scala.concurrent.Await
 
 object UserOperations extends MongoDBOperations {
-	val codecRegistryUser = fromRegistries(fromProviders(classOf[User],classOf[Pocket], classOf[Bug], classOf[Fish]), DEFAULT_CODEC_REGISTRY)
+	val codecRegistryUser = fromRegistries(fromProviders(classOf[User], classOf[ConfirmedTurnipTransaction],classOf[Pocket], classOf[Bug], classOf[Fish]), DEFAULT_CODEC_REGISTRY)
 	val codecRegistryPocket = fromRegistries(fromProviders(classOf[User],classOf[Pocket], classOf[Bug], classOf[Fish]), DEFAULT_CODEC_REGISTRY)
 
 	private val allUsers = db

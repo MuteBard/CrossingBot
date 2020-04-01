@@ -65,11 +65,13 @@ exports.postExecuteTransaction = async(info, twitchPayload, botResponse) => {
     let payload = info.transaction
     console.log(payload)
     try{
+
         let CBAS_response = await axios.post(`${root}/executingTurnipTransaction`, payload)
+        console.log(CBAS_response.data)
         botResponse(twitchPayload(CBAS_response.data))
     }catch(error){
         botResponse(twitchPayload(null))
-        // errorLog(error, info)
+        errorLog(error, info)
     }
 }
 
@@ -164,15 +166,15 @@ let postCreateUserData = async (userPayload) => {
 }
 
 let errorLog = (error, payload) => {
-    // response = {
-    //     // url : error.config.url,
-    //     method : error.config.method,
-    //     data: error.config.data,
-    //     headers: error.config.headers
-    // }
-    // console.log("\n\nCheck to see if CBAS and CBTC paths match")
-    // console.log("\nRestart CBAS And CBTC for applying recent path changes")
-    // console.log("\nSomething might be wrong with request :", response)
+    response = {
+        // url : error.config.url,
+        method : error.config.method,
+        data: error.config.data,
+        headers: error.config.headers
+    }
+    console.log("\n\nCheck to see if CBAS and CBTC paths match")
+    console.log("\nRestart CBAS And CBTC for applying recent path changes")
+    console.log("\nSomething might be wrong with request :", response)
     console.log("\nSomething might be wrong payloads :", payload)
     console.log(error)
 }

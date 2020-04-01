@@ -334,7 +334,7 @@ let executingTurnipBusiness = (info) => {
         function twitchPayload(data){
             let message = ""
             if(data != null){
-                message = `Congrats! ${info.viewer}, you ${info.transaction.business == "buy" ? "bought" : "sold"} ${data.amount} turnips at a market price of ${data.marketPrice}}`
+                message = `Congrats! ${info.viewer}, you ${data.turnips[0].business == "buy" ? "bought" : "sold"} ${data.turnips[0].amount} turnips at a market price of ${data.turnips[0].marketPrice} bells! ${addFlower()}`
             }else
                 message = `Hey ${info.streamerChannel.split("#")[1]}, something went wrong with CrossingBot. Please contact MuteBard ${addFlower()}`
             
@@ -345,6 +345,30 @@ let executingTurnipBusiness = (info) => {
         }
         toCBAS.postExecuteTransaction(info,twitchPayload,botResponse)  
     }
+}
+
+let statsRequest = (info) => {
+    let akkaPayload = {"username" : info.viewer } 
+    function twitchPayload (data) { 
+        let message = ""
+        let confirmedTurnipTransaction = data.turnips[0]
+        if (data != null){
+            if (confirmedTurnipTransaction.netGainLossAsBells > 0){
+                message = `${info.viewer}, you have gained ${confirmedTurnipTransaction.netGainLossAsBells} bells so far with your ${confirmedTurnipTransaction.amount} turnips at the market price of ${confirmedTurnipTransaction.marketPrice}! ${addFlower()}` 
+            }else if(confirmedTurnipTransaction.netGainLossAsBells > 0){
+                message = `${info.viewer}, you have made exactly 0 ${confirmedTurnipTransaction.netGainLossAsBells} bells with your ${confirmedTurnipTransaction.amount} turnips at the market price of ${confirmedTurnipTransaction.marketPrice}! ${addFlower()}`
+            }else{
+                message = `${info.viewer}, you have lost ${Math.abs(confirmedTurnipTransaction.netGainLossAsBells)} bells so far with your ${confirmedTurnipTransaction.amount} turnips at the market price of ${confirmedTurnipTransaction.marketPrice}! ${addFlower()}`
+            }
+        }else
+            message = `${info.viewer}, try !bug or !fish first. ${addFlower()}`
+        
+        return {
+            "streamerChannel" : info.streamerChannel,
+            "message" :  message
+        }
+    }
+    toCBAS.getUser(akkaPayload, twitchPayload, botResponse)
 }
 
 
@@ -435,6 +459,10 @@ publicConnection.on('chat', (channel, userstate, message, self) => {
         delete pendingAuthorizedTransactionDict[info.viewer]
         console.log("Does not make a request to do many calculations")
         executingTurnipBusiness(info)
+    }
+
+    else if(command == "!gains"){
+        statsRequest(info)
     }
 
     // else if(command == "!turnipowened") Easy

@@ -109,15 +109,15 @@ class UserActor extends Actor with ActorLogging{
 
 		case Update_One_User_With_Executing_Turnip_Transaction(pendingTurnipTransaction) =>
 			log.info(s"[Update_One_User_With_Executing_Turnip_Transaction] Inquiring MarketActor of turnip prices")
-			marketActor ! Update_Stalks_Purchased(pendingTurnipTransaction.amount, pendingTurnipTransaction.business)
+//			marketActor ! Update_Stalks_Purchased(pendingTurnipTransaction.amount, pendingTurnipTransaction.business)
 			val userSeq = UserOperations.readOneUser(pendingTurnipTransaction.username)
-			val recentlyConfirmedTurnipTransaction = userSeq.head.turnips.head
 
 			val ptta = pendingTurnipTransaction.amount
 			val pttmp = pendingTurnipTransaction.marketPrice
 
 			if (userSeq.head.turnips.nonEmpty){
 
+				val recentlyConfirmedTurnipTransaction = userSeq.head.turnips.head
 				val rctta = recentlyConfirmedTurnipTransaction.amount
 				val rcttmp = recentlyConfirmedTurnipTransaction.marketPrice
 
@@ -157,11 +157,9 @@ class UserActor extends Actor with ActorLogging{
 				val ctt = ConfirmedTurnipTransaction("buy", activelyInMarket = true,
 					pendingTurnipTransaction.amount,pendingTurnipTransaction.marketPrice, pendingTurnipTransaction.totalBells)
 				val turnips = List(ctt)
-				UserOperations.massUpdateOneUserTurnipsAndBells(pendingTurnipTransaction.username, turnips, userSeq.head.bells)
+				val bells = userSeq.head.bells - pendingTurnipTransaction.totalBells
+				UserOperations.massUpdateOneUserTurnipsAndBells(pendingTurnipTransaction.username, turnips, bells )
 			}
-
-
-			sender() ! "Confirmed"
 
 
 		//TODO This might need to refactoring
