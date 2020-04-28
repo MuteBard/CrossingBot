@@ -1,6 +1,6 @@
 package Data
 
-import Model.Major.Bug_.Bug
+import Model.Bug_.Bug
 
 object BugData {
 	val Bugs = List(
@@ -78,3 +78,4 @@ object BugData {
 		Bug(72, "B72", "Scorpion", 8000, List("JUL","AUG","SEP"), 4, "Scorpion_HHD_Icon.png" )
 	)
 }
+

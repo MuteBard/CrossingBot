@@ -1,30 +1,32 @@
 package Actors
 
-import Actors.MarketActor.Update_Stalks_Purchased
 import Dao.UserOperations
-import App.Main._
-import Model.Major.Bug_.Bug
-import Model.Major.TurnipTransaction_.TurnipTransaction
-import Model.Major.Fish_.Fish
-import Model.Major.User_._
-import Model.Minor.CreatureSell_.CreatureSell
-import Model.Minor.PendingTurnipTransaction_.PendingTurnipTransaction
+import App.Main.bugActor
+import App.Main.fishActor
+import App.Main.marketActor
+import Model.Bug_._
+import Model.Fish_._
+import Model.Pocket_.Pocket
+import Model.TurnipTransaction_.TurnipTransaction
+import Model.User_._
 import akka.actor.{Actor, ActorLogging}
-import akka.pattern.ask
 import akka.util.Timeout
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
+import akka.pattern.ask
+import scala.language.postfixOps
+
 
 object UserActor {
-	case class Create_One_User(user : User )
+//	case class Create_One_User(user : User )
 	case class Read_One_User(username : String)
-	case class Read_One_User_With_Pending_Turnip_Transaction(turnipTransaction : PendingTurnipTransaction)
-	case class Update_One_User_With_Executing_Turnip_Transaction(turnipTransaction : PendingTurnipTransaction)
-	case class Update_One_User_With_Creature(user : User)
-	case class Delete_One_Creature_From_Pocket(selling : CreatureSell)
-	case class Delete_All_Creature_From_Pocket(selling : CreatureSell)
-
+	case class Read_One_User_With_Pending_Turnip_Transaction(username : String, business : String, quantity : Int)
+	case class FinalizeUserCreation(username:  String, id : Int, avatar : String)
+	case class Update_One_User_With_Executing_Turnip_Transaction(username : String, business: String, quantity : Int, marketPrice: Int, totalBells: Int)
+	case class Update_One_User_With_Creature(username : String, species: String, months : List[String])
+	case class Delete_One_Creature_From_Pocket(username: String, species : String, creatureName : String)
+	case class Delete_All_Creatures_From_Pocket(username: String)
 }
 
 class UserActor extends Actor with ActorLogging{
@@ -33,10 +35,6 @@ class UserActor extends Actor with ActorLogging{
 	import UserActor._
 	implicit val timeout = Timeout(5 seconds)
 	override def receive: Receive = {
-
-		case Create_One_User(user) =>
-			log.info(s"[Create_One_User] Inserting USER in database with new creature in pocket")
-			UserOperations.createOneUser(user)
 
 		case Read_One_User(username) =>
 			log.info(s"[Read_One_User] Getting USER with username $username")
@@ -53,160 +51,219 @@ class UserActor extends Actor with ActorLogging{
 					val userTurnipPrice = liveTurnip.marketPrice
 					val netGainLossAsBells = marketTurnipPrice - userTurnipPrice
 					val netGainLossAsPercentage = (math rint(netGainLossAsBells.toDouble / marketTurnipPrice.toDouble)).toInt
-					val newLiveTurnip = TurnipTransaction(liveTurnip.business,liveTurnip.quantity,liveTurnip.marketPrice, liveTurnip.totalBells, netGainLossAsBells, netGainLossAsPercentage)
+					val newLiveTurnip = TurnipTransaction(liveTurnip.business,liveTurnip.quantity,liveTurnip.marketPrice, liveTurnip.totalBells, liveTurnip.status, netGainLossAsBells, netGainLossAsPercentage)
 
-					log.info(s"[Read_One_User] Returning modified USER")
+					log.info(s"[Read_One_User] Returning modified USER $username")
 					sender() !  UserOperations.updateTurnipTransactionStatsUponRetrieval(username, newLiveTurnip)
 				}else{
+					log.info(s"[Read_One_User] Returning USER $username")
 					sender() ! userSeq.head
 				}
 			} else {
 				log.info(s"[Read_One_User] USER $username does not exist")
-				sender() ! User()
+				sender() ! User(id = -2)
 			}
 
-		//TODO will need to fudge with selling part later
-		case Read_One_User_With_Pending_Turnip_Transaction(tt) =>
+		case Read_One_User_With_Pending_Turnip_Transaction(username, business, quantity) =>
 			log.info(s"[Read_One_User_Pending_Turnip_Transaction] Inquiring MarketActor of turnip prices")
-			val turnipPrice = Await.result((marketActor ? MarketActor.Request_Turnip_Price).mapTo[Int], 5 seconds)
-			val totalCost = turnipPrice * tt.quantity
-
-			val userSeq = UserOperations.readOneUser(tt.username)
+			val marketPrice = Await.result((marketActor ? MarketActor.Request_Turnip_Price).mapTo[Int], 5 seconds)
+			val totalBells = marketPrice * quantity
+			val userSeq = UserOperations.readOneUser(username)
 			if (userSeq.nonEmpty) {
-				log.info(s"[Read_One_User] USER ${tt.username} found")
+				log.info(s"[Read_One_User] USER $username found")
 				val user = userSeq.head
-				if (tt.business == "buy") {
-					if (totalCost <= user.bells) {
-						sender() ! PendingTurnipTransaction(tt.username, tt.business, tt.quantity, turnipPrice, totalCost, "Authorized")
+				if (business.toLowerCase == "buy") {
+					if (quantity <= 0) {
+						sender() ! TurnipTransaction(business, 0, marketPrice, 0, "Bad request: Quantity below 1")
+					}else if (totalBells <= user.bells) {
+						sender() ! TurnipTransaction(business, quantity, marketPrice, totalBells, "Authorized")
 					} else {
-						sender() ! PendingTurnipTransaction(tt.username, tt.business, tt.quantity, turnipPrice, totalCost, "Insufficient bells")
+						sender() ! TurnipTransaction(business, quantity, marketPrice, totalBells, "Unauthorized: Insufficient bells")
 					}
-				} else if (tt.business == "sell") {
-					if (tt.quantity <= user.turnipTransactionHistory.head.quantity) {
-						println(PendingTurnipTransaction(tt.username, tt.business, tt.quantity, turnipPrice, totalCost, "Authorized"))
-						sender() ! PendingTurnipTransaction(tt.username, tt.business, tt.quantity, turnipPrice, totalCost, "Authorized")
+				} else if (business.toLowerCase == "sell") {
+					if (quantity <= 0) {
+						sender() ! TurnipTransaction(business, 0, marketPrice, 0, "Bad request: Quantity below 1")
+					} else if (quantity <= user.turnipTransactionHistory.head.quantity) {
+						sender() ! TurnipTransaction(business, quantity, marketPrice, totalBells, "Authorized")
 					} else {
-						sender() ! PendingTurnipTransaction(tt.username, tt.business, tt.quantity, turnipPrice, totalCost, "Insufficient turnips")
+						sender() ! TurnipTransaction(business, quantity, marketPrice, totalBells, "Unauthorized: Insufficient turnips")
 					}
+				}else{
+					sender() ! TurnipTransaction(business, quantity, marketPrice, 0, "Bad request: Business must be 'buy' or 'sell'")
 				}
 			} else {
-				sender() ! PendingTurnipTransaction(tt.username, tt.business, tt.quantity, turnipPrice, totalCost, "User does not exist")
+				sender() ! TurnipTransaction(business, 0, 0, 0, "Unauthorized: User does not exist")
 			}
 
-
-
-		case Update_One_User_With_Executing_Turnip_Transaction(pendingTurnipTransaction) =>
+		case Update_One_User_With_Executing_Turnip_Transaction(username, business, quantity, marketPrice, totalBells) =>
 			log.info(s"[Update_One_User_With_Executing_Turnip_Transaction] Confirming pending transaction")
-			val user = UserOperations.readOneUser(pendingTurnipTransaction.username).head
-			println(pendingTurnipTransaction)
+			val user = UserOperations.readOneUser(username).head
 			if(user.liveTurnips.business == ""){
 				val liveTurnips = TurnipTransaction(
-					pendingTurnipTransaction.business,
-					pendingTurnipTransaction.quantity,
-					pendingTurnipTransaction.marketPrice,
-					pendingTurnipTransaction.totalBells,
+					business,
+					quantity,
+					marketPrice,
+					totalBells,
+					"Authorized"
 				)
 				val turnipTransactionHistory = List(liveTurnips)
-				val updatedBells = user.bells - pendingTurnipTransaction.totalBells
-				marketActor ! Update_Stalks_Purchased(pendingTurnipTransaction.quantity, pendingTurnipTransaction.business)
-				val newUser = User(user._id, user.username, user.fishingPoleLvl, user.bugNetLvl, updatedBells,
-					user.pocket, liveTurnips, turnipTransactionHistory, user.img)
-				sender() ! UserOperations.massUpdateOneUser(newUser)
+				val updatedBells = user.bells - totalBells
+
+				marketActor ! MarketActor.Update_Stalks_Purchased(quantity, business)
+				val updatedUser = User(user.id, user.username, user.fishingPoleLvl, user.bugNetLvl, updatedBells,
+				user.pocket, liveTurnips, turnipTransactionHistory, user.avatar)
+				UserOperations.UpdateOneUserTransaction(updatedUser)
+				sender() ! "Success"
 
 			}else{
 
-				if(pendingTurnipTransaction.business == "buy"){
+				if(business == "buy"){
 					//average out the market prices
-					val newTotalBells = user.liveTurnips.totalBells + pendingTurnipTransaction.totalBells
-					val newQuanity = user.liveTurnips.quantity + pendingTurnipTransaction.quantity
-					val newUserMarketAverage = newTotalBells / newQuanity //aware of loss, just truncating for now
+					val newTotalTurnipBells = user.liveTurnips.totalBells + totalBells
+					val newQuantity = user.liveTurnips.quantity + quantity
+					val newUserMarketAverage = newTotalTurnipBells / newQuantity //aware of loss, just truncating for now
 
 					val liveTurnips = TurnipTransaction(
-						"buy",
-						newQuanity ,
+						business,
+						newQuantity ,
 						newUserMarketAverage,
-						newTotalBells,
+						newTotalTurnipBells,
+						"Authorized"
 					)
-					val liveTurnipTransactionRecord = TurnipTransaction(
-						pendingTurnipTransaction.business,
-						pendingTurnipTransaction.quantity ,
-						pendingTurnipTransaction.marketPrice,
-						pendingTurnipTransaction.totalBells,
+					val turnipTransactionRecord = TurnipTransaction(
+						business,
+						quantity,
+						marketPrice,
+						newTotalTurnipBells,
+						"Authorized"
 					)
+					val turnipTransactionHistory  = turnipTransactionRecord +: user.turnipTransactionHistory
 
+					val updatedUserBells = user.bells - totalBells
+					marketActor ! MarketActor.Update_Stalks_Purchased(quantity, business)
+					val updatedUser = User(user.id, user.username, user.fishingPoleLvl, user.bugNetLvl, updatedUserBells,
+					user.pocket, liveTurnips, turnipTransactionHistory, user.avatar)
+					UserOperations.UpdateOneUserTransaction(updatedUser)
+					sender() ! "Success"
 
-					val turnipTransactionHistory  = liveTurnipTransactionRecord +: user.turnipTransactionHistory
-					val updatedBells = user.bells - pendingTurnipTransaction.totalBells
-					marketActor ! Update_Stalks_Purchased(pendingTurnipTransaction.quantity, pendingTurnipTransaction.business)
-					val newUser = User(user._id, user.username, user.fishingPoleLvl, user.bugNetLvl, updatedBells,
-						user.pocket, liveTurnips, turnipTransactionHistory, user.img)
-					sender() ! UserOperations.massUpdateOneUser(newUser)
-
-				}else if(pendingTurnipTransaction.business == "sell") {
-					val newTotalBells = user.liveTurnips.totalBells - pendingTurnipTransaction.totalBells
-					val newQuantity = user.liveTurnips.quantity - pendingTurnipTransaction.quantity
+				}else if(business == "sell") {
+					val newTotalTurnipBells = user.liveTurnips.totalBells - totalBells
+					val newQuantity = user.liveTurnips.quantity - quantity
 
 					val liveTurnips = TurnipTransaction(
-						"buy",
+						business,
 						newQuantity,
-						pendingTurnipTransaction.marketPrice,
-						newTotalBells,
+						marketPrice,
+						newTotalTurnipBells,
+						"Authorized"
 					)
 
-					val liveTurnipTransactionRecord = TurnipTransaction(
-						pendingTurnipTransaction.business,
-						pendingTurnipTransaction.quantity ,
-						pendingTurnipTransaction.marketPrice,
-						pendingTurnipTransaction.totalBells,
+					val turnipTransactionRecord = TurnipTransaction(
+						business,
+						quantity,
+						marketPrice,
+						totalBells,
+						"Authorized"
 					)
 
-					val turnipTransactionHistory  = liveTurnipTransactionRecord +: user.turnipTransactionHistory
-					val updatedBells = user.bells + pendingTurnipTransaction.totalBells
-					marketActor ! Update_Stalks_Purchased(pendingTurnipTransaction.quantity, pendingTurnipTransaction.business)
+					val turnipTransactionHistory  = turnipTransactionRecord +: user.turnipTransactionHistory
+					val updatedBells = user.bells + totalBells
+					marketActor ! MarketActor.Update_Stalks_Purchased(quantity, business)
 
 					if(newQuantity != 0){
-						val newUser = User(user._id, user.username, user.fishingPoleLvl, user.bugNetLvl, updatedBells,
-							user.pocket, liveTurnips, turnipTransactionHistory, user.img)
-						sender() ! UserOperations.massUpdateOneUser(newUser)
+						val updatedUser = User(user.id, user.username, user.fishingPoleLvl, user.bugNetLvl, updatedBells,
+						user.pocket, liveTurnips, turnipTransactionHistory, user.avatar)
+						UserOperations.UpdateOneUserTransaction(updatedUser)
+						sender() ! "Success"
 					}else{
-						val newUser = User(user._id, user.username, user.fishingPoleLvl, user.bugNetLvl, updatedBells,
-							user.pocket, TurnipTransaction(), turnipTransactionHistory, user.img)
-						sender() ! UserOperations.massUpdateOneUser(newUser)
+						val updatedUser = User(user.id, user.username, user.fishingPoleLvl, user.bugNetLvl, updatedBells,
+							user.pocket, TurnipTransaction(), turnipTransactionHistory, user.avatar)
+						 UserOperations.UpdateOneUserTransaction(updatedUser)
+						sender() ! "Success"
 					}
 
 				}
+				else {
+					sender() ! "Failure"
+				}
 			}
 
-		//TODO This might need to refactoring
-		case Update_One_User_With_Creature(user) =>
-			log.info(s"[Update_One_User_With_Creature] Adding BUG/FISH to potential ${user.username}'s pocket")
-			UserOperations.updateUserPocket(user)
-			log.info(s"[Update_One_User_With_Creature] Verifying if USER with username ${user.username} exists")
-			val exists = UserOperations.readOneUser(user.username).length == 1
-			if (exists){
-				log.info("[Update_One_User_With_Creature] USER exists")
-			}else
-				log.info("[Update_One_User_With_Creature] USER does not exist")
-			sender() ! exists
-
-		case Delete_One_Creature_From_Pocket(selling) =>
-			log.info(s"[Delete_One_Creature_From_Pocket] Selling and deleting ${selling.creature} in ${selling.username}'s pocket")
-			if (selling.species == BUG){
-				val bells =  Await.result((bugActor ? BugActor.Read_One_By_Name(selling.creature)).mapTo[Bug], 3 seconds).bells
-				UserOperations.deleteOneForUser(selling, bells)
-				sender() ! bells
-			}else if (selling.species == FISH){
-				val bells = Await.result((fishActor ? FishActor.Read_One_By_Name(selling.creature)).mapTo[Fish], 3 seconds).bells
-				UserOperations.deleteOneForUser(selling, bells)
-				sender() ! bells
+		case Update_One_User_With_Creature(username, species, months) =>
+			if(species.toLowerCase() == BUG){
+				val bug = Await.result((bugActor ? BugActor.Read_One_Bug_By_Random(months)).mapTo[Bug], 2 seconds)
+				log.info(s"[Update_One_User_With_Creature] Verifying if USER with username $username exists")
+				val user = UserOperations.readOneUser(username)
+				val pocket = Pocket(List(bug), List())
+				if(user.nonEmpty && bug.id != -1){
+					log.info(s"[Update_One_User_With_Creature] $username exists, updating pocket")
+					UserOperations.updateUserPocket(user.head, species, pocket)
+					sender() ! "Success"
+				}else if(user.isEmpty){
+					log.info(s"[Update_One_User_With_Creature] $username does not exist, creating user")
+					val newUser = User(username = username, pocket = pocket)
+					UserOperations.createOneUser(newUser)
+					sender() ! "Success"
+				}else{
+					log.info(s"[Update_One_User_With_Creature] month entered is invalid")
+					sender() ! "Failed"
+				}
+			}else if(species.toLowerCase() == FISH){
+				val fish = Await.result((fishActor ? FishActor.Read_One_Fish_By_Random(months)).mapTo[Fish], 2 seconds)
+				log.info(s"[Update_One_User_With_Creature] Verifying if USER with username $username exists")
+				val user = UserOperations.readOneUser(username)
+				val pocket = Pocket(List(), List(fish))
+				if(user.nonEmpty && fish.id != -1){
+					log.info(s"[Update_One_User_With_Creature] $username exists, updating pocket")
+					UserOperations.updateUserPocket(user.head, species, pocket)
+					sender() ! "Success"
+				}else if (user.isEmpty){
+					log.info(s"[Update_One_User_With_Creature] $username does not exist, creating user")
+					val newUser = User(username = username, pocket = pocket)
+					UserOperations.createOneUser(newUser)
+					sender() ! "Success"
+				}else{
+					log.info(s"[Update_One_User_With_Creature] month entered is invalid")
+					sender() ! "Failed"
+				}
+			}else{
+				log.info(s"[Update_One_User_With_Creature] species entered is invalid")
+				sender() ! "Failed"
 			}
 
-		//Todo remove comments
-		case Delete_All_Creature_From_Pocket(selling) =>
-			log.info(s"[Delete_All_Creature_From_Pocket] Selling and deleting all creatures from ${selling.username}'s pocket")
-//			val bugBells =  Await.result((bugActor ? BugActor.Read_One_By_Name(selling.creature)).mapTo[Bug], 3 seconds).bells
-//			val fishBells = Await.result((fishActor ? FishActor.Read_One_By_Name(selling.creature)).mapTo[Fish], 3 seconds).bells
-//			val creatureBells = bugBells + fishBells
-			sender() ! UserOperations.deleteAllForUser(selling)
+		case FinalizeUserCreation(username, id, avatar) =>
+			log.info(s"[FinalizeUserCreation] retrieving user $username")
+			val user = UserOperations.readOneUser(username)
+			if(user.nonEmpty){
+				log.info(s"[FinalizeUserCreation] Finalizing $username's data")
+				UserOperations.finalizeCreateOneUser(username, id, avatar)
+				sender() ! "Success"
+			}else{
+				log.info(s"[FinalizeUserCreation] One of the parameters was Invalid")
+				sender() ! "Failed"
+			}
+
+
+		//TODO Prone to 404s
+		case Delete_One_Creature_From_Pocket(username, species, creatureName) =>
+			log.info(s"[Delete_One_Creature_From_Pocket] Selling and deleting ${creatureName} in ${username}'s pocket")
+			if (species == BUG){
+				//TODO consider using options here
+				val creatureBells =  Await.result((bugActor ? BugActor.Read_One_Bug_By_Name(creatureName)).mapTo[Bug], 3 seconds).bells
+				UserOperations.deleteOneForUser(username, creatureName, creatureBells)
+				sender() ! creatureBells
+			}else if (species == FISH){
+				//TODO consider using options here
+				val creatureBells = Await.result((fishActor ? FishActor.Read_One_Fish_By_Name(creatureName)).mapTo[Fish], 3 seconds).bells
+				UserOperations.deleteOneForUser(username, creatureName, creatureBells)
+				sender() ! creatureBells
+			}
+
+
+		//TODO Prone to 404s
+		case Delete_All_Creatures_From_Pocket(username) =>
+			log.info(s"[Delete_All_Creature_From_Pocket] Selling and deleting all creatures from $username's pocket")
+			val creatureBells = UserOperations.deleteAllForUser(username)
+			sender() ! creatureBells
 	}
+
 }

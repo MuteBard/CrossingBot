@@ -1,18 +1,21 @@
 package Dao
 
-import Data.Market.MarketQuarterBlock.QuarterBlock
-import Data.Market.MarketHourBlock.HourBlock
 import Helper.Auxiliary._
-import Model.Major.MovementRecord_.MovementRecord
 import akka.stream.alpakka.mongodb.scaladsl.{MongoSink, MongoSource}
 import akka.stream.scaladsl.{Sink, Source}
 import org.bson.codecs.configuration.CodecRegistries.{fromProviders, fromRegistries}
 import org.mongodb.scala.MongoClient.DEFAULT_CODEC_REGISTRY
 import org.mongodb.scala.bson.codecs.Macros._
 import App.Main.system
+import Dao.MongoDBOperations
+import Model.HourBlock_.HourBlock
+import Model.MovementRecord_.MovementRecord
+import Model.QuarterBlock_.QuarterBlock
 import akka.stream.alpakka.mongodb.DocumentUpdate
 import org.mongodb.scala.model.{Filters, Updates}
 import system.dispatcher
+import scala.language.postfixOps
+
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -48,7 +51,7 @@ object  MarketOperations extends MongoDBOperations {
 
 	def updateMovementRecordField[A](mr : MovementRecord, key :String, value : A) : Unit = {
 		val source = MongoSource(allMR.find(classOf[MovementRecord]))
-    		.map(_ => DocumentUpdate(filter = Filters.eq("_id", mr._id), update = Updates.set(key, value)))
+			.map(_ => DocumentUpdate(filter = Filters.eq("_id", mr._id), update = Updates.set(key, value)))
 		val taskFuture = source.runWith(MongoSink.updateOne(allMR))
 		taskFuture.onComplete{
 			case Success(_) => ""
@@ -90,7 +93,7 @@ object  MarketOperations extends MongoDBOperations {
 
 
 	def readMovementRecordListByMonth(month :  Int): List[MovementRecord] = {
-		val source = MongoSource(allMR.find(classOf[MovementRecord])).filter(mr => mr.month == month)
+		val source = MongoSource(allMR.find(classOf[MovementRecord])).filter(mr => true)
 		val daySeqFuture = source.runWith(Sink.seq)
 		val daySeq : Seq[MovementRecord] = Await.result(daySeqFuture, 3 seconds)
 		daySeq.toList

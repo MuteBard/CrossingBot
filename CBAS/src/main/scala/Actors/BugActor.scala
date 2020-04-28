@@ -1,18 +1,19 @@
 package Actors
 
 import Dao.BugOperations
-import Model.Major.Bug_.Bug
+import Model.Bug_.Bug
 import akka.actor.{Actor, ActorLogging}
 
 import scala.util.Random
 
 object BugActor {
 	case object Read_Bug_All
-	case class Read_One_Bug_By_Id(bId : String)
-	case class Read_One_By_Name(name : String)
-	case class Read_One_Bug_By_Random(months : List[String])
 	case class Read_All_Bug_By_Month(months : List[String])
 	case class Read_All_Rarest_Bug_By_Month(month : List[String])
+	case class Read_One_Bug_By_Id(bugId : String)
+	case class Read_One_Bug_By_Name(name : String)
+	case class Read_One_Bug_By_Random(months : List[String])
+
 }
 
 class BugActor extends Actor with ActorLogging{
@@ -41,7 +42,7 @@ class BugActor extends Actor with ActorLogging{
 				sender() ! Bug()
 			}
 
-		case Read_One_By_Name(name : String) =>
+		case Read_One_Bug_By_Name(name : String) =>
 			log.info(s"[Read_One_By_Name] Selecting BUG with name : $name")
 			val bugSeq = BugOperations.readOneByName(name)
 			val bugExists = bugSeq.nonEmpty
@@ -73,3 +74,4 @@ class BugActor extends Actor with ActorLogging{
 		else 1
 	}
 }
+

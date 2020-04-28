@@ -1,18 +1,19 @@
 package Actors
 
 import Dao.FishOperations
-import Model.Major.Fish_.Fish
+import Model.Fish_.Fish
 import akka.actor.{Actor, ActorLogging}
 
 import scala.util.Random
 
 object FishActor {
 	case object Read_Fish_All
-	case class Read_One_Fish_By_Id(fId : String)
-	case class Read_One_By_Name(name : String)
-	case class Read_One_Fish_By_Random(month : List[String])
 	case class Read_All_Fish_By_Month(month : List[String])
 	case class Read_All_Rarest_Fish_By_Month(month : List[String])
+	case class Read_One_Fish_By_Id(fishId : String)
+	case class Read_One_Fish_By_Name(name : String)
+	case class Read_One_Fish_By_Random(month : List[String])
+
 }
 
 class FishActor extends Actor with ActorLogging{
@@ -34,22 +35,22 @@ class FishActor extends Actor with ActorLogging{
 			val fishSeq = FishOperations.readOneById(fId)
 			val fishExists = fishSeq.nonEmpty
 			if(fishExists){
-				log.info(s"[Read_One_User] FISH with id $fId found")
+				log.info(s"[Read_One_Fish_By_Id] FISH with id $fId found")
 				sender() ! fishSeq.head
 			}else {
-				log.info(s"[Read_One_User] FISH with id $fId does not exist")
+				log.info(s"[Read_One_Fish_By_Id] FISH with id $fId does not exist")
 				sender() ! Fish()
 			}
 
-		case Read_One_By_Name(name : String) =>
-			log.info(s"[Read_One_By_Name] Selecting FISH with name : $name")
+		case Read_One_Fish_By_Name(name : String) =>
+			log.info(s"[Read_One_Fish_By_Name] Selecting FISH with name : $name")
 			val fishSeq = FishOperations.readOneByName(name)
 			val fishExists = fishSeq.nonEmpty
 			if(fishExists){
-				log.info(s"[Read_One_User] FISH with name $name found")
+				log.info(s"[Read_One_Fish_By_Name] FISH with name $name found")
 				sender() ! fishSeq.head
 			}else {
-				log.info(s"[Read_One_User] FISH with name $name does not exist")
+				log.info(s"[Read_One_Fish_By_Name] FISH with name $name does not exist")
 				sender() ! Fish()
 			}
 
