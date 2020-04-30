@@ -1,6 +1,6 @@
 package Dao
 
-import Helper.Auxiliary.log
+import Auxillary.Time._
 import Data.BugData.Bugs
 import Model.Bug_.Bug
 import akka.stream.alpakka.mongodb.scaladsl.{MongoSink, MongoSource}
@@ -10,7 +10,7 @@ import org.mongodb.scala.MongoClient.DEFAULT_CODEC_REGISTRY
 import org.mongodb.scala.bson.codecs.Macros._
 
 import scala.util.{Failure, Random, Success}
-import App.Main.system
+import Actors.Initializer.system
 import scala.concurrent.duration._
 import scala.concurrent.Await
 import system.dispatcher
@@ -68,8 +68,9 @@ object BugOperations extends MongoDBOperations{
 		bugSeq.toList
 	}
 
-	def readOneByRarityAndMonth(queryInt : Int, queryList : List[String]) : Bug = {
-		val source = MongoSource(allBugs.find(classOf[Bug])).filter(bugs => (bugs.rarity == queryInt) && bugs.availability.intersect(queryList) == queryList)
+	def readOneByRandom(queryInt : Int) : Bug = {
+		val month = List(threeLetterMonth)
+		val source = MongoSource(allBugs.find(classOf[Bug])).filter(bugs => (bugs.rarity == queryInt) && bugs.availability.intersect(month) == month)
 		val bugSeqFuture = source.runWith(Sink.seq)
 		val bugSeq : Seq[Bug] = Await.result(bugSeqFuture, 1 seconds)
 		Random.shuffle(bugSeq.toList).head

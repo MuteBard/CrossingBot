@@ -1,6 +1,6 @@
 
 package Dao
-import Helper.Auxiliary.log
+import Auxillary.Time.log
 import Model.Fish_.Fish
 import akka.stream.alpakka.mongodb.scaladsl.{MongoSink, MongoSource}
 import akka.stream.scaladsl.{Flow, Sink, Source}
@@ -11,7 +11,7 @@ import akka.stream.alpakka.mongodb.DocumentUpdate
 import org.mongodb.scala.model.{Filters, Updates}
 
 import scala.util.{Failure, Success}
-import App.Main.system
+import Actors.Initializer.system
 import Model.Bug_._
 import Model.TurnipTransaction_._
 import Model.User_._
@@ -51,7 +51,7 @@ object UserOperations extends MongoDBOperations {
 	def readOneUser(username : String): Seq[User] = {
 		val source = MongoSource(allUsers.find(classOf[User])).filter(users => users.username == username)
 		val userSeqFuture = source.runWith(Sink.seq)
-		val userSeq : Seq[User] = Await.result(userSeqFuture, 5 seconds)
+		val userSeq : Seq[User] = Await.result(userSeqFuture, 10 seconds)
 		userSeq
 	}
 

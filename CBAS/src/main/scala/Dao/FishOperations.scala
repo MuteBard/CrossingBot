@@ -1,7 +1,7 @@
 package Dao
 
 import Data.FishData.Fishes
-import Helper.Auxiliary.log
+import Auxillary.Time._
 import Model.Fish_.Fish
 import akka.stream.alpakka.mongodb.scaladsl.{MongoSink, MongoSource}
 import akka.stream.scaladsl.{Sink, Source}
@@ -10,7 +10,7 @@ import org.mongodb.scala.MongoClient.DEFAULT_CODEC_REGISTRY
 import org.mongodb.scala.bson.codecs.Macros._
 
 import scala.util.{Failure, Random, Success}
-import App.Main.system
+import Actors.Initializer.system
 
 import scala.concurrent.duration._
 import scala.concurrent.Await
@@ -68,8 +68,9 @@ object FishOperations extends MongoDBOperations {
 		fishSeq.toList
 	}
 
-	def readOneByRarityAndMonth(queryInt : Int, queryList : List[String]) : Fish = {
-		val source = MongoSource(allFishes.find(classOf[Fish])).filter(fishes => (fishes.rarity == queryInt) && fishes.availability.intersect(queryList) == queryList)
+	def readOneByRandom(queryInt : Int) : Fish = {
+		val month = List(threeLetterMonth)
+		val source = MongoSource(allFishes.find(classOf[Fish])).filter(fishes => (fishes.rarity == queryInt) && fishes.availability.intersect(month) == month)
 		val fishSeqFuture = source.runWith(Sink.seq)
 		val fishSeq : Seq[Fish] = Await.result(fishSeqFuture, 1 seconds)
 		Random.shuffle(fishSeq.toList).head

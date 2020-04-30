@@ -12,7 +12,7 @@ object FishActor {
 	case class Read_All_Rarest_Fish_By_Month(month : List[String])
 	case class Read_One_Fish_By_Id(fishId : String)
 	case class Read_One_Fish_By_Name(name : String)
-	case class Read_One_Fish_By_Random(month : List[String])
+	case class Read_One_Fish_By_Random()
 
 }
 
@@ -24,9 +24,9 @@ class FishActor extends Actor with ActorLogging{
 			log.info("[Read_Bug_All] Selecting all FISH")
 			sender() ! FishOperations.readAll()
 
-		case Read_One_Fish_By_Random(month : List[String]) =>
+		case Read_One_Fish_By_Random() =>
 			log.info(s"[Read_One_Fish_By_Random] Selecting FISH by random")
-			val fish = FishOperations.readOneByRarityAndMonth(rarityValue, month)
+			val fish = FishOperations.readOneByRandom(rarityValue)
 			log.info(s"[Read_One_Fish_By_Random] Found FISH ${fish.name}")
 			sender() ! fish
 

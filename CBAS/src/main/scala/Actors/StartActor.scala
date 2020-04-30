@@ -2,7 +2,7 @@ package Actors
 
 import java.util.Calendar
 
-import App.Main._
+import Initializer._
 import Actors.MarketActor._
 import Dao.{BugOperations, FishOperations}
 import system.dispatcher

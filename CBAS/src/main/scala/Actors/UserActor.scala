@@ -1,14 +1,15 @@
 package Actors
 
 import Dao.UserOperations
-import App.Main.bugActor
-import App.Main.fishActor
-import App.Main.marketActor
+import Initializer.bugActor
+import Initializer.fishActor
+import Initializer.marketActor
 import Model.Bug_._
 import Model.Fish_._
 import Model.Pocket_.Pocket
 import Model.TurnipTransaction_.TurnipTransaction
 import Model.User_._
+import Auxillary.Time._
 import akka.actor.{Actor, ActorLogging}
 import akka.util.Timeout
 
@@ -24,7 +25,7 @@ object UserActor {
 	case class Read_One_User_With_Pending_Turnip_Transaction(username : String, business : String, quantity : Int)
 	case class FinalizeUserCreation(username:  String, id : Int, avatar : String)
 	case class Update_One_User_With_Executing_Turnip_Transaction(username : String, business: String, quantity : Int, marketPrice: Int, totalBells: Int)
-	case class Update_One_User_With_Creature(username : String, species: String, months : List[String])
+	case class Update_One_User_With_Creature(username : String, species: String)
 	case class Delete_One_Creature_From_Pocket(username: String, species : String, creatureName : String)
 	case class Delete_All_Creatures_From_Pocket(username: String)
 }
@@ -188,9 +189,9 @@ class UserActor extends Actor with ActorLogging{
 				}
 			}
 
-		case Update_One_User_With_Creature(username, species, months) =>
+		case Update_One_User_With_Creature(username, species) =>
 			if(species.toLowerCase() == BUG){
-				val bug = Await.result((bugActor ? BugActor.Read_One_Bug_By_Random(months)).mapTo[Bug], 2 seconds)
+				val bug = Await.result((bugActor ? BugActor.Read_One_Bug_By_Random()).mapTo[Bug], 2 seconds)
 				log.info(s"[Update_One_User_With_Creature] Verifying if USER with username $username exists")
 				val user = UserOperations.readOneUser(username)
 				val pocket = Pocket(List(bug), List())
@@ -208,7 +209,7 @@ class UserActor extends Actor with ActorLogging{
 					sender() ! "Failed"
 				}
 			}else if(species.toLowerCase() == FISH){
-				val fish = Await.result((fishActor ? FishActor.Read_One_Fish_By_Random(months)).mapTo[Fish], 2 seconds)
+				val fish = Await.result((fishActor ? FishActor.Read_One_Fish_By_Random()).mapTo[Fish], 2 seconds)
 				log.info(s"[Update_One_User_With_Creature] Verifying if USER with username $username exists")
 				val user = UserOperations.readOneUser(username)
 				val pocket = Pocket(List(), List(fish))

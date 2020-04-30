@@ -23,5 +23,7 @@ object MovementRecord_ {
 		 month: Int = 0,
 		 day: Int = 0,
 	)
+	case class toggleArgs(running : Boolean)
+
 }
 

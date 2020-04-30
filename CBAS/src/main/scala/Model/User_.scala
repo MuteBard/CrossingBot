@@ -17,7 +17,7 @@ object User_ {
 
 	//Arguments
 	case class usernameArgs(username : String)
-	case class catchCreatureArgs(username: String, species: String, months: List[String])
+	case class catchCreatureArgs(username: String, species: String)
 	case class finalizeUserArgs(username : String, id : Int, avatar : String)
 	case class sellCreatureArgs(username : String, species : String, creatureName : String)
 

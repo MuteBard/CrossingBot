@@ -12,7 +12,7 @@ object BugActor {
 	case class Read_All_Rarest_Bug_By_Month(month : List[String])
 	case class Read_One_Bug_By_Id(bugId : String)
 	case class Read_One_Bug_By_Name(name : String)
-	case class Read_One_Bug_By_Random(months : List[String])
+	case class Read_One_Bug_By_Random()
 
 }
 
@@ -24,9 +24,9 @@ class BugActor extends Actor with ActorLogging{
 			log.info("[Read_Bug_All] Selecting all BUG")
 			sender() ! BugOperations.readAll()
 
-		case Read_One_Bug_By_Random(month : List[String]) =>
+		case Read_One_Bug_By_Random() =>
 			log.info(s"[Read_One_Bug_By_Random] Selecting BUG by random")
-			val bug = BugOperations.readOneByRarityAndMonth(rarityValue, month)
+			val bug = BugOperations.readOneByRandom(rarityValue)
 			log.info(s"[Read_One_BUG_By_Random] Found BUG ${bug.name}")
 			sender() ! bug
 
