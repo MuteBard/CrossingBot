@@ -1,7 +1,7 @@
 const tmi = require('tmi.js');
 const options = require('../Configurations/options')
 const process = require('./processData')
-var publicConnection = new tmi.client(options.settingsA);
+var publicConnection = new tmi.Client(options.settingsA);
 module.exports.publicConnection = publicConnection 
 const BUG = "bug"  
 const FISH  = "fish"  
@@ -13,10 +13,19 @@ publicConnection.on('chat', (channel, userstate, message, self) => {
         channel : channel,
         username : userstate["display-name"]    
     }
+
+    if(message == "!Ping"){
+        publicConnection.action(channel, "Pong")
+    }
+
     let command = message.toLowerCase().trim()
 
-    if(command == "!mybells"){
+    if     (command == "!mybells"){
         process.bellsRequest(Twitch_Data)
+    } 
+
+    else if(command == "!mypocket"){
+        process.pocketRequest(Twitch_Data)
     } 
 
     else if(command == "!bug"){
@@ -28,8 +37,20 @@ publicConnection.on('chat', (channel, userstate, message, self) => {
         Twitch_Data["species"] = FISH
         process.catchRequest(Twitch_Data)
     } 
+
+    else if(command.includes("!search")){
+        Twitch_Data["creatureName"] = properlyCaseCreatureName(command)
+        console.log(Twitch_Data)
+        process.creatureRequest(Twitch_Data)
+    }
+
 });
 
+let properlyCaseCreatureName = (command) => {
+    let commandAsListOfWords = command.trim().split(" ").map(word => word.substring(0,1).toUpperCase() + word.substring(1).toLowerCase()+" ")
+    let creatureNameProperlyCased = commandAsListOfWords.filter((word, idx) => idx > 0)
+    return creatureNameProperlyCased.join("").trim()
+}
 
 // let additionalInfo = (info, command) => {
 //     commandAsList = command.trim().split(" ")

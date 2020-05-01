@@ -36,11 +36,10 @@ let USER_FISH_REQUEST = (username) =>
     }
 }`
 
-let USER_REQUEST = (username) =>
+let USER_POCKET_REQUEST = (username) =>
 `query{
     getUser(username:${"\""+username+"\""}){
         username
-        bells
         pocket{
             bug{
                 name
@@ -79,6 +78,33 @@ const TURNIP_PRICES =
     getTurnipPrices(dummy : true)
 }`
 
+let BUG_BY_NAME = (creatureName) => 
+`query{
+    getBugByName(name : ${"\""+creatureName+"\""}){
+        name
+        bells
+        availability
+        rarity
+    }
+}
+`
+
+let FISH_BY_NAME = (creatureName) => 
+`query{
+    getFishByName(name : ${"\""+creatureName+"\""}){
+        name
+        bells
+        availability
+        rarity
+    }
+}
+`
+
+let CREATURE_SUMMARY_BY_NAME = (creatureName) => 
+`query{
+    getCreatureSummaryByName(name : ${"\""+creatureName+"\""})
+}
+`
 
 let BUGS_BY_MONTH = 
 `query{
@@ -133,7 +159,7 @@ let VALIDATE_TRANSACTION = (username, business, quantity) =>
 module.exports.USER_BELLS_REQUEST = USER_BELLS_REQUEST
 module.exports.USER_FISH_REQUEST = USER_FISH_REQUEST
 module.exports.USER_BUG_REQUEST = USER_BUG_REQUEST
-module.exports.USER_REQUEST = USER_REQUEST
+module.exports.USER_POCKET_REQUEST = USER_POCKET_REQUEST
 module.exports.DAY_RECORD = DAY_RECORD
 module.exports.MONTH_RECORD = MONTH_RECORD
 module.exports.TURNIP_PRICES = TURNIP_PRICES
@@ -142,3 +168,6 @@ module.exports.FISHES_BY_MONTH = FISHES_BY_MONTH
 module.exports.RARE_BUGS_BY_MONTH = RARE_BUGS_BY_MONTH
 module.exports.RARE_FISHES_BY_MONTH = RARE_FISHES_BY_MONTH
 module.exports.VALIDATE_TRANSACTION = VALIDATE_TRANSACTION
+module.exports.BUG_BY_NAME = BUG_BY_NAME
+module.exports.FISH_BY_NAME = FISH_BY_NAME
+module.exports.CREATURE_SUMMARY_BY_NAME = CREATURE_SUMMARY_BY_NAME 

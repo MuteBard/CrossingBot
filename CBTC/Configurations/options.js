@@ -1,19 +1,21 @@
 let secret = require('./secret');
-let users = ["MuteBard"]
+let users = ["#MuteBard"]
 exports.settingsA = {
     options : {
-      debug : true
+      debug : true,
+      clientId : secret.security.clientId
     },
     connection: {
-      cluster: "aws",
-      reconnect: true
+      reconnect: true,
+      secure: true
     },
     identity: {
-      username: "CrossingBot_",
+      username: "crossingbot_",
       password: secret.security.oauth
     },
     channels: users
   };
+
   
   exports.settingsB = {
     headers: {

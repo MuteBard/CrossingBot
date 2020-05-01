@@ -54,6 +54,10 @@ object Service {
 		def getFishByName(name : String):                   IO[NotFound, Fish]
 		def getFishByRandom(dummy : Boolean):               IO[NotFound, Fish]
 
+		//--Quality of Life--
+		//Queries
+		def getCreatureSummaryByName(name : String):               IO[NotFound, String]
+
 		//Mutations
 		//--Start--
 		def populate(dummy : Boolean):                      UIO[String]
@@ -179,6 +183,24 @@ object Service {
 			if(fish.id != -1) IO.succeed(fish)
 			else IO.fail(NotFound(""))
 		}
+
+		def getCreatureSummaryByName(name: String): IO[NotFound, String] = {
+			val merge : (String, String) => String = (s1, s2) => s1 + s2+" "
+			val bug = Await.result((bugActor ? BugActor.Read_One_Bug_By_Name(name)).mapTo[Bug], 2 seconds)
+			if(bug.id != -1){
+				val str = s"The ${bug.name} is worth ${bug.bells} bells and it has a rarity of lvl ${bug.rarity}. It is available during these following months: ${bug.availability.fold("")(merge)}".trim()
+				IO.succeed(str)
+			}else{
+				val fish = Await.result((fishActor ? FishActor.Read_One_Fish_By_Name(name)).mapTo[Fish], 2 seconds)
+				if(fish.id != -1) {
+					val str = s"The ${fish.name} is worth ${fish.bells} bells and it has a rarity of lvl ${fish.rarity}. It is available during these following months: ${fish.availability.fold("")(merge)}".trim()
+					IO.succeed(str)
+				}else{
+					IO.fail(NotFound(""))
+				}
+			}
+		}
+
 		//Mutations
 		def catchCreature(username: String, species: String): IO[NotFound, String] = {
 			val status = Await.result((userActor ? UserActor.Update_One_User_With_Creature(username, species)).mapTo[String], 4 seconds)

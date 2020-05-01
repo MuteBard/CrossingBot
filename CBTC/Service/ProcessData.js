@@ -23,7 +23,8 @@ let respondToTwitch = (Twitch_Payload) =>{
 
 let bellsRequest = (Twitch_Data) => {
     let CBAS_Payload = {"username" : Twitch_Data.username } 
-    let Twitch_Payload = (CBAS_Data) => { 
+    let Twitch_Payload = (response) => { 
+        let CBAS_Data = response.getUser
         let isSuccessful = CBAS_Data != null
         let message = ""
         if (isSuccessful){
@@ -44,14 +45,16 @@ let catchRequest = (Twitch_Data) => {
         let isSuccessful = CBAS_Data != null
         let message = ""
         if (isSuccessful){
-            if(Twitch_Data.species == BUG)
+            console.log(CBAS_Data.pocket)
+            if(Twitch_Data.species == BUG){
                 var list = CBAS_Data.pocket.bug 
                 let latestBug = list[list.length - 1]
                 message = `${CBAS_Data.username} caught a ${latestBug.name}, worth ${latestBug.bells} bells! ${appraisal(latestBug.rarity)} ${addFlower()}`
             }else if(Twitch_Data.species == FISH){
                 var list = CBAS_Data.pocket.fish 
-                let latestFish = CBAS_Data.pocket.fish[CBAS_Data.pocket.fish.length - 1]
+                let latestFish = list[list.length - 1]
                 message = `${CBAS_Data.username} caught a ${latestFish.name}, worth ${latestFish.bells} bells! ${appraisal(latestFish.rarity)} ${addFlower()}`
+            }
         }else{
             message = `Hey ${Twitch_Data.channel.split("#")[1]}, something went wrong with CrossingBot. Please contact MuteBard ${addFlower()}`
         }
@@ -60,10 +63,56 @@ let catchRequest = (Twitch_Data) => {
             "message" : message
         })
     }
-    Route.mutateUserCatchingCreature(CBAS_Payload, Twitch_Payload)    
+    Route.mutateUserPocket(CBAS_Payload, Twitch_Payload)    
 } 
 
+let pocketRequest = (Twitch_Data) => {
+    CBAS_Payload = {"username" : Twitch_Data.username}
+    let Twitch_Payload = (response) => { 
+        let CBAS_Data = response.getUser
+        let isSuccessful = CBAS_Data != null
+        let message = ""
+        if (isSuccessful){
+            var bugList = CBAS_Data.pocket.bug 
+            var fishList = CBAS_Data.pocket.fish
+            if((bugList.length + fishList.length) > 0){
+                messagepart1 = `${CBAS_Data.username}, `
+                messagepart2 =  bugList.length > 0 ? `you have ${bugList.length} bugs: ${bugList.map(bug => bug.name).join(", ")}. ` : ""
+                messagepart3 =  fishList.length > 0 ? `Also, you have ${fishList.length} fishes: ${fishList.map(fish => fish.name).join(", ")}. ` : ""
+                message = `${messagepart1}${messagepart2}${messagepart3}${addFlower()}`
+            }else{
+                message = `${CBAS_Data.username}, you dont have anything in your pocket! ${addFlower()}`
+            } 
+        }else{
+            message = `Hey ${Twitch_Data.channel.split("#")[1]}, something went wrong with CrossingBot. Please contact MuteBard ${addFlower()}`
+        }    
+        respondToTwitch({
+            "channel" : Twitch_Data.channel, 
+            "message" : message
+        })
+    }
+    Route.queryUserPocket(CBAS_Payload, Twitch_Payload)  
+}
 
+let creatureRequest = (Twitch_Data) => {
+    let CBAS_Payload = { "creatureName" : Twitch_Data.creatureName } 
+    let Twitch_Payload = (response) => { 
+        let CBAS_Data = response.getCreatureSummaryByName
+        let isSuccessful = CBAS_Data != null
+        let message = ""
+        if (isSuccessful){
+            message = CBAS_Data
+        }else
+            message = `${Twitch_Data.username}, Thats neither a known bug or a fish ${addFlower()}`
+        respondToTwitch({
+            channel : Twitch_Data.channel,
+            message
+        })
+    }
+    Route.queryCreatureSummary(CBAS_Payload, Twitch_Payload)
+}
 
 module.exports.bellsRequest = bellsRequest
 module.exports.catchRequest = catchRequest
+module.exports.pocketRequest = pocketRequest
+module.exports.creatureRequest = creatureRequest

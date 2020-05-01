@@ -9,23 +9,34 @@ const { createApolloFetch } = require('apollo-fetch');
 const fetch = createApolloFetch({ uri })
 
 
-let queryGraphQLUser = (query, Twitch_Payload) => {
+let queryGraphQL = (query, Twitch_Payload) => {
     fetch({ query })
     .then(CBAS_response => {
-        console.log(CBAS_response)
-        Twitch_Payload(CBAS_response.data.getUser)
+        Twitch_Payload(CBAS_response.data)
     }).catch(error =>{
         Twitch_Payload(null)
         console.log(error)
     }) 
 }
 
+
 exports.queryUserBells = (CBAS_Payload, Twitch_Payload) => {
     let query = Query.USER_BELLS_REQUEST(CBAS_Payload.username)
     queryGraphQL(query, Twitch_Payload)
 }
 
-exports.mutateUserCatchingCreature = (CBAS_Payload, Twitch_Payload) => {
+exports.queryUserPocket = (CBAS_Payload, Twitch_Payload) => {
+    let query = Query.USER_POCKET_REQUEST(CBAS_Payload.username)
+    queryGraphQL(query, Twitch_Payload)
+}
+
+exports.queryCreatureSummary = (CBAS_Payload, Twitch_Payload) => {
+    let query = Query.CREATURE_SUMMARY_BY_NAME(CBAS_Payload.creatureName)
+    queryGraphQL(query, Twitch_Payload)
+}
+
+
+exports.mutateUserPocket = (CBAS_Payload, Twitch_Payload) => {
     let mutateUser = Mutation.CATCH_REQUEST(CBAS_Payload.username, CBAS_Payload.species)
     //Update or create user with new bug or fish
     fetch({ query : mutateUser })
@@ -82,6 +93,7 @@ exports.mutateUserCatchingCreature = (CBAS_Payload, Twitch_Payload) => {
         console.log(error)
     }) 
 }
+
 
 
 // exports.queryTurnips = (info, twitchPayload, botResponse) => {

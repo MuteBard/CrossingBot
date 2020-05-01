@@ -9,8 +9,10 @@ import zio.{IO, UIO}
 
 object Queries {
 
-	//Type Definitions
+	//Type Definitions not associated with any class
+	case class creatureNameArgs(name : String)
 	case class dummyArgs(dummy : Boolean)
+
 	case class Queries(
 		//User
 		getUser:                        usernameArgs => IO[NotFound, User],
@@ -38,6 +40,9 @@ object Queries {
 		getFishById:                    fishIdArgs => IO[NotFound, Fish],
 		getFishByName:                  fishNameArgs => IO[NotFound, Fish],
 		getFishByRandom:                dummyArgs => IO[NotFound, Fish],
+
+		//Quality of life
+		getCreatureSummaryByName:       creatureNameArgs => IO[NotFound, String]
 		)
 		val cbs : CrossingBotService = new CBS()
 
@@ -59,6 +64,7 @@ object Queries {
 		args => cbs.getAllRareFishesByMonth(args.months),
 		args => cbs.getFishById(args.fishId),
 		args => cbs.getFishByName(args.name),
-		args => cbs.getFishByRandom(args.dummy)
+		args => cbs.getFishByRandom(args.dummy),
+		args => cbs.getCreatureSummaryByName(args.name)
 	)
 }
