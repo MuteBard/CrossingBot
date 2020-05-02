@@ -20,5 +20,6 @@ object User_ {
 	case class catchCreatureArgs(username: String, species: String)
 	case class finalizeUserArgs(username : String, id : Int, avatar : String)
 	case class sellCreatureArgs(username : String, species : String, creatureName : String)
+	case class sellCreatureByNameArgs(username : String, creatureName : String)
 
 }

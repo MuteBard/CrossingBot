@@ -5,7 +5,7 @@ object Bug_ {
 	//Model
 	case class Bug(
 		id : Int = -1,
-		bugId : String = "B-1",
+		species : String = "bug",
 		name : String = "",
 		bells : Int = -1,
 		availability : List[String] = List(),
@@ -14,7 +14,7 @@ object Bug_ {
 	)
 	//Arguments
 	case class bugMonthsArgs(months : List[String])
-	case class bugIdArgs(bugId : String)
+	case class bugIdArgs(id : Int)
 	case class bugNameArgs(name : String)
 
 }

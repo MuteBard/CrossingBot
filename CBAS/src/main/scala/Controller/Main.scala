@@ -14,7 +14,6 @@ import GraphQL.Mutations.allMutations
 import caliban.interop.circe.AkkaHttpCirceAdapter
 
 object Main extends App with AkkaHttpCirceAdapter {
-
 	implicit val executionContext: ExecutionContextExecutor = system.dispatcher
 	implicit val runtime: Runtime[ZEnv] = Runtime.default
 	val api = graphQL(RootResolver(allQueries, allMutations))

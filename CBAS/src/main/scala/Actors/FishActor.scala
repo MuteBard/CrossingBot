@@ -10,7 +10,7 @@ object FishActor {
 	case object Read_Fish_All
 	case class Read_All_Fish_By_Month(month : List[String])
 	case class Read_All_Rarest_Fish_By_Month(month : List[String])
-	case class Read_One_Fish_By_Id(fishId : String)
+	case class Read_One_Fish_By_Id(id : Int)
 	case class Read_One_Fish_By_Name(name : String)
 	case class Read_One_Fish_By_Random()
 
@@ -30,15 +30,15 @@ class FishActor extends Actor with ActorLogging{
 			log.info(s"[Read_One_Fish_By_Random] Found FISH ${fish.name}")
 			sender() ! fish
 
-		case Read_One_Fish_By_Id(fId : String) =>
-			log.info(s"[Read_One_Fish_By_Id] Selecting FISH with id : $fId")
-			val fishSeq = FishOperations.readOneById(fId)
+		case Read_One_Fish_By_Id(id : Int) =>
+			log.info(s"[Read_One_Fish_By_Id] Selecting FISH with id : $id")
+			val fishSeq = FishOperations.readOneById(id)
 			val fishExists = fishSeq.nonEmpty
 			if(fishExists){
-				log.info(s"[Read_One_Fish_By_Id] FISH with id $fId found")
+				log.info(s"[Read_One_Fish_By_Id] FISH with id $id found")
 				sender() ! fishSeq.head
 			}else {
-				log.info(s"[Read_One_Fish_By_Id] FISH with id $fId does not exist")
+				log.info(s"[Read_One_Fish_By_Id] FISH with id $id does not exist")
 				sender() ! Fish()
 			}
 

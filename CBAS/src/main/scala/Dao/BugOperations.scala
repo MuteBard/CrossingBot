@@ -40,8 +40,8 @@ object BugOperations extends MongoDBOperations{
 		bugSeq.toList
 	}
 
-	def readOneById(query : String) : Seq[Bug] = {
-		val source = MongoSource(allBugs.find(classOf[Bug])).filter(bugs => bugs.bugId == query)
+	def readOneById(query : Int) : Seq[Bug] = {
+		val source = MongoSource(allBugs.find(classOf[Bug])).filter(bugs => bugs.id == query)
 		val bugSeqFuture = source.runWith(Sink.seq)
 		val bugSeq : Seq[Bug] = Await.result(bugSeqFuture, 1 seconds)
 		bugSeq

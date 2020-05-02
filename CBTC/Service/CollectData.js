@@ -1,30 +1,37 @@
 const tmi = require('tmi.js');
 const options = require('../Configurations/options')
+const data = require('../FlashData/Bank')
 const process = require('./processData')
 var publicConnection = new tmi.Client(options.settingsA);
 module.exports.publicConnection = publicConnection 
 const BUG = "bug"  
 const FISH  = "fish"  
 
+
+
+
+let creatureDictionary = {}
 let pendingTurnipTransactionDictionary = {}
 publicConnection.connect().then(() => console.log("CBTC is ready to facilitate communication between CBAS and Twitch"))
 publicConnection.on('chat', (channel, userstate, message, self) => {
+    
+    
+    const dataBank = require('../FlashData/Bank')
+    creatureDictionary = createCreatureDictionary(dataBank.bugBank, dataBank.fishBank)
+    
     let Twitch_Data = {
         channel : channel,
-        username : userstate["display-name"]    
-    }
-
-    if(message == "!Ping"){
-        publicConnection.action(channel, "Pong")
+        username : userstate["display-name"],
+        failure : false 
     }
 
     let command = message.toLowerCase().trim()
 
-    if     (command == "!mybells"){
+    if     (command == "!bells"){
         process.bellsRequest(Twitch_Data)
     } 
 
-    else if(command == "!mypocket"){
+    else if(command == "!pocket"){
         process.pocketRequest(Twitch_Data)
     } 
 
@@ -37,11 +44,32 @@ publicConnection.on('chat', (channel, userstate, message, self) => {
         Twitch_Data["species"] = FISH
         process.catchRequest(Twitch_Data)
     } 
-
+    
     else if(command.includes("!search")){
-        Twitch_Data["creatureName"] = properlyCaseCreatureName(command)
-        console.log(Twitch_Data)
+        let creatureName = properlyCaseCreatureName(command)
+        if(isCreatureNameValid(creatureName, creatureDictionary)){
+            Twitch_Data["creatureName"] = creatureName
+            Twitch_Data["species"] = getCreatureSpecies(creatureName, creatureDictionary)
+        }else{
+            Twitch_Data["failure"] = true
+            Twitch_Data["error"] = "Thats neither a known bug or a fish"
+        }
         process.creatureRequest(Twitch_Data)
+    }
+
+    else if(command.includes("!sell") && !command.includes("all")){
+        let creatureName = properlyCaseCreatureName(command)
+        if(isCreatureNameValid(creatureName, creatureDictionary)){
+            Twitch_Data["creatureName"] = creatureName
+            Twitch_Data["species"] = getCreatureSpecies(creatureName, creatureDictionary)
+        }else{
+            Twitch_Data["failure"] = true
+            Twitch_Data["error"] = "Thats neither a known bug or a fish"
+        }
+        process.sellOneRequest(Twitch_Data)
+    }
+    else if(command == "!sell all" ){
+        process.sellAllRequest(Twitch_Data)
     }
 
 });
@@ -52,9 +80,25 @@ let properlyCaseCreatureName = (command) => {
     return creatureNameProperlyCased.join("").trim()
 }
 
+let isCreatureNameValid = (creatureName, creatureDictionary ) => {
+    return (creatureDictionary[creatureName] == "bug" || creatureDictionary[creatureName] == "fish")
+}
+
+let getCreatureSpecies = (creatureName, creatureDictionary ) => {
+    return creatureDictionary[creatureName]
+}
+
+let createCreatureDictionary = (bugList, fishList) => {
+    let creatureList = bugList.concat(fishList)
+    let dictionary = {}
+    creatureList.map(creature => dictionary[creature.name] = creature.species )
+    return dictionary
+}
+
+
 // let additionalInfo = (info, command) => {
 //     commandAsList = command.trim().split(" ")
-//     let business = (commandAsList[0].toLowerCase().trim()).substring(1)
+//     let business = (commandAsList0].toLowerCase().trim()).substring(1)
 //     let quantity = Number(commandAsList[1].trim())
 
 //     if(commandAsList.length > 3){

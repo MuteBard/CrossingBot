@@ -9,16 +9,35 @@ const { createApolloFetch } = require('apollo-fetch');
 const fetch = createApolloFetch({ uri })
 
 
-let queryGraphQL = (query, Twitch_Payload) => {
+let queryGraphQL = (query, callback) => {
     fetch({ query })
     .then(CBAS_response => {
-        Twitch_Payload(CBAS_response.data)
+        callback(CBAS_response.data)
     }).catch(error =>{
-        Twitch_Payload(null)
+        callback(null)
         console.log(error)
     }) 
 }
 
+exports.queryAllBugs = (CBTC_DataBank) => {
+    let query = Query.ALL_BUGS
+    queryGraphQL(query, CBTC_DataBank)
+}
+
+exports.queryAllFishes = (CBTC_DataBank) => {
+    let query = Query.ALL_FISHES
+    queryGraphQL(query, CBTC_DataBank)
+}
+
+exports.queryCreature = (CBAS_Payload, Twitch_Payload) => {
+    let query = ""
+    if(CBAS_Payload.species == "bug"){
+        query = Query.BUG_BY_NAME(CBAS_Payload.creatureName)
+    }else if(CBAS_Payload.species == "fish"){
+        query = Query.FISH_BY_NAME(CBAS_Payload.creatureName)
+    }
+    queryGraphQL(query, Twitch_Payload)
+}
 
 exports.queryUserBells = (CBAS_Payload, Twitch_Payload) => {
     let query = Query.USER_BELLS_REQUEST(CBAS_Payload.username)
@@ -30,70 +49,120 @@ exports.queryUserPocket = (CBAS_Payload, Twitch_Payload) => {
     queryGraphQL(query, Twitch_Payload)
 }
 
-exports.queryCreatureSummary = (CBAS_Payload, Twitch_Payload) => {
-    let query = Query.CREATURE_SUMMARY_BY_NAME(CBAS_Payload.creatureName)
-    queryGraphQL(query, Twitch_Payload)
-}
-
-
-exports.mutateUserPocket = (CBAS_Payload, Twitch_Payload) => {
-    let mutateUser = Mutation.CATCH_REQUEST(CBAS_Payload.username, CBAS_Payload.species)
+exports.mutateUserPocketCatch = (CBAS_Payload, Twitch_Payload) => {
+    let firstMutation = Mutation.CATCH_REQUEST(CBAS_Payload.username, CBAS_Payload.species)
     //Update or create user with new bug or fish
-    fetch({ query : mutateUser })
-    .then(CBAS_Response => {
-        console.log('CBAS_Response', CBAS_Response)
-        if(CBAS_Response.data.catchCreature == "Success"){
-            let queryUser = ""
-            if(CBAS_Payload.species == BUG){
-                queryUser = Query.USER_BUG_REQUEST(CBAS_Payload.username, CBAS_Payload.species)
-            }else if(CBAS_Payload.species == FISH){
-                queryUser = Query.USER_FISH_REQUEST(CBAS_Payload.username, CBAS_Payload.species)
+    fetch({ query : firstMutation })
+    .then(async CBAS_Response => {
+        if(CBAS_Response.data.creatureData == "BugOverflow" || CBAS_Response.data.creatureData == "FishOverflow"){  
+            
+            Twitch_Payload(CBAS_Response.data.catchCreature)
+
+        }else if( CBAS_Response.data.catchCreature.split("-")[0].trim() == "Success"){
+            let operation = CBAS_Response.data.catchCreature.split("-")[1].trim()
+            let creatureData = CBAS_Response.data.catchCreature.split("-")[2].trim().split("")
+                .map(char => {
+                    if(char == "#") return "\""
+                    else return char
+                }).join("")
+
+            Twitch_Payload(JSON.parse(creatureData))
+
+            if (operation == "Create"){
+
+                let Twitch_Response = await axios({
+                    method: 'GET',
+                    url: `https://api.twitch.tv/helix/users?login=${CBAS_Payload.username}`,
+                    headers: options.settingsB.headers
+                })
+
+                CBAS_Payload["id"] = Number(Twitch_Response.data.data[0].id)
+                CBAS_Payload["avatar"] = Twitch_Response.data.data[0].profile_image_url
+                var secondMutation = Mutation.COMPLETE_USER_CREATION(CBAS_Payload.username, CBAS_Payload.id, CBAS_Payload.avatar)
+                
+                //do a final mutation to the user and update those fields on the user
+                setTimeout(() => {
+                    fetch({ query : secondMutation })
+                    .then(Second_CBAS_Response => {
+                        if(Second_CBAS_Response.data.finalizeUserCreation == "Success"){
+                            console.log(`User creation of ${CBAS_Payload.username} is complete`)
+                        }
+                    })
+                    .catch(error => console.log(error)) 
+                }, 3000);
             }
-            //get that user
-            fetch({ query : queryUser })
-            .then(async (Second_CBAS_Response) => {
-                console.log('Second_CBAS_Response', Second_CBAS_Response)
-                let user = Second_CBAS_Response.data.getUser
-                //display to the user their newly caught bug on twitch
-                Twitch_Payload(user)
-                //check to see if that user is new with their id and avatar not initialized (One time per user)
-                if(user.id == -1){
-                    //get id and avatar data from twitch api
-                    try{
-                        let respFromTwitch = await axios({
-                            method: 'GET',
-                            url: `https://api.twitch.tv/helix/users?login=${CBAS_Payload.username}`,
-                            headers: options.settingsB.headers
-                        })
-
-                        CBAS_Payload["id"] = Number(respFromTwitch.data.data[0].id)
-                        CBAS_Payload["avatar"] = respFromTwitch.data.data[0].profile_image_url
-                        let mutateUser2 = Mutation.COMPLETE_USER_CREATION(CBAS_Payload.username, CBAS_Payload.id, CBAS_Payload.avatar)
-                        //do a final mutation to the user and update those fields on the user
-                        fetch({ query : mutateUser2 })
-                        .then(Third_CBAS_Response => {
-                            if(Third_CBAS_Response.data.finalizeUserCreation == "Success"){
-                                console.log(`User creation of ${CBAS_Payload.username} is complete`)
-                            }else{
-
-                            }
-                        })
-                    }catch(error){
-                        console.log(`Mutation Failed: User creation of ${CBAS_Payload.username} has failed : ${error}`)
-                    }
-                }
-            })
-        }else{
-            Twitch_Payload(null)
-            console.log(`Mutation Failed: Unable to either update or create ${CBAS_Payload.username} with new creature`)
         }
-    })
-    .catch(error =>{
-        Twitch_Payload(null)
-        console.log(error)
-    }) 
+    })  
 }
 
+
+
+
+
+
+    //             let queryUser = ""
+    //             if(CBAS_Payload.species == BUG){
+    //                 queryUser = Query.USER_BUG_REQUEST(CBAS_Payload.username, CBAS_Payload.species)
+    //             }else if(CBAS_Payload.species == FISH){
+    //                 queryUser = Query.USER_FISH_REQUEST(CBAS_Payload.username, CBAS_Payload.species)
+    //             }
+    //             //get that user
+    //             fetch({ query : queryUser })
+    //             .then(async (Second_CBAS_Response) => {
+    //                 //display to the user their newly caught bug on twitch
+    //                 Twitch_Payload(Second_CBAS_Response.data)
+    //                 //check to see if that user is new with their id and avatar not initialized (One time per user)
+    //                 if(Second_CBAS_Response.data.getUser.id == -1){
+    //                     //get id and avatar data from twitch api
+    //                     try{
+    //                         let respFromTwitch = await axios({
+    //                             method: 'GET',
+    //                             url: `https://api.twitch.tv/helix/users?login=${CBAS_Payload.username}`,
+    //                             headers: options.settingsB.headers
+    //                         })
+
+    //                         CBAS_Payload["id"] = Number(respFromTwitch.data.data[0].id)
+    //                         CBAS_Payload["avatar"] = respFromTwitch.data.data[0].profile_image_url
+    //                         var secondMutation = Mutation.COMPLETE_USER_CREATION(CBAS_Payload.username, CBAS_Payload.id, CBAS_Payload.avatar)
+                            
+    //                         //do a final mutation to the user and update those fields on the user
+    //                         fetch({ query : secondMutation })
+    //                         .then(Third_CBAS_Response => {
+    //                             console.log("Third_CBAS_Response: ",Third_CBAS_Response)
+    //                             if(Third_CBAS_Response.data.finalizeUserCreation == "Success"){
+    //                                 console.log(`User creation of ${CBAS_Payload.username} is complete`)
+    //                             }
+    //                         })
+
+    //                     }catch(error){
+    //                         console.log(`Mutation Failed: User creation of ${CBAS_Payload.username} has failed : ${error}`)
+    //                     }
+    //                 }
+    //             })
+            
+    //         }else if(CBAS_Response.data.catchCreature == "BugOverflow" || CBAS_Response.data.catchCreature == "FishOverflow"){
+    //             Twitch_Payload(CBAS_Response.data)
+    //         }else{
+    //             Twitch_Payload(null)
+    //             console.log(`Mutation Failed: Unable to either update or create ${CBAS_Payload.username} with new creature`)
+    //         }
+    //     }, 2000)
+    // })
+    // .catch(error => {
+    //     Twitch_Payload(null)
+    //     console.log(error)
+    // }) 
+
+
+exports.mutateUserPocketSellOne = (CBAS_Payload, Twitch_Payload) => {
+    let mutation = Mutation.SELL_ONE_CREATURE(CBAS_Payload.username, CBAS_Payload.species, CBAS_Payload.creatureName)
+    queryGraphQL(mutation, Twitch_Payload)
+}
+
+exports.mutateUserPocketSellAll = (CBAS_Payload, Twitch_Payload) => {
+    let mutation = Mutation.SELL_ALL_CREATURES(CBAS_Payload.username)
+    queryGraphQL(mutation, Twitch_Payload)
+}
 
 
 // exports.queryTurnips = (info, twitchPayload, botResponse) => {

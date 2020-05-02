@@ -110,16 +110,24 @@ object UserOperations extends MongoDBOperations {
 	}
 
 	def deleteOneForUser(username :String, creatureName : String, creatureBells: Int): Unit = {
-		if (creatureBells != 0) {
+		if (creatureBells > 0) {
 			val userList: List[User] = readOneUser(username).toList
 			val user: User = userList.head
 			val source = Source(userList).map(_ => Filters.eq("username", username))
 			val taskFuture = source.runWith(MongoSink.deleteOne(allUsers))
 			taskFuture.onComplete {
 				case Success(_) =>
-					val	bug = user.pocket.bug.filter(creature => creature.name != creatureName)
-					val	fish = user.pocket.fish.filter(creature => creature.name != creatureName)
-					val updatedPocket = Pocket(bug, fish)
+
+					val	unSoughtBugs = user.pocket.bug.filter(creature => creature.name != creatureName)
+					val	unSoughtFishes = user.pocket.fish.filter(creature => creature.name != creatureName)
+					val	soughtBugs = user.pocket.bug.filter(creature => creature.name == creatureName)
+					val	soughtFishes = user.pocket.fish.filter(creature => creature.name == creatureName)
+					val soughtBugsOneRemoved = if (soughtBugs.contains(creatureName)) soughtBugs.takeRight(soughtBugs.length - 1 ) else List()
+					val soughtFishesOneRemoved = if (soughtFishes.contains(creatureName)) soughtFishes.takeRight(soughtFishes.length - 1)  else List()
+					val bugList = unSoughtBugs.appendedAll(soughtBugsOneRemoved)
+					val fishList = unSoughtFishes.appendedAll(soughtFishesOneRemoved)
+
+					val updatedPocket = Pocket(bugList, fishList)
 					val updatedBells = user.bells + creatureBells
 					val newUser = User(user.id, user.username, user.fishingPoleLvl, user.bugNetLvl, updatedBells, updatedPocket, user.liveTurnips, user.turnipTransactionHistory, user.avatar)
 					createOneUser(newUser)

@@ -10,7 +10,7 @@ object BugActor {
 	case object Read_Bug_All
 	case class Read_All_Bug_By_Month(months : List[String])
 	case class Read_All_Rarest_Bug_By_Month(month : List[String])
-	case class Read_One_Bug_By_Id(bugId : String)
+	case class Read_One_Bug_By_Id(id : Int)
 	case class Read_One_Bug_By_Name(name : String)
 	case class Read_One_Bug_By_Random()
 
@@ -30,15 +30,15 @@ class BugActor extends Actor with ActorLogging{
 			log.info(s"[Read_One_BUG_By_Random] Found BUG ${bug.name}")
 			sender() ! bug
 
-		case Read_One_Bug_By_Id(bId : String) =>
-			log.info(s"[Read_One_Bug_By_Id] Selecting BUG with id : $bId")
-			val bugSeq = BugOperations.readOneById(bId)
+		case Read_One_Bug_By_Id(id : Int) =>
+			log.info(s"[Read_One_Bug_By_Id] Selecting BUG with id : $id")
+			val bugSeq = BugOperations.readOneById(id)
 			val bugExists = bugSeq.nonEmpty
 			if(bugExists){
-				log.info(s"[Read_One_User] BUG with id $bId found")
+				log.info(s"[Read_One_User] BUG with id $id found")
 				sender() ! bugSeq.head
 			}else {
-				log.info(s"[Read_One_User] BUG with id $bId does not exist")
+				log.info(s"[Read_One_User] BUG with id $id does not exist")
 				sender() ! Bug()
 			}
 

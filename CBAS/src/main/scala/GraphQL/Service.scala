@@ -31,9 +31,9 @@ object Service {
 
 		//--MovementRecord--
 		//Queries
-		def getDayRecords(dummy: Boolean):                                  UIO[MovementRecord]
-		def getMonthRecords(dummy: Boolean):                                UIO[List[MovementRecord]]
-		def getTurnipPrices(dummy: Boolean):                                UIO[Int]
+		def getDayRecords(dummy: Boolean):                  UIO[MovementRecord]
+		def getMonthRecords(dummy: Boolean):                UIO[List[MovementRecord]]
+		def getTurnipPrices(dummy: Boolean):                UIO[Int]
 
 
 		//--Bug--
@@ -41,7 +41,7 @@ object Service {
 		def getAllBugs(dummy : Boolean):                    UIO[List[Bug]]
 		def getAllBugsByMonth(months : List[String]):       IO[NotFound, List[Bug]]
 		def getAllRareBugsByMonth(months : List[String]):   IO[NotFound, List[Bug]]
-		def getBugById(bugId : String):                     IO[NotFound, Bug]
+		def getBugById(id : Int):                           IO[NotFound, Bug]
 		def getBugByName(name : String):                    IO[NotFound, Bug]
 		def getBugByRandom(dummy : Boolean):                IO[NotFound, Bug]
 
@@ -50,13 +50,13 @@ object Service {
 		def getAllFishes(dummy : Boolean):                  UIO[List[Fish]]
 		def getAllFishesByMonth(months : List[String]):     IO[NotFound, List[Fish]]
 		def getAllRareFishesByMonth(months : List[String]): IO[NotFound, List[Fish]]
-		def getFishById(bugId : String):                    IO[NotFound, Fish]
+		def getFishById(id : Int):                          IO[NotFound, Fish]
 		def getFishByName(name : String):                   IO[NotFound, Fish]
 		def getFishByRandom(dummy : Boolean):               IO[NotFound, Fish]
 
 		//--Quality of Life--
 		//Queries
-		def getCreatureSummaryByName(name : String):               IO[NotFound, String]
+		def getCreatureSummaryByName(name : String):        IO[NotFound, String]
 
 		//Mutations
 		//--Start--
@@ -87,7 +87,14 @@ object Service {
 		    creatureName : String
 		):                                                  UIO[Int]
 
+//		def sellOneCreatureByName(
+//			username: String,
+//			creatureName : String
+//		):                                                  IO[NotFound, Int]
+
 		def sellAllCreatures(username : String):            UIO[Int]
+
+
 	}
 
 	class CBS extends CrossingBotService{
@@ -136,8 +143,8 @@ object Service {
 			if(allBugs.nonEmpty) IO.succeed(allBugs)
 			else IO.fail(NotFound(""))
 		}
-		def getBugById(bugId: String): IO[NotFound, Bug] = {
-			val bug = Await.result((bugActor ? BugActor.Read_One_Bug_By_Id(bugId)).mapTo[Bug], 2 seconds)
+		def getBugById(id: Int): IO[NotFound, Bug] = {
+			val bug = Await.result((bugActor ? BugActor.Read_One_Bug_By_Id(id)).mapTo[Bug], 2 seconds)
 			if(bug.id != -1) IO.succeed(bug)
 			else IO.fail(NotFound(""))
 		}
@@ -168,8 +175,8 @@ object Service {
 			if(allFishes.nonEmpty) IO.succeed(allFishes)
 			else IO.fail(NotFound(""))
 		}
-		def getFishById(fishId: String): IO[NotFound, Fish] = {
-			val fish = Await.result((fishActor ? FishActor.Read_One_Fish_By_Id(fishId)).mapTo[Fish], 2 seconds)
+		def getFishById(id: Int): IO[NotFound, Fish] = {
+			val fish = Await.result((fishActor ? FishActor.Read_One_Fish_By_Id(id)).mapTo[Fish], 2 seconds)
 			if(fish.id != -1) IO.succeed(fish)
 			else IO.fail(NotFound(""))
 		}
@@ -188,7 +195,7 @@ object Service {
 			val merge : (String, String) => String = (s1, s2) => s1 + s2+" "
 			val bug = Await.result((bugActor ? BugActor.Read_One_Bug_By_Name(name)).mapTo[Bug], 2 seconds)
 			if(bug.id != -1){
-				val str = s"The ${bug.name} is worth ${bug.bells} bells and it has a rarity of lvl ${bug.rarity}. It is available during these following months: ${bug.availability.fold("")(merge)}".trim()
+					val str = s"The ${bug.name} is worth ${bug.bells} bells and it has a rarity of lvl ${bug.rarity}. It is available during these following months: ${bug.availability.fold("")(merge)}".trim()
 				IO.succeed(str)
 			}else{
 				val fish = Await.result((fishActor ? FishActor.Read_One_Fish_By_Name(name)).mapTo[Fish], 2 seconds)
@@ -204,8 +211,8 @@ object Service {
 		//Mutations
 		def catchCreature(username: String, species: String): IO[NotFound, String] = {
 			val status = Await.result((userActor ? UserActor.Update_One_User_With_Creature(username, species)).mapTo[String], 4 seconds)
-			if(status == "Success"){
-				IO.succeed("Success")
+			if(status != "Failure") { //there's 4 options for status
+				IO.succeed(status)
 			}else{
 				IO.fail(NotFound(""))
 			}
@@ -214,7 +221,7 @@ object Service {
 		def finalizeUserCreation(username: String, id: Int, avatar: String): IO[NotFound, String] = {
 			val status = Await.result((userActor ? UserActor.FinalizeUserCreation(username, id, avatar)).mapTo[String], 4 seconds)
 			if(status == "Success"){
-				IO.succeed("Success")
+				IO.succeed(status)
 			}else{
 				IO.fail(NotFound(""))
 			}
@@ -233,8 +240,17 @@ object Service {
 		def sellOneCreature(username: String, species : String, creatureName : String): UIO[Int] = {
 			val bells = Await.result((userActor ? UserActor.Delete_One_Creature_From_Pocket(username, species, creatureName)).mapTo[Int], 3 seconds)
 			IO.succeed(bells)
-
 		}
+
+//		def sellOneCreatureByName(username: String, creatureName : String): IO[NotFound,Int] = {
+//			val bells = Await.result((userActor ? UserActor.Delete_One_Creature_From_Pocket_By_Name_Only(username, creatureName)).mapTo[Int], 3 seconds)
+//			if(bells != -1){
+//				IO.succeed(bells)
+//			}else{
+//				IO.fail(NotFound(""))
+//			}
+//
+//		}
 
 		def sellAllCreatures(username : String): UIO[Int] = {
 			val bells = Await.result((userActor ? UserActor.Delete_All_Creatures_From_Pocket(username)).mapTo[Int], 3 seconds)

@@ -156,6 +156,25 @@ let VALIDATE_TRANSACTION = (username, business, quantity) =>
     }
 }
 `
+
+
+let ALL_BUGS = 
+`query{
+    getAllBugs(dummy : true){
+        name
+        species
+    }
+}
+`
+let ALL_FISHES = 
+`query{
+    getAllFishes(dummy : true){
+        name
+        species
+    }
+}
+`
+
 module.exports.USER_BELLS_REQUEST = USER_BELLS_REQUEST
 module.exports.USER_FISH_REQUEST = USER_FISH_REQUEST
 module.exports.USER_BUG_REQUEST = USER_BUG_REQUEST
@@ -171,3 +190,5 @@ module.exports.VALIDATE_TRANSACTION = VALIDATE_TRANSACTION
 module.exports.BUG_BY_NAME = BUG_BY_NAME
 module.exports.FISH_BY_NAME = FISH_BY_NAME
 module.exports.CREATURE_SUMMARY_BY_NAME = CREATURE_SUMMARY_BY_NAME 
+module.exports.ALL_BUGS = ALL_BUGS
+module.exports.ALL_FISHES = ALL_FISHES

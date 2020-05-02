@@ -27,6 +27,7 @@ object UserActor {
 	case class Update_One_User_With_Executing_Turnip_Transaction(username : String, business: String, quantity : Int, marketPrice: Int, totalBells: Int)
 	case class Update_One_User_With_Creature(username : String, species: String)
 	case class Delete_One_Creature_From_Pocket(username: String, species : String, creatureName : String)
+	case class Delete_One_Creature_From_Pocket_By_Name_Only(username: String, creatureName : String)
 	case class Delete_All_Creatures_From_Pocket(username: String)
 }
 
@@ -193,17 +194,26 @@ class UserActor extends Actor with ActorLogging{
 			if(species.toLowerCase() == BUG){
 				val bug = Await.result((bugActor ? BugActor.Read_One_Bug_By_Random()).mapTo[Bug], 2 seconds)
 				log.info(s"[Update_One_User_With_Creature] Verifying if USER with username $username exists")
-				val user = UserOperations.readOneUser(username)
+				val userSeq = UserOperations.readOneUser(username)
 				val pocket = Pocket(List(bug), List())
-				if(user.nonEmpty && bug.id != -1){
-					log.info(s"[Update_One_User_With_Creature] $username exists, updating pocket")
-					UserOperations.updateUserPocket(user.head, species, pocket)
-					sender() ! "Success"
-				}else if(user.isEmpty){
+				if(userSeq.nonEmpty && bug.id != -1){
+					val user = userSeq.head
+					log.info(s"[Update_One_User_With_Creature] $username exists, checking if user has more than 10 bugs")
+					if(user.pocket.bug.length < 10){
+						log.info(s"[Update_One_User_With_Creature] Updating pocket")
+						UserOperations.updateUserPocket(userSeq.head, species, pocket)
+						s"Success - Update - {#name#:#${bug.name}#,#bells#:#${bug.bells}#,#rarity#:#${bug.rarity}#}"
+
+					}else{
+						log.info(s"[Update_One_User_With_Creature] $username has more than 10 bugs")
+						sender() ! "BugOverflow"
+					}
+
+				}else if(userSeq.isEmpty){
 					log.info(s"[Update_One_User_With_Creature] $username does not exist, creating user")
 					val newUser = User(username = username, pocket = pocket)
 					UserOperations.createOneUser(newUser)
-					sender() ! "Success"
+					sender() ! s"Success - Create - {#name#:#${bug.name}#,#bells#:#${bug.bells}#,#rarity#:#${bug.rarity}#}"
 				}else{
 					log.info(s"[Update_One_User_With_Creature] month entered is invalid")
 					sender() ! "Failed"
@@ -211,17 +221,24 @@ class UserActor extends Actor with ActorLogging{
 			}else if(species.toLowerCase() == FISH){
 				val fish = Await.result((fishActor ? FishActor.Read_One_Fish_By_Random()).mapTo[Fish], 2 seconds)
 				log.info(s"[Update_One_User_With_Creature] Verifying if USER with username $username exists")
-				val user = UserOperations.readOneUser(username)
+				val userSeq = UserOperations.readOneUser(username)
 				val pocket = Pocket(List(), List(fish))
-				if(user.nonEmpty && fish.id != -1){
-					log.info(s"[Update_One_User_With_Creature] $username exists, updating pocket")
-					UserOperations.updateUserPocket(user.head, species, pocket)
-					sender() ! "Success"
-				}else if (user.isEmpty){
+				if(userSeq.nonEmpty && fish.id != -1){
+					val user = userSeq.head
+					log.info(s"[Update_One_User_With_Creature] $username exists, checking if user has more than 10 fish")
+					if(user.pocket.fish.length < 10){
+						log.info(s"[Update_One_User_With_Creature] Updating pocket")
+						UserOperations.updateUserPocket(userSeq.head, species, pocket)
+						sender() ! s"Success - Update - {#name#:#${fish.name}#,#bells#:#${fish.bells}#,#rarity#:#${fish.rarity}#}"
+					}else{
+						log.info(s"[Update_One_User_With_Creature] $username has more than 10 fishes")
+						sender() ! "FishOverflow"
+					}
+				}else if (userSeq.isEmpty){
 					log.info(s"[Update_One_User_With_Creature] $username does not exist, creating user")
 					val newUser = User(username = username, pocket = pocket)
 					UserOperations.createOneUser(newUser)
-					sender() ! "Success"
+					sender() ! s"Success - Create - {#name#:#${fish.name}#,#bells#:#${fish.bells}#,#rarity#:#${fish.rarity}#}"
 				}else{
 					log.info(s"[Update_One_User_With_Creature] month entered is invalid")
 					sender() ! "Failed"
@@ -243,22 +260,36 @@ class UserActor extends Actor with ActorLogging{
 				sender() ! "Failed"
 			}
 
-
-		//TODO Prone to 404s
 		case Delete_One_Creature_From_Pocket(username, species, creatureName) =>
-			log.info(s"[Delete_One_Creature_From_Pocket] Selling and deleting ${creatureName} in ${username}'s pocket")
+			log.info(s"[Delete_One_Creature_From_Pocket] Selling and deleting $creatureName in $username's pocket")
 			if (species == BUG){
-				//TODO consider using options here
 				val creatureBells =  Await.result((bugActor ? BugActor.Read_One_Bug_By_Name(creatureName)).mapTo[Bug], 3 seconds).bells
 				UserOperations.deleteOneForUser(username, creatureName, creatureBells)
 				sender() ! creatureBells
 			}else if (species == FISH){
-				//TODO consider using options here
 				val creatureBells = Await.result((fishActor ? FishActor.Read_One_Fish_By_Name(creatureName)).mapTo[Fish], 3 seconds).bells
 				UserOperations.deleteOneForUser(username, creatureName, creatureBells)
 				sender() ! creatureBells
 			}
 
+//		case Delete_One_Creature_From_Pocket_By_Name_Only(username, creatureName) =>
+//			val bug = Await.result((bugActor ? BugActor.Read_One_Bug_By_Name(creatureName)).mapTo[Bug], 3 seconds)
+//			if(bug.id != -1){
+//				log.info(s"[Delete_One_Creature_From_Pocket_By_Name_Only] Selling and deleting $creatureName in $username's pocket")
+//				UserOperations.deleteOneForUser(username, bug.name, bug.bells)
+//				sender() ! bug.bells
+//			}else{
+//				val fish = Await.result((fishActor ? FishActor.Read_One_Fish_By_Name(creatureName)).mapTo[Fish], 3 seconds)
+//				if(fish.id != -1){
+//					log.info(s"[Delete_One_Creature_From_Pocket_By_Name_Only] Selling and deleting $creatureName in $username's pocket")
+//
+//					UserOperations.deleteOneForUser(username, fish.name, fish.bells)
+//					sender() ! fish.bells
+//				}else{
+//					log.info(s"[Delete_One_Creature_From_Pocket_By_Name_Only] Creature is not in database")
+//					sender() ! -1
+//				}
+//			}
 
 		//TODO Prone to 404s
 		case Delete_All_Creatures_From_Pocket(username) =>

@@ -3,7 +3,7 @@ let users = ["#MuteBard"]
 exports.settingsA = {
     options : {
       debug : true,
-      clientId : secret.security.clientId
+      clientId : "6pvu20x774z6ztsejol3wrzy9yfpvd"
     },
     connection: {
       reconnect: true,
