@@ -70,9 +70,12 @@ exports.pocketRequest = (Twitch_Data) => {
             var bugList = CBAS_Data.pocket.bug 
             var fishList = CBAS_Data.pocket.fish
             if((bugList.length + fishList.length) > 0){
+                pluralBug = bugList.length > 1 ? "bugs" : "bug"
+                pluralFish = fishList.length > 1 ? "fishes" : "fish"
+                addAlso = bugList.length == 0 ? "" : "Also, "
                 messagepart1 = `${CBAS_Data.username}, `
-                messagepart2 =  bugList.length > 0 ? `you have ${bugList.length} bugs: ${bugList.map(bug => bug.name).join(", ")}. ` : ""
-                messagepart3 =  fishList.length > 0 ? `Also, you have ${fishList.length} fishes: ${fishList.map(fish => fish.name).join(", ")}. ` : ""
+                messagepart2 =  bugList.length > 0 ? `you have ${bugList.length} ${pluralBug}: ${bugList.map(bug => bug.name).join(", ")}. ` : ""
+                messagepart3 =  fishList.length > 0 ? `${addAlso}you have ${fishList.length} ${pluralFish}: ${fishList.map(fish => fish.name).join(", ")}. ` : ""
                 message = `${messagepart1}${messagepart2}${messagepart3}${addFlower()}`
             }else{
                 message = `${CBAS_Data.username}, you dont have anything in your pocket! ${addFlower()}`

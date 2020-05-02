@@ -54,6 +54,7 @@ exports.mutateUserPocketCatch = (CBAS_Payload, Twitch_Payload) => {
     //Update or create user with new bug or fish
     fetch({ query : firstMutation })
     .then(async CBAS_Response => {
+        console.log(CBAS_Response)
         if(CBAS_Response.data.creatureData == "BugOverflow" || CBAS_Response.data.creatureData == "FishOverflow"){  
             
             Twitch_Payload(CBAS_Response.data.catchCreature)

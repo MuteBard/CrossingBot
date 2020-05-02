@@ -2,7 +2,7 @@ let secret = require('./secret');
 let users = ["#MuteBard"]
 exports.settingsA = {
     options : {
-      debug : true,
+      debug : false,
       clientId : "6pvu20x774z6ztsejol3wrzy9yfpvd"
     },
     connection: {

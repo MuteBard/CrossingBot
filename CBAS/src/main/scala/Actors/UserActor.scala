@@ -202,7 +202,7 @@ class UserActor extends Actor with ActorLogging{
 					if(user.pocket.bug.length < 10){
 						log.info(s"[Update_One_User_With_Creature] Updating pocket")
 						UserOperations.updateUserPocket(userSeq.head, species, pocket)
-						s"Success - Update - {#name#:#${bug.name}#,#bells#:#${bug.bells}#,#rarity#:#${bug.rarity}#}"
+						sender() ! s"Success - Update - {#name#:#${bug.name}#,#bells#:#${bug.bells}#,#rarity#:#${bug.rarity}#}"
 
 					}else{
 						log.info(s"[Update_One_User_With_Creature] $username has more than 10 bugs")
