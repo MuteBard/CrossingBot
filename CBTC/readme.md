@@ -6,7 +6,7 @@
 
 - **!fish** to catch a fish
 
-- **!sell *Name of creature name here*** removes a bug or fish from your pocket and you get its value in bells stored to your own bells
+- **!sell *[creature name]*** removes a bug or fish from your pocket and you get its value in bells stored to your own bells
 
 - **!sell all** removes everything from your pocket and you get the total value in bells added to your own bells
 
@@ -22,10 +22,10 @@
 
 - **!market** Displays the prices of turnips on the ever changing Stalk Market
 
-- **!buy *Amount* turnips** Allows you to buy turnips
+- **!buy *[quantity]* turnips** Allows you to buy turnips
 
-- **!sell *Amount* turnips** Allows you to sell turnips
+- **!sell *[quantity]* turnips** Allows you to sell turnips
 
-- **!confirm** Allows for execution of a turnip transaction after entering for example !turnip buy 1 or !turnip sell 1
+- **!confirm** Allows for execution of a turnip transaction
 
 - **!cancel** Allows for termination of a turnip transaction
