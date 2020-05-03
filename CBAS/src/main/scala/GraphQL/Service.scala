@@ -31,14 +31,14 @@ object Service {
 
 		//--MovementRecord--
 		//Queries
-		def getDayRecords(dummy: Boolean):                  UIO[MovementRecord]
-		def getMonthRecords(dummy: Boolean):                UIO[List[MovementRecord]]
-		def getTurnipPrices(dummy: Boolean):                UIO[Int]
+		def getDayRecords:                                  UIO[MovementRecord]
+		def getMonthRecords:                                UIO[List[MovementRecord]]
+		def getTurnipPrices:                                UIO[Int]
 
 
 		//--Bug--
     	//Queries
-		def getAllBugs(dummy : Boolean):                    UIO[List[Bug]]
+		def getAllBugs:                                     UIO[List[Bug]]
 		def getAllBugsByMonth(months : List[String]):       IO[NotFound, List[Bug]]
 		def getAllRareBugsByMonth(months : List[String]):   IO[NotFound, List[Bug]]
 		def getBugById(id : Int):                           IO[NotFound, Bug]
@@ -47,7 +47,7 @@ object Service {
 
 		//--Fish--
 		//Queries
-		def getAllFishes(dummy : Boolean):                  UIO[List[Fish]]
+		def getAllFishes:                                   UIO[List[Fish]]
 		def getAllFishesByMonth(months : List[String]):     IO[NotFound, List[Fish]]
 		def getAllRareFishesByMonth(months : List[String]): IO[NotFound, List[Fish]]
 		def getFishById(id : Int):                          IO[NotFound, Fish]
@@ -60,7 +60,7 @@ object Service {
 
 		//Mutations
 		//--Start--
-		def populate(dummy : Boolean):                      UIO[String]
+		def populate:                                       UIO[String]
 		def toggleMarket(running : Boolean):                UIO[String]
 
 		def catchCreature(
@@ -87,10 +87,6 @@ object Service {
 		    creatureName : String
 		):                                                  UIO[Int]
 
-//		def sellOneCreatureByName(
-//			username: String,
-//			creatureName : String
-//		):                                                  IO[NotFound, Int]
 
 		def sellAllCreatures(username : String):            UIO[Int]
 
@@ -113,23 +109,23 @@ object Service {
 		}
 		//--MovementRecord--
 
-		def getDayRecords(dummy : Boolean): UIO[MovementRecord] = {
+		def getDayRecords: UIO[MovementRecord] = {
 			val movementRecord = Await.result((marketActor ? MarketActor.Read_Latest_Movement_Record_Day).mapTo[MovementRecord], 2 seconds)
 			IO.succeed(movementRecord)
 		}
 
-		def getMonthRecords(dummy : Boolean): UIO[List[MovementRecord]] = {
+		def getMonthRecords: UIO[List[MovementRecord]] = {
 			val movementRecordsForMonth = Await.result((marketActor ? MarketActor.Read_Latest_Movement_Record_Month).mapTo[List[MovementRecord]], 2 seconds)
 			IO.succeed(movementRecordsForMonth)
 		}
 
-		def getTurnipPrices(dummy : Boolean): UIO[Int] = {
+		def getTurnipPrices: UIO[Int] = {
 			val turnips = Await.result((marketActor ? MarketActor.Request_Turnip_Price).mapTo[Int], 2 seconds)
 			IO.succeed(turnips)
 		}
 
 		//--Bug--
-		def getAllBugs(dummy : Boolean): UIO[List[Bug]] = {
+		def getAllBugs: UIO[List[Bug]] = {
 			val allBugs = Await.result((bugActor ? BugActor.Read_Bug_All).mapTo[List[Bug]], 2 seconds)
 			IO.succeed(allBugs)
 		}
@@ -161,7 +157,7 @@ object Service {
 
 
 		//--Fish--
-		def getAllFishes(dummy : Boolean): UIO[List[Fish]] = {
+		def getAllFishes: UIO[List[Fish]] = {
 			val allFishes = Await.result((fishActor ? FishActor.Read_Fish_All).mapTo[List[Fish]], 2 seconds)
 			IO.succeed(allFishes)
 		}
@@ -242,22 +238,12 @@ object Service {
 			IO.succeed(bells)
 		}
 
-//		def sellOneCreatureByName(username: String, creatureName : String): IO[NotFound,Int] = {
-//			val bells = Await.result((userActor ? UserActor.Delete_One_Creature_From_Pocket_By_Name_Only(username, creatureName)).mapTo[Int], 3 seconds)
-//			if(bells != -1){
-//				IO.succeed(bells)
-//			}else{
-//				IO.fail(NotFound(""))
-//			}
-//
-//		}
-
 		def sellAllCreatures(username : String): UIO[Int] = {
 			val bells = Await.result((userActor ? UserActor.Delete_All_Creatures_From_Pocket(username)).mapTo[Int], 3 seconds)
 			IO.succeed(bells)
 		}
 
-		def populate(dummy : Boolean) : UIO[String] = {
+		def populate: UIO[String] = {
 			val status = Await.result((startActor ? StartActor.Create_Creatures_All).mapTo[String], 3 seconds)
 			IO.succeed(status)
 		}

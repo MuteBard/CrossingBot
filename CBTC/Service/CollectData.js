@@ -32,12 +32,12 @@ publicConnection.on('chat', (channel, userstate, message, self) => {
     }
 
     else if(command == "!turnips"){
-        console.log("ghn")
         process.turnipsStatsRequest(Twitch_Data)
     }
 
     else if(command == "!bug"){
         Twitch_Data["species"] = BUG
+        process.catchRequest(Twitch_Data)
         process.catchRequest(Twitch_Data)
     }
 
