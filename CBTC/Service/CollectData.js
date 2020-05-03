@@ -3,42 +3,35 @@ const options = require('../Configurations/options')
 const bank = require('../FlashData/Bank')
 const process = require('./processData')
 var publicConnection = new tmi.Client(options.settingsA);
-module.exports.publicConnection = publicConnection 
-const BUG = "bug"  
-const FISH  = "fish"  
-
-
-
+module.exports.publicConnection = publicConnection
+const BUG = "bug"
+const FISH  = "fish"
 
 var creatureDictionary = {}
 var pendingTurnipTransactionDictionary = {}
 publicConnection.connect().then(() => console.log("CBTC is ready to facilitate communication between CBAS and Twitch"))
 publicConnection.on('chat', (channel, userstate, message, self) => {
-    
-    
+
     const dataBank = require('../FlashData/Bank')
     creatureDictionary = createCreatureDictionary(dataBank.bugBank, dataBank.fishBank)
 
-    
-
-    
     let Twitch_Data = {
         channel : channel,
         username : userstate["display-name"],
-        failure : false 
+        failure : false
     }
 
     let command = message.toLowerCase().trim()
 
-    if(command == "!mybells"){
+    if(command == "!bells"){
         process.bellsRequest(Twitch_Data)
-    } 
+    }
 
-    else if(command == "!mypocket"){
+    else if(command == "!pocket"){
         process.pocketRequest(Twitch_Data)
-    } 
+    }
 
-    else if(command == "!myturnips"){
+    else if(command == "!turnips"){
         console.log("ghn")
         process.turnipsStatsRequest(Twitch_Data)
     }
@@ -46,13 +39,13 @@ publicConnection.on('chat', (channel, userstate, message, self) => {
     else if(command == "!bug"){
         Twitch_Data["species"] = BUG
         process.catchRequest(Twitch_Data)
-    } 
+    }
 
     else if(command == "!fish"){
         Twitch_Data["species"] = FISH
         process.catchRequest(Twitch_Data)
-    } 
-    
+    }
+
     else if(command == "!rare bugs"){
         Twitch_Data["species"] = BUG
         process.rareCreaturesRequest(Twitch_Data)
@@ -103,7 +96,7 @@ publicConnection.on('chat', (channel, userstate, message, self) => {
     else if(command == "!market"){
         process.marketPriceRequest(Twitch_Data)
     }
-    
+
 
     else if(command.includes("!sell") && !command.includes("all")){
         let creatureName = properlyCaseCreatureName(command)
@@ -120,9 +113,6 @@ publicConnection.on('chat', (channel, userstate, message, self) => {
     else if(command == "!sell all creatures" ){
         process.sellAllRequest(Twitch_Data)
     }
-
-
-
 });
 
 let properlyCaseCreatureName = (command) => {
@@ -157,7 +147,7 @@ let validateTurnipTransactionInput = (Twitch_Data, command) => {
                 Twitch_Data["failure"] = true
                 Twitch_Data["error"] = "Only numbers 1 and greater are allowed"
                 return Twitch_Data
-            }  
+            }
         }else{
             Twitch_Data["failure"] = true
             Twitch_Data["error"] = "You need to enter a number"
@@ -172,6 +162,3 @@ let validateTurnipTransactionInput = (Twitch_Data, command) => {
         return Twitch_Data
     }
 }
-
-
-

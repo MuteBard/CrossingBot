@@ -14,11 +14,11 @@
 
 - **!rare fishes** List rare fishes available this month
 
-- **!myPocket** Displays all bugs and fish in your pocket
+- **!pocket** Displays all bugs and fish in your pocket
 
-- **!myBells** Displays current bells owned
+- **!bells** Displays current bells owned
 
-- **!myTurnips** Displays how many turnips you own and how they are faring in the market
+- **!turnips** Displays how many turnips you own and how they are faring in the market
 
 - **!market** Displays the prices of turnips on the ever changing Stalk Market
 
