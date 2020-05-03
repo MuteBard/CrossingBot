@@ -3,20 +3,8 @@ const maintainConnection = require('./CollectData')
 const month = require('../Cron/Timing')
 const BUG = "bug"  
 const FISH  = "fish" 
+const bank = require('../FlashData/Bank')
 
-let toggle = false
-let addFlower = () => {
-    toggle = !toggle
-    if(toggle) return "❀" 
-    else return "✿"
-} 
-
-let appraisal = (rarity) => {
-    if (rarity == 5) return "YOU ARE EXTREMELY LUCKY! OSFrog"
-    else if (rarity == 4) return "Nice! That one is very rare!" 
-    else if (rarity == 3) return "That one is a bit rare!"
-    else return ""
-}
 
 let respondToTwitch = (Twitch_Payload) =>{
     maintainConnection.publicConnection.action(Twitch_Payload.channel, Twitch_Payload.message)
@@ -25,10 +13,10 @@ let respondToTwitch = (Twitch_Payload) =>{
 exports.bellsRequest = (Twitch_Data) => {
     let CBAS_Payload = {"username" : Twitch_Data.username } 
     let Twitch_Payload = (response) => { 
-        let CBAS_Data = response.getUser
-        let isSuccessful = CBAS_Data != null
+        let CBAS_Data = null
         let message = ""
-        if (isSuccessful){
+        if (response != null){
+            CBAS_Data = response.getUser
             message = `${CBAS_Data.username}, you have ${CBAS_Data.bells} bells! ${addFlower()}` 
         }else
             message = `${Twitch_Data.username}, try !bug or !fish first. ${addFlower()}`
@@ -38,6 +26,33 @@ exports.bellsRequest = (Twitch_Data) => {
         })
     }
     Route.queryUserBells(CBAS_Payload, Twitch_Payload)
+}
+
+exports.turnipsStatsRequest = (Twitch_Data) => {
+    let CBAS_Payload = {"username" : Twitch_Data.username} 
+    let Twitch_Payload = (response) => { 
+        let CBAS_Data = null
+        let message = ""
+        if (response != null){
+            CBAS_Data = response.getUser.liveTurnips
+            let turnipsPlural = (CBAS_Data.quantity > 1 || CBAS_Data.quantity == 0) ? "turnips" : "turnip"
+            if(CBAS_Data.quantity != 0){
+                let change = ""
+                if(CBAS_Data.netGainLossAsBells == 0) change = `haven't changed in value`
+                else if (CBAS_Data.netGainLossAsBells > 0) change = `increased in value by ${CBAS_Data.netGainLossAsBells} at a rate of ${CBAS_Data.netGainLossAsPercentage}` 
+                else change = `decreased in value by ${CBAS_Data.netGainLossAsBells} at a rate of ${CBAS_Data.netGainLossAsPercentage}`
+                message = `${Twitch_Data.username}, you have ${CBAS_Data.quantity} ${turnipsPlural}! So far your ${turnipsPlural} have ${change} ${addFlower()}` 
+            }else{
+                message = `${Twitch_Data.username}, you have 0 ${turnipsPlural}! ${addFlower()}` 
+            }
+        }else
+            message = `Hey ${Twitch_Data.channel.split("#")[1]}, something went wrong with CrossingBot. Please contact MuteBard ${addFlower()}`
+        respondToTwitch({
+            channel : Twitch_Data.channel,
+            message
+        })
+    }
+    Route.queryTurnipStatsRequest(CBAS_Payload, Twitch_Payload)
 }
 
 exports.catchRequest = (Twitch_Data) => {
@@ -65,9 +80,10 @@ exports.catchRequest = (Twitch_Data) => {
 exports.pocketRequest = (Twitch_Data) => {
     CBAS_Payload = {"username" : Twitch_Data.username}
     let Twitch_Payload = (response) => { 
-        let CBAS_Data = response.getUser
+        let CBAS_Data = null
         let message = ""
-        if (CBAS_Data != null){
+        if (response != null){
+            CBAS_Data = response.getUser
             var bugList = CBAS_Data.pocket.bug 
             var fishList = CBAS_Data.pocket.fish
             if((bugList.length + fishList.length) > 0){
@@ -200,4 +216,103 @@ exports.rareCreaturesRequest = (Twitch_Data) => {
         
     }
     Route.queryRareCreatures(CBAS_Payload, Twitch_Payload)
+}
+
+
+exports.validatingTurnipTransactionRequest = (Twitch_Data) => {
+    let CBAS_Payload = {"username" : Twitch_Data.username, "business" : Twitch_Data.business, "quantity" : Twitch_Data.quantity}
+    let Twitch_Payload = (response) => { 
+        let message = ""
+        if(response != null){
+            let CBAS_Data = response.validatePendingTransaction
+            let turnipsPlural = Twitch_Data.quantity > 1 ? "turnips" : "turnip"
+            let status = CBAS_Data.status.split("-")[0].toLowerCase(0).trim()
+            if(status == "authorized"){
+                message = `${Twitch_Data.username}, you are ${status} to ${CBAS_Data.business} ${CBAS_Data.quantity} ${turnipsPlural} at a market price of ${CBAS_Data.marketPrice} bells for a total of ${CBAS_Data.totalBells} bells. Please enter !confirm to acknowledge or !cancel ${addFlower()}`
+                bank.updateUserInPendingTransactionDictionary(Twitch_Data.username, CBAS_Data.marketPrice, CBAS_Data.totalBells)
+
+            }else if(status == "unauthorized"){
+                console.log("unauthorized", CBAS_Data)
+                let reason = CBAS_Data.status.split("-")[1].toLowerCase(0).trim()
+                message = `${Twitch_Data.username}, you are ${status} to ${CBAS_Data.business} ${CBAS_Data.quantity} ${turnipsPlural} at a market price of ${CBAS_Data.marketPrice} bells for a total of ${CBAS_Data.totalBells} bells. You have ${reason} ${addFlower()}`
+                bank.deleteUserFromPendingTransactionDictionary(Twitch_Data.username)
+            }
+        }else{
+            message = `Hey ${Twitch_Data.channel.split("#")[1]}, something went wrong with CrossingBot. Please contact MuteBard ${addFlower()}`
+        }
+        respondToTwitch({
+            channel : Twitch_Data.channel,
+            message
+        })
+        
+    }
+    
+    Route.queryUserTurnipTransactionStatus(CBAS_Payload, Twitch_Payload)
+
+}
+
+exports.acknowledgingTurnipTransactionRequest = (Twitch_Data) => {
+    let CBAS_Payload = {"username" : Twitch_Data.username, "business" : Twitch_Data.business, "quantity" : Twitch_Data.quantity,  "marketPrice" : Twitch_Data.marketPrice, "totalBells" : Twitch_Data.totalBells }
+    let Twitch_Payload = (response) => { 
+
+        if(response != null){
+            let businessPastTense = Twitch_Data.business == "buy" ? "bought"  : "sold"
+            let turnipsPlural = Twitch_Data.quantity > 1 ? "turnips" : "turnip"
+            message = `${Twitch_Data.username}, you ${businessPastTense} ${Twitch_Data.quantity} ${turnipsPlural}! ${addFlower()}`
+        }else{
+            message = `Hey ${Twitch_Data.channel.split("#")[1]}, something went wrong with CrossingBot. Please contact MuteBard ${addFlower()}`
+        }
+
+        respondToTwitch({
+            channel : Twitch_Data.channel,
+            message
+        })
+        
+    }
+    
+    Route.mutateUserTurnipTransactionStatus(CBAS_Payload, Twitch_Payload)
+}
+
+
+exports.rejectingTurnipTransactionRequest = (Twitch_Data) => {
+    respondToTwitch({
+        channel : Twitch_Data.channel,
+        message : `${Twitch_Data.username}, you have cancelled your transaction`
+    })
+}
+
+exports.marketPriceRequest = (Twitch_Data) => {
+    let CBAS_Payload = {"username" : Twitch_Data.username}
+    let Twitch_Payload = (response) => { 
+        let message = ""
+        if(response != null){
+            message = `${Twitch_Data.username}, the market price of a turnip is ${response.getTurnipPrices} bells ${addFlower()}`
+        }else{
+            message = `Hey ${Twitch_Data.channel.split("#")[1]}, something went wrong with CrossingBot. Please contact MuteBard ${addFlower()}`
+        }
+
+        respondToTwitch({
+            channel : Twitch_Data.channel,
+            message
+        })
+        
+    }
+
+    Route.queryMarketPrice(Twitch_Payload)
+
+}
+
+let toggle = false
+
+let addFlower = () => {
+    toggle = !toggle
+    if(toggle) return "❀" 
+    else return "✿"
+} 
+
+let appraisal = (rarity) => {
+    if (rarity == 5) return "YOU ARE EXTREMELY LUCKY! OSFrog"
+    else if (rarity == 4) return "Nice! That one is very rare!" 
+    else if (rarity == 3) return "That one is a bit rare!"
+    else return ""
 }

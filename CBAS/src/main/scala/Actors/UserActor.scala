@@ -80,7 +80,7 @@ class UserActor extends Actor with ActorLogging{
 					}else if (totalBells <= user.bells) {
 						sender() ! TurnipTransaction(business, quantity, marketPrice, totalBells, "Authorized")
 					} else {
-						sender() ! TurnipTransaction(business, quantity, marketPrice, totalBells, "Unauthorized: Insufficient bells")
+						sender() ! TurnipTransaction(business, quantity, marketPrice, totalBells, "Unauthorized - Insufficient bells")
 					}
 				} else if (business.toLowerCase == "sell") {
 					if (quantity <= 0) {
@@ -88,13 +88,13 @@ class UserActor extends Actor with ActorLogging{
 					} else if (quantity <= user.turnipTransactionHistory.head.quantity) {
 						sender() ! TurnipTransaction(business, quantity, marketPrice, totalBells, "Authorized")
 					} else {
-						sender() ! TurnipTransaction(business, quantity, marketPrice, totalBells, "Unauthorized: Insufficient turnips")
+						sender() ! TurnipTransaction(business, quantity, marketPrice, totalBells, "Unauthorized - Insufficient turnips")
 					}
 				}else{
-					sender() ! TurnipTransaction(business, quantity, marketPrice, 0, "Bad request: Business must be 'buy' or 'sell'")
+					sender() ! TurnipTransaction(business, quantity, marketPrice, 0, "Bad request - Business must be 'buy' or 'sell'")
 				}
 			} else {
-				sender() ! TurnipTransaction(business, 0, 0, 0, "Unauthorized: User does not exist")
+				sender() ! TurnipTransaction(business, 0, 0, 0, "Unauthorized - User does not exist")
 			}
 
 		case Update_One_User_With_Executing_Turnip_Transaction(username, business, quantity, marketPrice, totalBells) =>

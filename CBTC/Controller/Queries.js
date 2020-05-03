@@ -8,6 +8,18 @@ let USER_BELLS_REQUEST = (username) =>
     }
 }`
 
+let USER_TURNIP_STATS_REQUEST = (username) =>
+`query{
+    getUser(username:${"\""+username+"\""}){
+        username
+        liveTurnips{
+            quantity
+            netGainLossAsBells
+            netGainLossAsPercentage
+        }
+    }
+}`
+
 let USER_BUG_REQUEST = (username) =>
 `query{
     getUser(username:${"\""+username+"\""}){
@@ -143,7 +155,7 @@ let RARE_FISHES_THIS_MONTH =
 
 let VALIDATE_TRANSACTION = (username, business, quantity) => 
 `query{
-    validatePendingTransaction(username: ${"\""+username+"\""}, business: ${"\""+business+"\""}, quantity: ${"\""+quantity+"\""}){
+    validatePendingTransaction(username: ${"\""+username+"\""}, business: ${"\""+business+"\""}, quantity: ${quantity}){
         status
         business
         quantity
@@ -172,6 +184,7 @@ let ALL_FISHES =
 `
 
 module.exports.USER_BELLS_REQUEST = USER_BELLS_REQUEST
+module.exports.USER_TURNIP_STATS_REQUEST = USER_TURNIP_STATS_REQUEST 
 module.exports.USER_FISH_REQUEST = USER_FISH_REQUEST
 module.exports.USER_BUG_REQUEST = USER_BUG_REQUEST
 module.exports.USER_POCKET_REQUEST = USER_POCKET_REQUEST
