@@ -2,21 +2,21 @@
 
 ## General Commands
 
-- **!bug** to catch a bug
+- **!bug** Catch a bug
 
-- **!fish** to catch a fish
+- **!fish** Catch a fish
 
-- **!sell *[creature name]*** removes a bug or fish from your pocket and you get its value in bells stored to your own bells
+- **!sell *[creature name]*** Removes a bug or fish from your pocket and you get its value in bells stored to your own bells
 
-- **!sell all** removes everything from your pocket and you get the total value in bells added to your own bells
+- **!sell all** Removes everything from your pocket and you get the total value in bells added to your own bells
 
-- **!rare bugs** to list rare bugs available this month
+- **!rare bugs** List rare bugs available this month
 
-- **!rare fishes** to list rare fishes available this month
+- **!rare fishes** List rare fishes available this month
 
-- **!myPocket** displays all bugs and fish in your pocket
+- **!myPocket** Displays all bugs and fish in your pocket
 
-- **!myBells** displays current bells owned
+- **!myBells** Displays current bells owned
 
 - **!myTurnips** Displays how many turnips you own and how they are faring in the market
 
