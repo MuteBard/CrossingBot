@@ -1,4 +1,4 @@
-const CURRENT_MONTH = require('../Cron/Timing').data
+const CURRENT_MONTH = require('../Cron/Timing').month
 
 let USER_BELLS_REQUEST = (username) =>
 `query{
@@ -125,25 +125,21 @@ let FISHES_BY_MONTH =
 }
 `.replace("<months>", CURRENT_MONTH)
 
-let RARE_BUGS_BY_MONTH = 
+let RARE_BUGS_THIS_MONTH =
 `query{
-    getAllRareFishesByMonth(months: <months>){
+    getAllRareBugsByMonth(months: ${CURRENT_MONTH}){
         name
-        bells
-        rarity
     }
   }
-`.replace("<months>", CURRENT_MONTH)
+`
 
-let RARE_FISHES_BY_MONTH = 
+let RARE_FISHES_THIS_MONTH = 
 `query{
-    getAllRareFishesByMonth(months : <months>}){
+    getAllRareFishesByMonth(months : ${CURRENT_MONTH}){
         name
-        bells
-        rarity
     }
 }
-`.replace("<months>", CURRENT_MONTH)
+`
 
 let VALIDATE_TRANSACTION = (username, business, quantity) => 
 `query{
@@ -184,8 +180,8 @@ module.exports.MONTH_RECORD = MONTH_RECORD
 module.exports.TURNIP_PRICES = TURNIP_PRICES
 module.exports.BUGS_BY_MONTH = BUGS_BY_MONTH
 module.exports.FISHES_BY_MONTH = FISHES_BY_MONTH
-module.exports.RARE_BUGS_BY_MONTH = RARE_BUGS_BY_MONTH
-module.exports.RARE_FISHES_BY_MONTH = RARE_FISHES_BY_MONTH
+module.exports.RARE_BUGS_THIS_MONTH = RARE_BUGS_THIS_MONTH
+module.exports.RARE_FISHES_THIS_MONTH = RARE_FISHES_THIS_MONTH
 module.exports.VALIDATE_TRANSACTION = VALIDATE_TRANSACTION
 module.exports.BUG_BY_NAME = BUG_BY_NAME
 module.exports.FISH_BY_NAME = FISH_BY_NAME

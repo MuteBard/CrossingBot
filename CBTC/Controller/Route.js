@@ -54,7 +54,6 @@ exports.mutateUserPocketCatch = (CBAS_Payload, Twitch_Payload) => {
     //Update or create user with new bug or fish
     fetch({ query : firstMutation })
     .then(async CBAS_Response => {
-        console.log(CBAS_Response)
         if(CBAS_Response.data.creatureData == "BugOverflow" || CBAS_Response.data.creatureData == "FishOverflow"){  
             
             Twitch_Payload(CBAS_Response.data.catchCreature)
@@ -96,65 +95,6 @@ exports.mutateUserPocketCatch = (CBAS_Payload, Twitch_Payload) => {
     })  
 }
 
-
-
-
-
-
-    //             let queryUser = ""
-    //             if(CBAS_Payload.species == BUG){
-    //                 queryUser = Query.USER_BUG_REQUEST(CBAS_Payload.username, CBAS_Payload.species)
-    //             }else if(CBAS_Payload.species == FISH){
-    //                 queryUser = Query.USER_FISH_REQUEST(CBAS_Payload.username, CBAS_Payload.species)
-    //             }
-    //             //get that user
-    //             fetch({ query : queryUser })
-    //             .then(async (Second_CBAS_Response) => {
-    //                 //display to the user their newly caught bug on twitch
-    //                 Twitch_Payload(Second_CBAS_Response.data)
-    //                 //check to see if that user is new with their id and avatar not initialized (One time per user)
-    //                 if(Second_CBAS_Response.data.getUser.id == -1){
-    //                     //get id and avatar data from twitch api
-    //                     try{
-    //                         let respFromTwitch = await axios({
-    //                             method: 'GET',
-    //                             url: `https://api.twitch.tv/helix/users?login=${CBAS_Payload.username}`,
-    //                             headers: options.settingsB.headers
-    //                         })
-
-    //                         CBAS_Payload["id"] = Number(respFromTwitch.data.data[0].id)
-    //                         CBAS_Payload["avatar"] = respFromTwitch.data.data[0].profile_image_url
-    //                         var secondMutation = Mutation.COMPLETE_USER_CREATION(CBAS_Payload.username, CBAS_Payload.id, CBAS_Payload.avatar)
-                            
-    //                         //do a final mutation to the user and update those fields on the user
-    //                         fetch({ query : secondMutation })
-    //                         .then(Third_CBAS_Response => {
-    //                             console.log("Third_CBAS_Response: ",Third_CBAS_Response)
-    //                             if(Third_CBAS_Response.data.finalizeUserCreation == "Success"){
-    //                                 console.log(`User creation of ${CBAS_Payload.username} is complete`)
-    //                             }
-    //                         })
-
-    //                     }catch(error){
-    //                         console.log(`Mutation Failed: User creation of ${CBAS_Payload.username} has failed : ${error}`)
-    //                     }
-    //                 }
-    //             })
-            
-    //         }else if(CBAS_Response.data.catchCreature == "BugOverflow" || CBAS_Response.data.catchCreature == "FishOverflow"){
-    //             Twitch_Payload(CBAS_Response.data)
-    //         }else{
-    //             Twitch_Payload(null)
-    //             console.log(`Mutation Failed: Unable to either update or create ${CBAS_Payload.username} with new creature`)
-    //         }
-    //     }, 2000)
-    // })
-    // .catch(error => {
-    //     Twitch_Payload(null)
-    //     console.log(error)
-    // }) 
-
-
 exports.mutateUserPocketSellOne = (CBAS_Payload, Twitch_Payload) => {
     let mutation = Mutation.SELL_ONE_CREATURE(CBAS_Payload.username, CBAS_Payload.species, CBAS_Payload.creatureName)
     queryGraphQL(mutation, Twitch_Payload)
@@ -170,21 +110,15 @@ exports.mutateUserPocketSellAll = (CBAS_Payload, Twitch_Payload) => {
 //     queryGraphQL(Query.TURNIP_PRICES, twitchPayload, botResponse)
 // }
 
-// exports.queryFishesByMonth = (info, twitchPayload, botResponse) => {
-//     queryGraphQL(Query.FISHES_BY_MONTH, twitchPayload, botResponse)
-// }
-
-// exports.queryBugsByMonth = (info, twitchPayload, botResponse) => {
-//     queryGraphQL(Query.BUGS_BY_MONTH, twitchPayload, botResponse)
-// }
-
-// exports.queryRareFishesByMonth = (info, twitchPayload, botResponse) => {
-//     queryGraphQL(Query.RARE_FISHES_BY_MONTH, twitchPayload, botResponse)
-// }
-
-// exports.queryRareBugsByMonth = (info, twitchPayload, botResponse) => {
-//     queryGraphQL(Query.RARE_BUGS_BY_MONTH, twitchPayload, botResponse)
-// }
+exports.queryRareCreatures = (CBAS_Payload, Twitch_Payload) => {
+    let query = ""
+    if(CBAS_Payload.species == "fish"){
+        query = Query.RARE_FISHES_THIS_MONTH
+    }else if(CBAS_Payload.species == "bug"){
+        query = Query.RARE_BUGS_THIS_MONTH
+    }
+    queryGraphQL(query, Twitch_Payload)
+}
 
 // exports.mutateSellOne = (info, twitchPayload, botResponse) => {
 //     let mutation = Mutation.SELL_ONE_CREATURE(info.username, info.species, info.creature)

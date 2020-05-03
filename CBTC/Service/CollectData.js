@@ -45,6 +45,16 @@ publicConnection.on('chat', (channel, userstate, message, self) => {
         process.catchRequest(Twitch_Data)
     } 
     
+    else if(command == "!rare bugs"){
+        Twitch_Data["species"] = BUG
+        process.rareCreaturesRequest(Twitch_Data)
+    }
+
+    else if(command == "!rare fishes"){
+        Twitch_Data["species"] = FISH
+        process.rareCreaturesRequest(Twitch_Data)
+    }
+
     else if(command.includes("!search")){
         let creatureName = properlyCaseCreatureName(command)
         if(isCreatureNameValid(creatureName, creatureDictionary)){

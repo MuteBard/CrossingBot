@@ -1,5 +1,6 @@
 const Route = require('../Controller/Route')
 const maintainConnection = require('./CollectData')
+const month = require('../Cron/Timing')
 const BUG = "bug"  
 const FISH  = "fish" 
 
@@ -97,9 +98,9 @@ exports.creatureRequest = (Twitch_Data) => {
         let CBAS_Payload = { "species" : Twitch_Data.species, "creatureName" : Twitch_Data.creatureName } 
         let Twitch_Payload = (response) => { 
             let CBAS_Data = null
-            if(Twitch_Data.species == "bug"){
+            if(Twitch_Data.species == BUG){
                 CBAS_Data = response.getBugByName
-            }else if(Twitch_Data.species == "fish"){
+            }else if(Twitch_Data.species == FISH){
                 CBAS_Data = response.getFishByName
             }
             let message = ""
@@ -171,3 +172,32 @@ exports.sellAllRequest = (Twitch_Data) => {
     Route.mutateUserPocketSellAll(CBAS_Payload, Twitch_Payload)
 }
 
+
+exports.rareCreaturesRequest = (Twitch_Data) => {
+    let CBAS_Payload = {"species" : Twitch_Data.species }
+    let Twitch_Payload = (response) => { 
+        let CBAS_Data = null
+        let message = ""
+        if(response != null){
+            if(CBAS_Payload.species == BUG){
+                CBAS_Data = response.getAllRareBugsByMonth
+            }else if(CBAS_Payload.species == FISH){
+                console.log(response)
+                CBAS_Data = response.getAllRareFishesByMonth
+            }
+            let pluaralSpecies = CBAS_Payload.species == BUG ? "bugs" : "fishes"
+            let messagePart1 = `${Twitch_Data.username}, `
+            let messagePart2A = `there are no rare ${pluaralSpecies} in ${month.friendly} ${addFlower()}`
+            let messagePart2B = `here are some super rare ${pluaralSpecies} for ${month.friendly} : ${CBAS_Data.map(creature => " "+creature.name )} ${addFlower()}`
+            message = `${Twitch_Data.username}, ${CBAS_Data.length == 0 ? messagePart2A : messagePart2B}` 
+        }else{
+            message = `Hey ${Twitch_Data.channel.split("#")[1]}, something went wrong with CrossingBot. Please contact MuteBard ${addFlower()}`
+        }
+        respondToTwitch({
+            channel : Twitch_Data.channel,
+            message
+        })
+        
+    }
+    Route.queryRareCreatures(CBAS_Payload, Twitch_Payload)
+}

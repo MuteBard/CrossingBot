@@ -78,8 +78,8 @@ object FishOperations extends MongoDBOperations {
 
 	def readAllRarestByMonth(queryList : List[String]) : List[Fish] = {
 		val source = MongoSource(allFishes.find(classOf[Fish])).filter(fishes => (fishes.rarity == 5 || fishes.rarity == 4) && fishes.availability.intersect(queryList) == queryList)
-		val bugSeqFuture = source.runWith(Sink.seq)
-		val bugSeq : Seq[Fish] = Await.result(bugSeqFuture, 1 seconds)
-		bugSeq.toList
+		val fishSeqFuture = source.runWith(Sink.seq)
+		val fishSeq : Seq[Fish] = Await.result(fishSeqFuture, 1 seconds)
+		fishSeq.toList
 	}
 }

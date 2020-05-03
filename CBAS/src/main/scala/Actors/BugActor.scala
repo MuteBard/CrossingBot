@@ -66,11 +66,11 @@ class BugActor extends Actor with ActorLogging{
 
 	def rarityValue : Int = {
 		val random = new Random()
-		val chance = random.nextInt(512)+1
-		if(chance % 500 == 0) 5
+		val chance = random.nextInt(400)+1
+		if(chance % 200 == 0) 5
 		else if (chance % 80 == 0) 4
 		else if(chance % 20 == 0) 3
-		else if(chance % 3 == 0) 2
+		else if(chance % 8 == 0) 2
 		else 1
 	}
 }

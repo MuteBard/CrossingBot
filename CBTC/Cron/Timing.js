@@ -87,4 +87,4 @@ let currentMonth = () => {
     job.start();
 
 module.exports.friendly =  userFriendlyMonth(month)
-module.exports.data = "[\""+month+"\"]"
+module.exports.month = "[\""+month+"\"]"
