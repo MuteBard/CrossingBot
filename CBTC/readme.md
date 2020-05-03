@@ -10,9 +10,9 @@
 
 - **!sell all** removes everything from your pocket and you get the total value in bells added to your own bells
 
-- **!listRareBug** to list rare bugs available this month
+- **!rare bugs** to list rare bugs available this month
 
-- **!listRareFish** to list rare fishes available this month
+- **!rare fishes** to list rare fishes available this month
 
 - **!myPocket** displays all bugs and fish in your pocket
 
