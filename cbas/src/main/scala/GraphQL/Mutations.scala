@@ -16,7 +16,7 @@ object Mutations {
 //	    sellOneCreatureByName:    sellCreatureByNameArgs => IO[NotFound, Int],
 	    sellAllCreatures :        usernameArgs => UIO[Int],
 	    acknowledgeTransaction:   authorizedTransactionArgs => IO[NotFound, String],
-	    populate:                 dummyArgs => UIO[String],
+	    populate:                 UIO[String],
 	    toggleMarket:             toggleArgs => UIO[String],
 
 	)
@@ -29,7 +29,7 @@ object Mutations {
 //		args => cbs.sellOneCreatureByName(args.username, args.creatureName),
 		args => cbs.sellAllCreatures(args.username),
 		args => cbs.acknowledgeTransaction(args.username, args.business, args.quantity, args.marketPrice, args.totalBells),
-		args => cbs.populate(args.dummy),
+		cbs.populate,
 		args => cbs.toggleMarket(args.running),
 	)
 }

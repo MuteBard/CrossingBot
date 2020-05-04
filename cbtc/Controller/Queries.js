@@ -65,9 +65,9 @@ let USER_POCKET_REQUEST = (username) =>
     }
 }`
 
-const DAY_RECORD = 
-`query{    
-    getDayRecords(dummy : true){
+const DAY_RECORD =
+`query{
+    getDayRecords(){
         latestTurnipPrice
         todayHigh
         todayLow
@@ -75,22 +75,22 @@ const DAY_RECORD =
     }
 }`
 
-const MONTH_RECORD = 
+const MONTH_RECORD =
 `query{
-    getMonthRecords(dummy : true){
+    getMonthRecords(){
         latestTurnipPrice
         todayHigh
         todayLow
-        turnipPriceHistory 
+        turnipPriceHistory
     }
 }`
 
 const TURNIP_PRICES =
 `query{
-    getTurnipPrices(dummy : true)
+    getTurnipPrices()
 }`
 
-let BUG_BY_NAME = (creatureName) => 
+let BUG_BY_NAME = (creatureName) =>
 `query{
     getBugByName(name : ${"\""+creatureName+"\""}){
         name
@@ -101,7 +101,7 @@ let BUG_BY_NAME = (creatureName) =>
 }
 `
 
-let FISH_BY_NAME = (creatureName) => 
+let FISH_BY_NAME = (creatureName) =>
 `query{
     getFishByName(name : ${"\""+creatureName+"\""}){
         name
@@ -112,30 +112,30 @@ let FISH_BY_NAME = (creatureName) =>
 }
 `
 
-let CREATURE_SUMMARY_BY_NAME = (creatureName) => 
+let CREATURE_SUMMARY_BY_NAME = (creatureName) =>
 `query{
     getCreatureSummaryByName(name : ${"\""+creatureName+"\""})
 }
 `
 
-let BUGS_BY_MONTH = 
+let BUGS_BY_MONTH =
 `query{
-    getAllBugsByMonth(months : <months>){
+    getAllBugsByMonth(months : ${CURRENT_MONTH}){
         name
         bells
         rarity
     }
 }
 `
-let FISHES_BY_MONTH = 
+let FISHES_BY_MONTH =
 `query{
-    getAllFishesByMonth(months : <months>){
+    getAllFishesByMonth(months : ${CURRENT_MONTH}){
         name
         bells
         rarity
     }
 }
-`.replace("<months>", CURRENT_MONTH)
+`
 
 let RARE_BUGS_THIS_MONTH =
 `query{
@@ -145,7 +145,7 @@ let RARE_BUGS_THIS_MONTH =
   }
 `
 
-let RARE_FISHES_THIS_MONTH = 
+let RARE_FISHES_THIS_MONTH =
 `query{
     getAllRareFishesByMonth(months : ${CURRENT_MONTH}){
         name
@@ -153,30 +153,30 @@ let RARE_FISHES_THIS_MONTH =
 }
 `
 
-let VALIDATE_TRANSACTION = (username, business, quantity) => 
+let VALIDATE_TRANSACTION = (username, business, quantity) =>
 `query{
     validatePendingTransaction(username: ${"\""+username+"\""}, business: ${"\""+business+"\""}, quantity: ${quantity}){
         status
         business
         quantity
         marketPrice
-        totalBells                                                                                                                                                                                                                                                               
+        totalBells
     }
 }
 `
 
 
-let ALL_BUGS = 
+let ALL_BUGS =
 `query{
-    getAllBugs(dummy : true){
+    getAllBugs(){
         name
         species
     }
 }
 `
-let ALL_FISHES = 
+let ALL_FISHES =
 `query{
-    getAllFishes(dummy : true){
+    getAllFishes(){
         name
         species
     }
@@ -184,7 +184,7 @@ let ALL_FISHES =
 `
 
 module.exports.USER_BELLS_REQUEST = USER_BELLS_REQUEST
-module.exports.USER_TURNIP_STATS_REQUEST = USER_TURNIP_STATS_REQUEST 
+module.exports.USER_TURNIP_STATS_REQUEST = USER_TURNIP_STATS_REQUEST
 module.exports.USER_FISH_REQUEST = USER_FISH_REQUEST
 module.exports.USER_BUG_REQUEST = USER_BUG_REQUEST
 module.exports.USER_POCKET_REQUEST = USER_POCKET_REQUEST
@@ -198,6 +198,6 @@ module.exports.RARE_FISHES_THIS_MONTH = RARE_FISHES_THIS_MONTH
 module.exports.VALIDATE_TRANSACTION = VALIDATE_TRANSACTION
 module.exports.BUG_BY_NAME = BUG_BY_NAME
 module.exports.FISH_BY_NAME = FISH_BY_NAME
-module.exports.CREATURE_SUMMARY_BY_NAME = CREATURE_SUMMARY_BY_NAME 
+module.exports.CREATURE_SUMMARY_BY_NAME = CREATURE_SUMMARY_BY_NAME
 module.exports.ALL_BUGS = ALL_BUGS
 module.exports.ALL_FISHES = ALL_FISHES
