@@ -1,0 +1,10 @@
+.bells, .bugnet, .fishrod, .turnip{
+    width : 10em;
+    border : solid 2 green;
+}
+.logo{
+    width : 10em;
+}
+.namedLogo{
+    width : 40em;
+}
