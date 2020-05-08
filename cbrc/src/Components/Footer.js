@@ -1,17 +1,21 @@
-import React, {useState, useEffect} from 'react';
+import React from 'react';
 import { Link } from "react-router-dom"
-
-
-
-function Footer(){
-
+import { Row, Col } from 'antd'; 
+import "antd/dist/antd.css";
+ 
+export default function Footer(){
   return(
-    <React.Fragment>
-
-    </React.Fragment>
+    <div>
+      <Row justify="space-around" align="middle">
+        <Col span={2} offset={20}>Something wrong?</Col>
+        <Col span={2}>Donate</Col>
+      </Row>
+      <Row>
+        <Col span={2} offset={20}>Twitter Icon</Col>
+        <Col span={2}>Paypal Icon</Col>
+      </Row>
+    </div>
   )
 }
 
-export default Footer
 
-// <Button className={classes.logoContainer} component={Link} to="/">  </Button>

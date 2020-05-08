@@ -1,5 +1,8 @@
-import React, {useState, useEffect} from 'react';
+import React from 'react';
 import { Link } from "react-router-dom"
+import { Row, Col } from 'antd'; 
+import "antd/dist/antd.css";
+ 
 
 import NamedLogo from '../Assets/resolved/namedLogo'
 import Bells from '../Assets/resolved/bells'
@@ -10,18 +13,20 @@ import Hero from '../Assets/resolved/hero'
 import Logo from '../Assets/resolved/logo'
 
 
-
 import SVG from 'react-inlinesvg';
 
 
-function Header(){
-
+export default function Header(){
   return(
-    <React.Fragment>
-      <NamedLogo/>
-    </React.Fragment>
+      <Row justify="space-around" align="middle">
+        <Col span={6}><NamedLogo/></Col>
+        <Col span={2} offset={8}>Market</Col>
+        <Col span={2}>Catch Bugs</Col>
+        <Col span={2}>Catch Fishes</Col>
+        <Col span={2}>Creature Search</Col>
+        <Col span={2}>Profile</Col>
+      </Row>
   )
 }
 
-export default Header
 
