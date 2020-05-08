@@ -1,0 +1,17 @@
+.bells, .bugnet, .fishrod, .turnip{
+    width : 30em;
+    border : solid 2 green;
+}
+.logo{
+    width : 10em;
+}
+.namedLogoContainer{
+    padding : 0;
+    margin: 0;
+    .namedLogo{
+        width : 50em;
+    }
+}
+.hero{
+    width: 100em;
+}

@@ -1,0 +1,27 @@
+$darkgreen : #2A5D67;
+$green : #4AE3B5;
+$darkblue : #171332;
+$gray: #EEEEEE;
+
+
+*{
+    box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    .HomeContainer{
+        .Top15Container {
+            background: $darkblue;
+            padding: 3em;
+            font-family: 'Ubuntu', sans-serif;
+            
+            .row{
+                
+                margin-bottom: 5em;
+                .card{
+                    color : $darkgreen;
+                }
+            }
+        }
+    }
+}

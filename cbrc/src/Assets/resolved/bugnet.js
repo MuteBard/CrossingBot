@@ -1,7 +1,7 @@
 import React from 'react';
 import SVG from 'react-inlinesvg';
 import bugNetRaw from '../raw/bugnet.svg'
-import './resolved.css'
+import './css/resolved.css'
 
 export default function BugNet(){
   return(

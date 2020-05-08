@@ -5,6 +5,8 @@ import { BrowserRouter, Route, Switch } from "react-router-dom"
 import Header from './Components/Header'
 import Footer from './Components/Footer'
 
+import Home from './Pages/Home'
+
 
 function App() {
   return (
@@ -12,7 +14,7 @@ function App() {
     <BrowserRouter>
       <Header/>
       <Switch>
-        <Route exact path="/" component={() => <div>Home</div>}/>
+        <Route exact path="/" component={Home}/>
         <Route exact path="/profile" component={() => <div>Profile</div>}/>
         <Route exact path="/market" component={() => <div>Market</div>}/>
         <Route exact path="/catchbug" component={() => <div>Catch Bug</div>}/>

@@ -1,7 +1,7 @@
 import React from 'react';
 import SVG from 'react-inlinesvg';
 import heroRaw from '../raw/hero.svg'
-import './resolved.css'
+import './css/resolved.css'
 
 export default function Hero(){
   return(
