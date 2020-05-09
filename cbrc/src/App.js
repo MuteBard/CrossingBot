@@ -6,6 +6,7 @@ import Header from './Components/Header'
 import Footer from './Components/Footer'
 
 import Home from './Pages/Home'
+import Market from './Pages/Market'
 
 
 function App() {
@@ -16,7 +17,7 @@ function App() {
       <Switch>
         <Route exact path="/" component={Home}/>
         <Route exact path="/profile" component={() => <div>Profile</div>}/>
-        <Route exact path="/market" component={() => <div>Market</div>}/>
+        <Route exact path="/market" component={Market}/>
         <Route exact path="/catchbug" component={() => <div>Catch Bug</div>}/>
         <Route exact path="/catchfish" component={() => <div>Catch Fish</div>}/>
         <Route exact path="/summary" component={() => <div>Summary</div>}/>
