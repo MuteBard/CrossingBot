@@ -10,26 +10,36 @@ import NamedLogo from '../Assets/resolved/namedLogo'
 
 export default function Header(){
   return(
-      <Row className = "Header" align="middle">
+      <Row className = "Header" align="middle" component={Link} to="/">
         <Col span={6}>
-          <NamedLogo/>
+          <Link to='/'>
+            <NamedLogo/>
+          </Link>
         </Col>
-        <Col className="headerItem" span={3} offset={6}>
-          <div class="headerText">Market</div>
-          <StockOutlined style={{fontSize:"3em", color:"#2A5D67"}}/>
+        <Col className="headerItem" span={3} offset={5} component={Link} to="/market">
+          <Link className="linkWrap" to='/market'>
+            <div class="headerText">Market</div>
+            <StockOutlined style={{fontSize:"3em", color:"#2A5D67"}}/>
+          </Link>
         </Col>
         <Col className="headerItem" span={3}>
-          <div class="headerText">Catch</div>
-          <BugOutlined style={{fontSize:"3em", color:"#2A5D67"}}/>
+          <Link className="linkWrap" to='/catch'>
+            <div class="headerText">Catch</div>
+            <BugOutlined style={{fontSize:"3em", color:"#2A5D67"}}/>
+          </Link>
         </Col>
         <Col className="headerItem" span={3}>
-          <div class="headerText">Search</div>
-          <SearchOutlined style={{fontSize:"3em", color:"#2A5D67"}}/>
+          <Link className="linkWrap" to='/'>
+            <div class="headerText">Search</div>
+            <SearchOutlined style={{fontSize:"3em", color:"#2A5D67"}}/>
+          </Link>
         </Col>
-        <Col className="headerProfile" span={3}>
-          <Badge count={1}>
-            <Avatar shape="square" size={64} icon={<UserOutlined />} />
-          </Badge>
+        <Col className="headerProfile" span={3} offset={1}>
+          <Link className="linkWrap" to='/'>
+            <Badge count={1}>
+              <Avatar shape="square" size={64} icon={<UserOutlined />} />
+            </Badge>
+          </Link>
         </Col> 
       </Row>
   )

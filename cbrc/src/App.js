@@ -7,6 +7,7 @@ import Footer from './Components/Footer'
 
 import Home from './Pages/Home'
 import Market from './Pages/Market'
+import Catch from './Pages/Catch'
 
 
 
@@ -20,9 +21,7 @@ function App() {
         <Route exact path="/" component={Home}/>
         <Route exact path="/profile" component={() => <div>Profile</div>}/>
         <Route exact path="/market" component={Market}/>
-        <Route exact path="/catchbug" component={() => <div>Catch Bug</div>}/>
-        <Route exact path="/catchfish" component={() => <div>Catch Fish</div>}/>
-        <Route exact path="/summary" component={() => <div>Summary</div>}/>
+        <Route exact path="/catch" component={Catch}/>
       </Switch>
       <Footer/>
       </BrowserRouter>

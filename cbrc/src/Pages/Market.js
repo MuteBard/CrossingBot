@@ -19,8 +19,36 @@ export default class Market extends Component {
     render() {
         return ( 
             <div className="MarketContainer">
-                <Row align="middle">
-                    <Col span={16} offset={4}>
+                <Row className="MarketRow" align="middle">
+                    <Col className="TurnipsCol" span={4} offset={2}>
+                        <Turnip/>
+                        <Card className="card" style={{ width: 350 }}>
+                            <p className="prices">
+                                <strong>123 Bells</strong>
+                            </p>
+                            <div className="stats">
+                                <div>Open</div> 
+                                <div>322</div>
+                            </div>
+                            <div className="stats">
+                                <div>Today's High</div>
+                                <div>400</div>
+                            </div>
+                            <div className="stats">
+                                <div>Today's Low</div>
+                                <div>300</div>
+                            </div>
+                            <div className="stats">
+                                <div>Today's Return</div>
+                                <div>+32</div>
+                            </div>
+                            <div className="stats">
+                                <div>Total's Return</div>
+                                <div>10%</div>
+                            </div>
+                        </Card>
+                    </Col>
+                    <Col span={12} offset={4} >
                         <Tabs defaultActiveKey="1" onChange={getTabData}>
                             <TabPane tab="Today" key="1">
                                 <TurnipsToday/>

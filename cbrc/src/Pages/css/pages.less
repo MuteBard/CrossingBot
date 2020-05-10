@@ -1,0 +1,58 @@
+@darkgreen : #2A5D67;
+@green : #4AE3B5;
+@darkblue : #171332;
+@gray: #EEEEEE;
+
+
+*{
+    box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    .HomeContainer{
+        font-family: 'Ubuntu', sans-serif;
+        .Top3Title{
+            font-size: 3em;
+            background: @darkblue;
+            color : @green;
+            text-align: center; 
+            padding: 2em 0 2em 0;
+        }
+        .Top3Container {
+            background: @darkblue;
+            // padding: 2em 0 2em 0;
+            
+            .row{
+                
+                // margin-bottom: 5em;
+                .card{
+                    color : @darkgreen;
+                }
+            }
+        }
+    }
+    .MarketContainer{
+        padding-top: 4em;
+        font-family: 'Ubuntu', sans-serif;
+        .MarketRow{
+            .TurnipsCol{
+                display : flex;
+                align-items: center;
+                justify-content: center;
+                flex-direction: column;
+                .card{
+                    .prices{
+                        font-size :2em;
+                    }
+                    .stats{
+                        display: flex;
+                        justify-content : space-between;
+                    }
+                }
+            }
+        }
+    }
+    .CatchContainer{
+        padding-top: 4em;
+    }
+}

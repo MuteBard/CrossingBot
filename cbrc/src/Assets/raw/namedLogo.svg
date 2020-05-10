@@ -17,8 +17,8 @@
 
 .named-leaf-named-cls{
   stroke-width:2px;
-  stroke:#006400;
-  fill: #0bd828;
+  stroke:#2A5D67;
+  fill: #4AE3B5;
   opacity : 0;
   stroke-dasharray: 400;
   stroke-dashoffset : 400;
