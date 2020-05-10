@@ -9,6 +9,7 @@ import "./css/pages.css"
 import Hero from '../Assets/resolved/hero'
 import Turnip from '../Assets/resolved/turnip'
 import Bells from '../Assets/resolved/bells'
+import DarkCog from '../Assets/resolved/backgroundcogDark'
 
 const { Meta } = Card;
 
@@ -60,6 +61,7 @@ export default class Home extends Component {
               </Col> 
             </Row>
           </div>
+          <DarkCog/>
         </span> 
       )
     }

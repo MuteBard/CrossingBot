@@ -9,9 +9,11 @@ import Home from './Pages/Home'
 import Market from './Pages/Market'
 
 
+
+
 function App() {
   return (
-    <div className="App">
+    <div>
     <BrowserRouter>
       <Header/>
       <Switch>

@@ -20,6 +20,10 @@ $gray: #EEEEEE;
         .headerItem{
             display:flex;
             flex-direction: column;
+            justify-content: center;
+            .headerText{
+                text-align: center;
+            }
         }
     }
     .Footer{

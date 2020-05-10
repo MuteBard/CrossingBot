@@ -14,16 +14,16 @@ export default function Header(){
         <Col span={6}>
           <NamedLogo/>
         </Col>
-        <Col className="headerItem" span={3} offset={6}>Market
-          <div class="headerText"></div>
+        <Col className="headerItem" span={3} offset={6}>
+          <div class="headerText">Market</div>
           <StockOutlined style={{fontSize:"3em", color:"#2A5D67"}}/>
         </Col>
-        <Col className="headerItem" span={3}>Catch
-          <div class="headerText"></div>
+        <Col className="headerItem" span={3}>
+          <div class="headerText">Catch</div>
           <BugOutlined style={{fontSize:"3em", color:"#2A5D67"}}/>
         </Col>
-        <Col className="headerItem" span={3}>Search
-          <div class="headerText"></div>
+        <Col className="headerItem" span={3}>
+          <div class="headerText">Search</div>
           <SearchOutlined style={{fontSize:"3em", color:"#2A5D67"}}/>
         </Col>
         <Col className="headerProfile" span={3}>
@@ -34,4 +34,3 @@ export default function Header(){
       </Row>
   )
 }
-
