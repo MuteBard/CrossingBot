@@ -10,19 +10,8 @@ $gray: #EEEEEE;
     -moz-osx-font-smoothing: grayscale;
 
     .HomeContainer{
-        .Top15Container {
-            background: $darkblue;
-            padding: 3em 0 1em 3em;
-            font-family: 'Ubuntu', sans-serif;
-            
-            .row{
-                
-                margin-bottom: 5em;
-                .card{
-                    color : $darkgreen;
-                }
-            }
-        }
+        padding-top: 4em;
+        
     }
     .MarketContainer{
         padding-top: 4em;

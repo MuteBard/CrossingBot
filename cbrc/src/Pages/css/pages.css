@@ -3,13 +3,7 @@
   box-sizing: border-box;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale; }
-  * .HomeContainer .Top15Container {
-    background: #171332;
-    padding: 3em 0 1em 3em;
-    font-family: 'Ubuntu', sans-serif; }
-    * .HomeContainer .Top15Container .row {
-      margin-bottom: 5em; }
-      * .HomeContainer .Top15Container .row .card {
-        color: #2A5D67; }
+  * .HomeContainer {
+    padding-top: 4em; }
   * .MarketContainer {
     padding-top: 4em; }
