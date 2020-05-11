@@ -71,7 +71,7 @@ export default class Market extends Component {
             <div className="MarketContainer">
                 <Row className="MarketRow" align="middle">
                     <Col className="TurnipsCol" span={4} offset={2}>
-                        <Turnip/>
+                        <Turnip className="svgTurnip"/>
                         <Card className="card" style={{ width: 350 }}>
                             <Input.Group compact className="inputGroup">
                                 <Select defaultValue="Buy">
@@ -84,11 +84,10 @@ export default class Market extends Component {
                                 </div>
                                 <div>
                                     <Button type="primary" loading={loadings[0]} onClick={() => this.enterLoading(0)}>
-                                        confrim
+                                        confirm
                                     </Button>
                                 </div>
                             </Input.Group>
-
                         </Card>
                         <Card className="card" style={{ width: 350 }}>
                             <div className="stats2">
@@ -122,10 +121,9 @@ export default class Market extends Component {
                                 <div>{statistic(0, 10, "%", true)}</div>
                             </div>
                         </Card>
-                
-             
                     </Col>
                     <Col className="ChartCol" span={12} offset={4} >
+                        <div className="title"><strong>STALK MARKET</strong></div>
                         <Tabs defaultActiveKey="1" onChange={getChartTabData}>
                             <TabPane tab="Today" key="1">
                                 <TurnipsToday/>
