@@ -20,11 +20,7 @@
         }
         .Top3Container {
             background: @darkblue;
-            // padding: 2em 0 2em 0;
-            
-            .row{
-                
-                // margin-bottom: 5em;
+            .row{  
                 .card{
                     color : @darkgreen;
                 }
@@ -41,15 +37,29 @@
                 justify-content: center;
                 flex-direction: column;
                 .card{
-                    .prices{
-                        font-size :2em;
-                    }
-                    .stats{
+                    margin-top : 1em;
+                    .stats1{
                         display: flex;
                         justify-content : space-between;
                     }
+                    .stats2{
+                        display: flex;
+                        justify-content : space-between;
+                        align-items: center;
+                        font-weight: 3em;
+                    }
+                    .inputGroup{
+                        display:flex;
+                        align-items: center;
+                        div{
+                            padding-left: 1em;
+                        }
+                    }
                 }
             }
+            // .ChartCol{
+            //     margin-top : 1em;
+            // }
         }
     }
     .CatchContainer{

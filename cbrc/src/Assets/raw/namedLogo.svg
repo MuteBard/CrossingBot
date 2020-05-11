@@ -23,7 +23,7 @@
   stroke-dasharray: 400;
   stroke-dashoffset : 400;
   animation: 2s named-leaf-named-clsAnimate 1 forwards;
-  animation-delay: 3s;
+  animation-delay: 5s;
 }
 
 .named-cog-named-cls{

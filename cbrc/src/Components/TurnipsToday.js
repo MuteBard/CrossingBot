@@ -39,10 +39,10 @@ let data = (parameters) =>{ return {
 export default class MarketToday extends Component {
     render() {
         let parameters = {
-            title : "Two Day Turnip Price Comparison for 1/1/2020 - 1/2/2020",
+            title : "Turnip Prices for Sunday May 5 2020",
             times :  ["12:00 AM","12:15 AM", "12:30 AM", "12:45 AM", "1:00 AM", "1:15 AM", "1:30 AM", "1:45 AM"],
             now : {
-                name : "Today",
+                name : "Prices",
                 prices : [112, 120, 123, 140, 132, 108, 96, 96],
                 primary : "#4AE3B5",
                 secondary : "#2A5D67",

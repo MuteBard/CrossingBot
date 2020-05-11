@@ -1,6 +1,9 @@
 import React, {Component} from 'react';
 import { Link } from "react-router-dom"
-import { Row, Col, Card, Tabs } from 'antd';
+import { Row, Col, Card, Tabs, Statistic,InputNumber,Input,Select,  Button } from 'antd';
+
+import { ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
+
 import { Line } from 'react-chartjs-2';
 import "./css/pages.css"
 import Turnip from '../Assets/resolved/turnip'
@@ -8,48 +11,122 @@ import TurnipsToday from '../Components/TurnipsToday'
 import LightCog from '../Assets/resolved/backgroundcogLight'
 
 const { TabPane } = Tabs; 
+const { Option } = Select;
 
 // const { Meta } = Card;
 
-function getTabData(key) {
+
+function getBusinessTabData(key) {
+    console.log(key);
+  }
+  
+function getChartTabData(key) {
     console.log(key);
 }
 
+
+
+function statistic(base, current, unit, arrow) {
+
+    return (
+        current > base ?
+        <Statistic
+            value={current}
+            precision={0}
+            valueStyle={{ color: '#4AE3B5' }}
+            prefix={ arrow ? <ArrowUpOutlined/> : undefined }
+            suffix={ unit != undefined ? unit : undefined }
+        /> 
+        :
+        <Statistic
+            value={current}
+            precision={0}
+            valueStyle={{ color: '#E34A78' }}
+            prefix={ arrow ? <ArrowUpOutlined/> : undefined }
+            suffix={ unit == "percent" ? "%" : undefined    }
+         /> 
+    )
+}
+
 export default class Market extends Component {
+    state = {
+        loadings: [],
+      };
+
+    enterLoading(index){
+        const newLoadings = [...this.state.loadings];
+        newLoadings[index] = true;
+        this.setState({
+            loadings: newLoadings,
+        });
+        setTimeout(() => {
+            newLoadings[index] = false;
+            this.setState({ loadings: newLoadings });
+        }, 6000);
+    };
+
     render() {
+        const { loadings } = this.state;
         return ( 
             <div className="MarketContainer">
                 <Row className="MarketRow" align="middle">
                     <Col className="TurnipsCol" span={4} offset={2}>
                         <Turnip/>
                         <Card className="card" style={{ width: 350 }}>
-                            <p className="prices">
-                                <strong>123 Bells</strong>
-                            </p>
-                            <div className="stats">
-                                <div>Open</div> 
+                            <Input.Group compact className="inputGroup">
+                                <Select defaultValue="Buy">
+                                    <Option value="Buy">Buy</Option>
+                                    <Option value="Sell">Sell</Option>
+                                </Select>
+                                <Input defaultValue="0" style={{ width: 100 }} />
+                                <div className="TurnipsText">
+                                    <strong>Turnips</strong>
+                                </div>
+                                <div>
+                                    <Button type="primary" loading={loadings[0]} onClick={() => this.enterLoading(0)}>
+                                        confrim
+                                    </Button>
+                                </div>
+                            </Input.Group>
+
+                        </Card>
+                        <Card className="card" style={{ width: 350 }}>
+                            <div className="stats2">
+                                <div><strong>Turnip Prices</strong></div> 
+                                {statistic(300, 350, "bells", false)}
+                            </div>
+                            <div className="stats1">
+                                <div>Opening Price</div> 
                                 <div>322</div>
                             </div>
-                            <div className="stats">
+                            <div className="stats1">
                                 <div>Today's High</div>
                                 <div>400</div>
                             </div>
-                            <div className="stats">
+                            <div className="stats1">
                                 <div>Today's Low</div>
                                 <div>300</div>
                             </div>
-                            <div className="stats">
-                                <div>Today's Return</div>
-                                <div>+32</div>
+                        </Card>
+                        <Card className="card" style={{ width: 350 }}>
+                            <div className="stats2">
+                                <div><strong>Turnips Held</strong></div>
+                                <div>{statistic(0, 1, "turnip(s)", false)}</div>
                             </div>
-                            <div className="stats">
-                                <div>Total's Return</div>
-                                <div>10%</div>
+                            <div className="stats2">
+                                <div><strong>Today's Return</strong></div>
+                                <div>{statistic(0, 32, "bells", true)}</div>
+                            </div>
+                            <div className="stats2">
+                                <div><strong>Overall Return</strong></div>
+                                <div>{statistic(0, 10, "%", true)}</div>
                             </div>
                         </Card>
+                
+             
                     </Col>
-                    <Col span={12} offset={4} >
-                        <Tabs defaultActiveKey="1" onChange={getTabData}>
+                    <Col className="ChartCol" span={12} offset={4} >
+                        <Tabs defaultActiveKey="1" onChange={getChartTabData}>
                             <TabPane tab="Today" key="1">
                                 <TurnipsToday/>
                             </TabPane>
@@ -73,6 +150,8 @@ export default class Market extends Component {
         )
     }
 }
+
+
 
 
 
