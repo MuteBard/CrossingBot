@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 221.06 178.23">
    <defs>
       <style>
-        .frcls-1{fill:#4AE3B5;stroke:#4AE3B5;}.frcls-1,.frcls-2,.frcls-3,.frcls-4,.frcls-5,.frcls-6{stroke-miterlimit:10;}.frcls-2,.frcls-4{fill:none;}.frcls-2,.frcls-3{stroke:#666;stroke-width:3px;}.frcls-3{fill:#4d4d4d;}.frcls-4{stroke:#b3b3b3;}.frcls-5{fill:#2a5d67;stroke:#2a5d67;}.frcls-6{fill:#c69c6d;stroke:#c69c6d;}
+        .cls-1{fill:#4AE3B5;stroke:#4AE3B5;}.cls-1,.cls-2,.cls-3,.cls-4,.cls-5,.cls-6{stroke-miterlimit:10;}.cls-2,.cls-4{fill:none;}.cls-2,.cls-3{stroke:#666;stroke-width:3px;}.cls-3{fill:#4d4d4d;}.cls-4{stroke:#b3b3b3;}.cls-5{fill:#2a5d67;stroke:#2a5d67;}.cls-6{fill:#c69c6d;stroke:#c69c6d;}
 
-.frline{
+.line{
   stroke-dasharray: 130;
   transition: 5s all;
 }
@@ -17,8 +17,8 @@
   transform-origin : 36px 135px;  
 }
 
-svg:hover .frline{
-  stroke-dashoffset : 110;
+svg:hover .line{
+  stroke-dashoffset : 100;
 }
 
 svg:hover .fish{
@@ -33,24 +33,25 @@ svg:hover .handle{
       </style>
    </defs>
    <g id="handle">
-      <circle class="frcls-1" cx="36.07" cy="132.29" r="9.08"/>
-      <path class="frcls-2" d="M84,178.49" transform="translate(-7.06 -37.96)"/>
-      <circle class="frcls-3 handle" cx="40.8" cy="140.53" r="2.87"/>
+      <circle class="cls-1" cx="36.07" cy="132.29" r="9.08"/>
+      <path class="cls-2" d="M84,178.49" transform="translate(-7.06 -37.96)"/>
+      <circle class="cls-3 handle" cx="40.8" cy="140.53" r="2.87"/>
+   </g>
+     <g id="line">
+      <line class="cls-4 line" x1="213.81" y1="22.41" x2="213.81" y2="140.53"/>
    </g>
    <g id="fish">
-      <ellipse class="frcls-1 fish" cx="213.81" cy="154.09" rx="6.76" ry="13.57"/>
-      <polygon class="frcls-1 fish" points="219.62 177.73 207.99 177.73 213.81 167.66 219.62 177.73"/>
+      <ellipse class="cls-1 fish" cx="213.81" cy="154.09" rx="6.76" ry="13.57"/>
+      <polygon class="cls-1 fish" points="219.62 177.73 207.99 177.73 213.81 167.66 219.62 177.73"/>
    </g>
-   <g id="frline">
-      <line class="frcls-4 frline" x1="213.81" y1="22.41" x2="213.81" y2="140.53"/>
-   </g>
+
    <g id="rod">
-      <path class="frcls-5" d="M45.37,143.16l-1.45-.94c-1.63,2.68-3.25,5.37-4.83,8.06-5.66,9.63-10.94,19.46-16.34,29.24-4.89,8.88-10.29,17.56-13.89,27.07-.68,1.79-2.86,7.06.61,7.32,2.69.2,4.79-4.37,5.81-6.25,4.85-9,9.13-18.26,13.71-27.38,6-11.91,12.47-23.61,19.53-35C47.48,144.59,46.43,143.86,45.37,143.16Z" transform="translate(-7.06 -37.96)"/>
-      <path class="frcls-5" d="M50,137.5c-.71-.55-1.44-1.1-2.17-1.64l-2.08,3.33c.91.58,1.81,1.17,2.69,1.77l1.94,1.37c.63-1,1.27-2,1.92-3C51.55,138.72,50.79,138.1,50,137.5Z" transform="translate(-7.06 -37.96)"/>
-      <path class="frcls-5" d="M219.41,58.65A67.76,67.76,0,0,0,168.3,38.53c-20.05.91-38.63,10.33-54.55,22-26.2,19.2-46.57,45-64,72.29,1.18.91,2.34,1.84,3.49,2.74.34.26.67.54,1,.8A316.67,316.67,0,0,1,99.07,81.92c14.13-13.56,30-26,48.4-33.11A74.8,74.8,0,0,1,206.75,51a76.33,76.33,0,0,1,12.7,7.75Z" transform="translate(-7.06 -37.96)"/>
-      <path class="frcls-6" d="M183.7,115.37" transform="translate(-7.06 -37.96)"/>
-      <path class="frcls-6" d="M219.41,58.65" transform="translate(-7.06 -37.96)"/>
-      <polygon class="frcls-1" points="41.46 107.36 43.34 104.36 38.71 101.23 36.86 104.26 41.46 107.36"/>
-      <polygon class="frcls-1" points="45.26 101.37 47.2 98.4 42.71 94.86 40.8 97.89 45.26 101.37"/>
+      <path class="cls-5" d="M45.37,143.16l-1.45-.94c-1.63,2.68-3.25,5.37-4.83,8.06-5.66,9.63-10.94,19.46-16.34,29.24-4.89,8.88-10.29,17.56-13.89,27.07-.68,1.79-2.86,7.06.61,7.32,2.69.2,4.79-4.37,5.81-6.25,4.85-9,9.13-18.26,13.71-27.38,6-11.91,12.47-23.61,19.53-35C47.48,144.59,46.43,143.86,45.37,143.16Z" transform="translate(-7.06 -37.96)"/>
+      <path class="cls-5" d="M50,137.5c-.71-.55-1.44-1.1-2.17-1.64l-2.08,3.33c.91.58,1.81,1.17,2.69,1.77l1.94,1.37c.63-1,1.27-2,1.92-3C51.55,138.72,50.79,138.1,50,137.5Z" transform="translate(-7.06 -37.96)"/>
+      <path class="cls-5" d="M219.41,58.65A67.76,67.76,0,0,0,168.3,38.53c-20.05.91-38.63,10.33-54.55,22-26.2,19.2-46.57,45-64,72.29,1.18.91,2.34,1.84,3.49,2.74.34.26.67.54,1,.8A316.67,316.67,0,0,1,99.07,81.92c14.13-13.56,30-26,48.4-33.11A74.8,74.8,0,0,1,206.75,51a76.33,76.33,0,0,1,12.7,7.75Z" transform="translate(-7.06 -37.96)"/>
+      <path class="cls-6" d="M183.7,115.37" transform="translate(-7.06 -37.96)"/>
+      <path class="cls-6" d="M219.41,58.65" transform="translate(-7.06 -37.96)"/>
+      <polygon class="cls-1" points="41.46 107.36 43.34 104.36 38.71 101.23 36.86 104.26 41.46 107.36"/>
+      <polygon class="cls-1" points="45.26 101.37 47.2 98.4 42.71 94.86 40.8 97.89 45.26 101.37"/>
    </g>
 </svg>

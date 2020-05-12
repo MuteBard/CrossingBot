@@ -1,65 +1,49 @@
 import React, {Component} from 'react';
 import { Link } from "react-router-dom"
-import {Carousel, Row, Col, Space, Card, Avatar } from 'antd'; 
+import { Row, Col, Space, Card, Radio } from 'antd'; 
 import { UserOutlined } from '@ant-design/icons'; 
 
 import "antd/dist/antd.css";
 import "./css/pages.css" 
 
-import Hero from '../Assets/resolved/hero'
-import FishRod from '../Assets/resolved/fishrod'
-import BugNet from '../Assets/resolved/bugnet'
-import DarkCog from '../Assets/resolved/backgroundcogDark'
+import BugHeader from '../Components/BugHeader'
+import FishHeader from '../Components/FishHeader'
+import BugBody from '../Components/BugBody'
+import FishBody from '../Components/FishBody'
 import LightCog from '../Assets/resolved/backgroundcogLight'
 
-const { Meta } = Card;
+const BUG = "bug"
+const FISH = "fish"
 
 
 export default class Catch extends Component {
+    state = {
+        species : BUG,
+      };
+
+    speciesSelect = e => {
+        this.setState({ species : e.target.value });
+    }
+
     render() {
         return( 
             <div className="CatchContainer"> 
-                <Row className="svgRow" align="middle" justify="space-around">
-                    <Col span={2}>
-                        <FishRod/>
-                    </Col> 
-                    <Col span={2} offset={5}>
-                        <BugNet/>
-                    </Col> 
-                </Row>
-                <Row className="contentRow" align="middle" justify="space-around">
-                    <Col span={5}>
-                        <Card
-                            hoverable
-                            style={{ width: 350 }}
-                            >
-                            <p><strong>MuteBard</strong></p>
-                            <p>Rank #1 </p>
-                            <p>Bells : </p>
-                            <p>Turnips : </p>
-                            <p>Gains : </p>
-                            <p>Stream : </p>
+                {this.state.species == BUG ? <BugHeader/> : <FishHeader/>}
+                <Row className="RadioRow">
+                    <Col span={5} offset={2}>
+                        <Card>
+                            <Radio.Group size="large" onChange={this.speciesSelect} value={this.state.value}>
+                                <Radio.Button value={BUG}>Catch Bugs</Radio.Button>
+                                <Radio.Button value={FISH}>Catch Fishes</Radio.Button>
+                            </Radio.Group>
                         </Card>
-                    </Col> 
-                    <Col span={5} offset={5}>
-                        <Card
-                            hoverable
-                            style={{ width: 300 }}
-                            >
-                            <p><strong>MuteBard</strong></p>
-                            <p>Rank #1 </p>
-                            <p>Bells : </p>
-                            <p>Turnips : </p>
-                            <p>Gains : </p>
-                            <p>Stream : </p>
-                        </Card>
-                    </Col> 
+                    </Col>
                 </Row>
-                
+                {this.state.species == BUG ? <BugBody/> : <FishBody/>}
                 <LightCog/>
             </div> 
         )
     }
 }
 
-// https://ant.design/components/list/ display pockets
+// https://ant.design/components/list/

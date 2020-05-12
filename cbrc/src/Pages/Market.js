@@ -13,8 +13,6 @@ import LightCog from '../Assets/resolved/backgroundcogLight'
 const { TabPane } = Tabs; 
 const { Option } = Select;
 
-// const { Meta } = Card;
-
 
 function getBusinessTabData(key) {
     console.log(key);
@@ -23,7 +21,6 @@ function getBusinessTabData(key) {
 function getChartTabData(key) {
     console.log(key);
 }
-
 
 
 function statistic(base, current, unit, arrow) {
@@ -68,10 +65,10 @@ export default class Market extends Component {
     render() {
         const { loadings } = this.state;
         return ( 
-            <div className="MarketContainer">
+            <div className="MarketContainer fade-in">
                 <Row className="MarketRow" align="middle">
                     <Col className="TurnipsCol" span={4} offset={2}>
-                        <Turnip className="svgTurnip"/>
+                        <Turnip/>
                         <Card className="card" style={{ width: 350 }}>
                             <Input.Group compact className="inputGroup">
                                 <Select defaultValue="Buy">
@@ -122,7 +119,7 @@ export default class Market extends Component {
                             </div>
                         </Card>
                     </Col>
-                    <Col className="ChartCol" span={12} offset={4} >
+                    <Col className="ChartCol" span={12} offset={4}>
                         <div className="title"><strong>STALK MARKET</strong></div>
                         <Tabs defaultActiveKey="1" onChange={getChartTabData}>
                             <TabPane tab="Today" key="1">

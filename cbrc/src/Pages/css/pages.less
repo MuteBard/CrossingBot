@@ -36,9 +36,6 @@
                 align-items: center;
                 justify-content: center;
                 flex-direction: column;
-                .svgTurnip{
-                    margin-bottom : 5em;
-                }
                 .card{
                     margin-top : 1em;
                     .stats1{
@@ -69,5 +66,28 @@
     }
     .CatchContainer{
         padding-top: 4em;
+        font-family: 'Ubuntu', sans-serif;
+        .RadioRow{
+            padding-bottom: 2em;
+        }
+
+    }
+    
+}
+
+.fade-in {
+    opacity: 1;
+    animation-name: fadeInOpacity;
+    animation-iteration-count: 1;
+    animation-timing-function: ease-in;
+    animation-duration: .5s;
+}
+
+@keyframes fadeInOpacity {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
     }
 }
