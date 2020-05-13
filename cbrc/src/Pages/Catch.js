@@ -17,8 +17,11 @@ import PocketFish from '../Assets/resolved/fishIcon'
 import DisplayBug from '../Assets/resolved/bugIcon'
 import DisplayFish from '../Assets/resolved/fishIcon'
 
+const CATCH = "catch"
 const BUG = "bug"
 const FISH = "fish"
+const SELL = "sell"
+const SELLALL = "sellall"
 
 const dummyBugsList = [
     {
@@ -69,70 +72,52 @@ const dummyFishesList = [
 export default class Catch extends Component {
     state = {
         username: "MuteBard",
+        userBells : "",
         species : BUG,
         name : "",
         img : "",
         bells: "",
         rarity: "",
         availability: [],
-        bugs : dummyBugsList.map((data) => <PocketBug traits={{name : data.name, img : data.img, bells: data.bells, rarity: data.rarity, availability : data.availability, hover: data.hover, small: data.small}}/>),
-        fishes : dummyFishesList.map((data) => <PocketFish traits={{name : data.name, img : data.img, bells: data.bells, rarity: data.rarity, availability : data.availability, hover: data.hover, small: data.small}}/> ),
+        pocketBugs : [],
+        pocketFishes : [],
       };
 
-    speciesSelect = e => {
-        this.setState({ species : e.target.value, name : "", img: "", bells: "", rarity: "", availability: ""  });
+    componentDidMount = () => {
+
+        this.setState({
+            pocketBugs : dummyBugsList.map((data) => {return {name : data.name, img : data.img, bells: data.bells, rarity: data.rarity, availability : data.availability, hover: data.hover, small: data.small }}),
+            pocketFishes : dummyFishesList.map((data) => {return {name : data.name, img : data.img, bells: data.bells, rarity: data.rarity, availability : data.availability, hover: data.hover, small: data.small }})
+        })
     }
 
-    handleChildClick = species => {
-        if (species == BUG){
-            let pocketBugs = this.state.bugs
-            pocketBugs.push(<PocketBug traits={dummyBugsList[0]}/>)
-            this.setState({species , name : dummyBugsList[0].name, img: "", bells: dummyBugsList[0].bells, rarity: dummyBugsList[0].rarity, availability: dummyBugsList[0].availability, bugs: pocketBugs });
-        }
-        else if(species == FISH){
-            let pocketFishes = this.state.fishes
-            pocketFishes.push(<PocketFish traits={dummyFishesList[0]}/>)
-            this.setState({ species ,  name : dummyFishesList[0].name, img: "", bells: dummyFishesList[0].bells, rarity: dummyFishesList[0].rarity, availability: dummyFishesList[0].availability, fishes : pocketFishes});
-        }
+    speciesSelect = e => {
+        this.setState({ species : e.target.value});
     }
-    interpretMonth = month => {
-        switch(month){
-            case "JAN":
-                return "January"
-                break
-            case "FEB":
-                return "Febuary"
-                break
-            case "MAR":
-                return "March"
-                break
-            case "APR":
-                return "April"
-                break
-            case "MAY":
-                return "May"
-                break
-            case "JUN":
-                return "June"
-                break
-            case "JUL":
-                return "July"
-                break
-            case "AUG":
-                return "August"
-                break
-            case "SEP":
-                return "September"
-                break
-            case "OCT":
-                return "October"
-                break
-            case "NOV":
-                return "November"
-                break
-            case "DEC":
-                return "December"
-                break
+
+    handleChildClick = (action, data) => {
+        if (action == CATCH){
+            if (data == BUG){
+                let pocketBugs = this.state.pocketBugs
+                pocketBugs.push(dummyBugsList[0])
+                this.setState({species : BUG , name : dummyBugsList[0].name, img: "", bells: dummyBugsList[0].bells, rarity: dummyBugsList[0].rarity, availability: dummyBugsList[0].availability, bugs: pocketBugs });
+            }else if (data == FISH){
+                let pocketFishes = this.state.pocketFishes
+                pocketFishes.push(dummyFishesList[0])
+                this.setState({ species : FISH ,  name : dummyFishesList[0].name, img: "", bells: dummyFishesList[0].bells, rarity: dummyFishesList[0].rarity, availability: dummyFishesList[0].availability, fishes : pocketFishes});
+            }
+        }
+        else if(action == SELL){
+            console.log(data)
+            // this.state.bugs.filter
+        }
+        else if(action == SELLALL){
+            if(data == BUG){
+                // this.state.bugs.map
+                console.log(data)
+            }else if (data == FISH){
+                console.log(data)
+            }
         }
     }
 
@@ -149,7 +134,7 @@ export default class Catch extends Component {
                             </Radio.Group>
                         </Card>
                     </Col>
-                    <Col span={5} offset={6}>
+                    <Col span={5} offset={7}>
                         {this.state.img == "" ?
                             this.state.species == BUG  ? <DisplayBug traits={{hover: false, small:false}}/> : <DisplayFish traits={{hover: false, small:false}}/>
                             :
@@ -157,8 +142,9 @@ export default class Catch extends Component {
                         }
                     </Col>
                 </Row>
-                {this.state.species == BUG ? <BugBody data={this.state} handleClick={this.handleChildClick} friendlyMonth={this.interpretMonth}/>  : <FishBody data={this.state} handleClick={this.handleChildClick} friendlyMonth={this.interpretMonth}/>}
+                {this.state.species == BUG ? <BugBody data={this.state} handleClick={this.handleChildClick}/>  : <FishBody data={this.state} handleClick={this.handleChildClick}/>}
                 <LightCog/>
+                
             </div> 
         )
     }

@@ -1,13 +1,15 @@
 import React from 'react';
 import SVG from 'react-inlinesvg';
-import { Popover } from 'antd';
-
+import { Popover, Button } from 'antd';
 import fishIcon from '../raw/fishIcon.svg'
 import './css/resolved.css'
 
-export default function FishIcon({traits}){
+const SELL = "sell"
+
+export default function FishIcon({traits, handlePocketClick}){
 
   let { name, bells, rarity, availability, small, hover} = traits
+  console.log(handlePocketClick)
 
   const content = (
     hover ?
@@ -15,6 +17,9 @@ export default function FishIcon({traits}){
       <p>Bells : {bells}</p>
       <p>Rarity : {rarity}</p>
       <p>Availability: {availability.map(month => `${month}, `)}</p>
+      <Button type="primary" block onClick={() => handlePocketClick(SELL, name)}>
+        Sell for {bells} bells
+      </Button>
     </div>
     :
     null
