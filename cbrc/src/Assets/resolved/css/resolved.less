@@ -11,6 +11,10 @@
     width: 10em;
 }
 
+.bugIconSmall, .fishIconSmall{
+    width: 8em;
+}
+
 .logo{
     width : 10em;
 }
@@ -27,4 +31,21 @@
 
 .CogContainer{
     line-height: 0;
+}
+
+.fade-in {
+    opacity: 1;
+    animation-name: fadeInOpacity;
+    animation-iteration-count: 1;
+    animation-timing-function: ease-in;
+    animation-duration: .5s;
+}
+
+@keyframes fadeInOpacity {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
 }

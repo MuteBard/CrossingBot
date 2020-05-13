@@ -66,7 +66,7 @@ export default class Market extends Component {
         const { loadings } = this.state;
         return ( 
             <div className="MarketContainer fade-in">
-                <Row className="MarketRow" align="middle">
+                <Row className="MarketRow">
                     <Col className="TurnipsCol" span={4} offset={2}>
                         <Turnip/>
                         <Card className="card" style={{ width: 350 }}>
@@ -119,7 +119,7 @@ export default class Market extends Component {
                             </div>
                         </Card>
                     </Col>
-                    <Col className="ChartCol" span={12} offset={4}>
+                    <Col className="TitleCol" span={12} offset={4}>
                         <div className="title"><strong>STALK MARKET</strong></div>
                         <Tabs defaultActiveKey="1" onChange={getChartTabData}>
                             <TabPane tab="Today" key="1">

@@ -14,7 +14,6 @@ import LightCog from '../Assets/resolved/backgroundcogLight'
 
 const { Meta } = Card;
 
-
 export default class Home extends Component {
     render() {
       return ( 
