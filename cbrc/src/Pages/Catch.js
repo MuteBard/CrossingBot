@@ -74,8 +74,6 @@ export default class Catch extends Component {
         img : "",
         bells: "",
         rarity: "",
-        bugLock: false,
-        fishLock : false,
         availability: [],
         bugs : dummyBugsList.map((data) => <PocketBug traits={{name : data.name, img : data.img, bells: data.bells, rarity: data.rarity, availability : data.availability, hover: data.hover, small: data.small}}/>),
         fishes : dummyFishesList.map((data) => <PocketFish traits={{name : data.name, img : data.img, bells: data.bells, rarity: data.rarity, availability : data.availability, hover: data.hover, small: data.small}}/> ),
@@ -89,23 +87,14 @@ export default class Catch extends Component {
         if (species == BUG){
             let pocketBugs = this.state.bugs
             pocketBugs.push(<PocketBug traits={dummyBugsList[0]}/>)
-            this.setState({ bugLock: true,  species , name : dummyBugsList[0].name, img: "", bells: dummyBugsList[0].bells, rarity: dummyBugsList[0].rarity, availability: dummyBugsList[0].availability, bugs: pocketBugs });
+            this.setState({species , name : dummyBugsList[0].name, img: "", bells: dummyBugsList[0].bells, rarity: dummyBugsList[0].rarity, availability: dummyBugsList[0].availability, bugs: pocketBugs });
         }
         else if(species == FISH){
             let pocketFishes = this.state.fishes
             pocketFishes.push(<PocketFish traits={dummyFishesList[0]}/>)
-            this.setState({ fishLock: true, species ,  name : dummyFishesList[0].name, img: "", bells: dummyFishesList[0].bells, rarity: dummyFishesList[0].rarity, availability: dummyFishesList[0].availability, fishes : pocketFishes});
+            this.setState({ species ,  name : dummyFishesList[0].name, img: "", bells: dummyFishesList[0].bells, rarity: dummyFishesList[0].rarity, availability: dummyFishesList[0].availability, fishes : pocketFishes});
         }
     }
-
-    revertLocks = (species)  => {
-        if (species == BUG){
-            this.setState({ bugLock: false})
-        }else if (species == FISH){
-            this.setState({ fishLock: false})
-        }
-    }
-
     interpretMonth = month => {
         switch(month){
             case "JAN":
@@ -168,7 +157,7 @@ export default class Catch extends Component {
                         }
                     </Col>
                 </Row>
-                {this.state.species == BUG ? <BugBody creature={this.state} handleClick={this.handleChildClick} friendlyMonth={this.interpretMonth}/>  : <FishBody data={this.state} handleClick={this.handleChildClick} friendlyMonth={this.interpretMonth} resetSpeciesLock={this.revertLocks}/>}
+                {this.state.species == BUG ? <BugBody data={this.state} handleClick={this.handleChildClick} friendlyMonth={this.interpretMonth}/>  : <FishBody data={this.state} handleClick={this.handleChildClick} friendlyMonth={this.interpretMonth}/>}
                 <LightCog/>
             </div> 
         )

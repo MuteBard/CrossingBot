@@ -7,8 +7,6 @@ import './css/resolved.css'
 
 export default function BugIcon({traits}){
   let { name, bells, rarity, availability, small, hover} = traits
-  console.log(traits)
-
   const content = (
     hover ?
     <div>
