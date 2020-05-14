@@ -10,7 +10,7 @@ export default class BugHeader extends Component {
     render() {
         return( 
             <Row className="BugHeaderContainer fade-in">
-                <Col className="BugNetCol" span={4} offset={2}>
+                <Col className="BugNetCol" span={4} offset={3}>
                     <BugNet/>
                 </Col>
                 <Col className="TitleCol" span={12} offset={4}>

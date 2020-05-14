@@ -10,7 +10,7 @@ export default class FishHeader extends Component {
     render() {
         return( 
             <Row className="FishHeaderContainer fade-in">
-                <Col className="FishRodCol" span={4} offset={2}>
+                <Col className="FishRodCol" span={4} offset={3}>
                     <FishRod/>
                 </Col>
                 <Col className="TitleCol" span={12} offset={4}>
