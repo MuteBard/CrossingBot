@@ -13,6 +13,7 @@ import LightCog from '../Assets/resolved/backgroundcogLight'
 const { TabPane } = Tabs; 
 const { Option } = Select;
 
+const cardBodyStyle = { textAlign : "center", color : "#4AE3B5", fontSize : "2em", width: 350}
 
 function getBusinessTabData(key) {
     console.log(key);
@@ -21,7 +22,6 @@ function getBusinessTabData(key) {
 function getChartTabData(key) {
     console.log(key);
 }
-
 
 function statistic(base, current, unit, arrow) {
 
@@ -40,7 +40,7 @@ function statistic(base, current, unit, arrow) {
             precision={0}
             valueStyle={{ color: '#E34A78' }}
             prefix={ arrow ? <ArrowUpOutlined/> : undefined }
-            suffix={ unit == "percent" ? "%" : undefined    }
+            suffix={ unit == "percent" ? "%" : undefined }
          /> 
     )
 }
@@ -85,6 +85,12 @@ export default class Market extends Component {
                                     </Button>
                                 </div>
                             </Input.Group>
+                        </Card>
+                        <Card className="card" style={{ width: 350 }}>
+                            <div className="stats2">
+                                <strong>Bells Earned</strong>
+                                <div>{statistic(0, 23232, "bells", false)}</div>
+                            </div>
                         </Card>
                         <Card className="card" style={{ width: 350 }}>
                             <div className="stats2">

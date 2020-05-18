@@ -29,7 +29,7 @@ export default function Header(){
           </Link>
         </Col>
         <Col className="headerProfile" span={3} offset={1}>
-          <Link className="linkWrap" to='/'>
+          <Link className="linkWrap" to='/profile'>
             <Badge count={1}>
               <Avatar shape="square" size={64} icon={<UserOutlined />} />
             </Badge>

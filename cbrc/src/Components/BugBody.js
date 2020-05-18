@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
-import { Row, Col, Card, Button, Avatar, Progress} from 'antd'; 
+import { Row, Col, Card, Button, Statistic, Avatar, Progress} from 'antd'; 
+import { ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
 
 import BugIcon from '../Assets/resolved/bugIcon'
 import PocketBug from '../Assets/resolved/bugIcon'
@@ -38,6 +39,28 @@ export default class BugBody extends Component{
         }else{
             this.setState({seconds: 0})
         }
+    }
+
+    statistic(base, current, unit, arrow) {
+
+        return (
+            current > base ?
+            <Statistic
+                value={current}
+                precision={0}
+                valueStyle={{ color: '#4AE3B5' }}
+                prefix={ arrow ? <ArrowUpOutlined/> : undefined }
+                suffix={ unit != undefined ? unit : undefined }
+            /> 
+            :
+            <Statistic
+                value={current}
+                precision={0}
+                valueStyle={{ color: '#E34A78' }}
+                prefix={ arrow ? <ArrowUpOutlined/> : undefined }
+                suffix={ unit == "percent" ? "%" : undefined }
+             /> 
+        )
     }
   
     bugIsLocked = () =>{
@@ -115,9 +138,12 @@ export default class BugBody extends Component{
             <div>
                 <Row className="BugBodyContainer fade-in">
                     <Col className="BugNetCol" span={5} offset={2}> 
-                        <div className="bellCard">
-                            <Card bodyStyle={cardBodyStyle3}>23232 Bells</Card>
-                        </div>
+                        <Card className="card">
+                            <div className="stats2">
+                                <strong>Bells Earned</strong>
+                                <div>{this.statistic(0, 23232, "bells", false)}</div>
+                            </div>
+                        </Card>
                         {this.state.seconds == 0 
                         ?
                         <Card className="fade-in">

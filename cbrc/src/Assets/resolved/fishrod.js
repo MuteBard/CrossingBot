@@ -3,10 +3,10 @@ import SVG from 'react-inlinesvg';
 import fishRodRaw from '../raw/fishrod.svg'
 import './css/resolved.css'
 
-export default function FishRod(){
+export default function FishRod({profile}){
   return(
     <span>
-      <SVG className="fishrod" src={fishRodRaw}/>
+      {profile == true ? <SVG className="profilefishrod" src={fishRodRaw}/> : <SVG className="fishrod" src={fishRodRaw}/>}   
     </span>
   )
 }

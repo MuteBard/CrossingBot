@@ -3,10 +3,10 @@ import SVG from 'react-inlinesvg';
 import bellsRaw from '../raw/bells.svg'
 import './css/resolved.css'
 
-export default function Bells(){
+export default function Bells({profile}){
   return(
     <span>
-      <SVG className="bells" src={bellsRaw}/>
+      {profile == true ? <SVG className="profilebells" src={bellsRaw}/> : <SVG className="bells" src={bellsRaw}/>}
     </span>
   )
 }

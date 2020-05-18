@@ -3,10 +3,10 @@ import SVG from 'react-inlinesvg';
 import turnipRaw from '../raw/turnip.svg'
 import './css/resolved.css'
 
-export default function Turnip(){
+export default function Turnip({profile}){
   return(
     <span>
-      <SVG className="turnip" src={turnipRaw}/>
+      {profile == true ? <SVG className="profileturnip" src={turnipRaw}/> : <SVG className="turnip" src={turnipRaw}/>}
     </span>
   )
 }

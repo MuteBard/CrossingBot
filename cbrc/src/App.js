@@ -8,6 +8,7 @@ import Footer from './Components/Footer'
 import Home from './Pages/Home'
 import Market from './Pages/Market'
 import Catch from './Pages/Catch'
+import Profile from './Pages/Profile'
 
 
 
@@ -19,7 +20,7 @@ function App() {
       <Header/>
       <Switch>
         <Route exact path="/" component={Home}/>
-        <Route exact path="/profile" component={() => <div>Profile</div>}/>
+        <Route exact path="/profile" component={Profile}/>
         <Route exact path="/market" component={Market}/>
         <Route exact path="/catch" component={Catch}/>
       </Switch>

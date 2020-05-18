@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 182.62 221.07">
    <defs>
-      <style>.cls-1{fill:#4ae3b5;}.cls-1,.cls-5{stroke:#4ae3b5;}.cls-1,.cls-2,.cls-3,.cls-4,.cls-5{stroke-miterlimit:10;}.cls-2,.cls-3{fill:#fff;}.cls-2{stroke:#000;}.cls-3,.cls-4{stroke:#2a5d67;}.cls-3,.cls-4,.cls-5{stroke-width:5px;}.cls-4{fill:#2a5d67;}.cls-5{fill:none;}
+      <style>.turnipcls-1{fill:#4ae3b5;}.turnipcls-1,.turnipcls-5{stroke:#4ae3b5;}.turnipcls-1,.turnipcls-2,.turnipcls-3,.turnipcls-4,.turnipcls-5{stroke-miterlimit:10;}.turnipcls-2,.turnipcls-3{fill:#fff;}.turnipcls-2{stroke:#000;}.turnipcls-3,.turnipcls-4{stroke:#2a5d67;}.turnipcls-3,.turnipcls-4,.turnipcls-5{stroke-width:5px;}.turnipcls-4{fill:#2a5d67;}.turnipcls-5{fill:none;}
 
 .stonks{
   stroke-dasharray: 150;
@@ -13,17 +13,17 @@ svg:hover .stonks{
 }</style>
    </defs>
    <g id="leaves">
-      <path class="cls-1" d="M45.46,39.25s131-52.71,75.67,47.55C121.13,86.8,129.65,19.4,45.46,39.25Z" transform="translate(-45.28 -16.03)"/>
-      <path class="cls-2" d="M33.36,62.6" transform="translate(-45.28 -16.03)"/>
-      <path class="cls-1" d="M204,39.79s-85.5-74-80.41,41.9C123.55,81.69,143.41,7.47,204,39.79Z" transform="translate(-45.28 -16.03)"/>
-      <path class="cls-1" d="M227.48,97.24s-91.32-142-103.7-9.2C123.78,88,159.61,19,227.48,97.24Z" transform="translate(-45.28 -16.03)"/>
+      <path class="turnipcls-1" d="M45.46,39.25s131-52.71,75.67,47.55C121.13,86.8,129.65,19.4,45.46,39.25Z" transform="translate(-45.28 -16.03)"/>
+      <path class="turnipcls-2" d="M33.36,62.6" transform="translate(-45.28 -16.03)"/>
+      <path class="turnipcls-1" d="M204,39.79s-85.5-74-80.41,41.9C123.55,81.69,143.41,7.47,204,39.79Z" transform="translate(-45.28 -16.03)"/>
+      <path class="turnipcls-1" d="M227.48,97.24s-91.32-142-103.7-9.2C123.78,88,159.61,19,227.48,97.24Z" transform="translate(-45.28 -16.03)"/>
    </g>
    <g id="stalk">
-      <path class="cls-3" d="M93.53,203.43c1.69.79,3.42,1.51,5.16,2.18,2.73,1.06,5.47,2.06,8.22,3,2.84-3.64,5-7.32,7.71-10.84,14.19-18.66,27.33-13.69,44.52-28.57,15.76-13.63,32.89-42.19,22.93-66.11-9.5-22.8-38.36-28.72-42.52-29.51l-15.65-1-15.65-1c-23.67-.5-44.49,12-53.08,29.87s-5,41.05,20.27,61.89C94.33,179.4,96.82,193,93.53,203.43Z" transform="translate(-45.28 -16.03)"/>
-      <path class="cls-4" d="M89.33,216.5c2.55,1.15,5,2.55,7.48,3.89a42.6,42.6,0,0,0,4.52-4.31,122.74,122.74,0,0,1-12.23-4.76,32.83,32.83,0,0,1-2.23,4C87.68,215.76,88.5,216.13,89.33,216.5Z" transform="translate(-45.28 -16.03)"/>
-      <path class="cls-3" d="M88.3,225.84c-2.31-1.23-4.62-2.38-7-3.5l-.88-.42a47.4,47.4,0,0,1-3.47,4c-5,5.13-10,8-9.8,8.38.65,1.26,11.41-1,20.87-7.06l1.28-.84Z" transform="translate(-45.28 -16.03)"/>
+      <path class="turnipcls-3" d="M93.53,203.43c1.69.79,3.42,1.51,5.16,2.18,2.73,1.06,5.47,2.06,8.22,3,2.84-3.64,5-7.32,7.71-10.84,14.19-18.66,27.33-13.69,44.52-28.57,15.76-13.63,32.89-42.19,22.93-66.11-9.5-22.8-38.36-28.72-42.52-29.51l-15.65-1-15.65-1c-23.67-.5-44.49,12-53.08,29.87s-5,41.05,20.27,61.89C94.33,179.4,96.82,193,93.53,203.43Z" transform="translate(-45.28 -16.03)"/>
+      <path class="turnipcls-4" d="M89.33,216.5c2.55,1.15,5,2.55,7.48,3.89a42.6,42.6,0,0,0,4.52-4.31,122.74,122.74,0,0,1-12.23-4.76,32.83,32.83,0,0,1-2.23,4C87.68,215.76,88.5,216.13,89.33,216.5Z" transform="translate(-45.28 -16.03)"/>
+      <path class="turnipcls-3" d="M88.3,225.84c-2.31-1.23-4.62-2.38-7-3.5l-.88-.42a47.4,47.4,0,0,1-3.47,4c-5,5.13-10,8-9.8,8.38.65,1.26,11.41-1,20.87-7.06l1.28-.84Z" transform="translate(-45.28 -16.03)"/>
    </g>
    <g id="stonks">
-      <polyline class="cls-5 stonks" points="29.36 127.68 46.95 108.97 59.18 124.08 78.06 118.33 89.47 133.88 118.37 81.21"/>
+      <polyline class="turnipcls-5 stonks" points="29.36 127.68 46.95 108.97 59.18 124.08 78.06 118.33 89.47 133.88 118.37 81.21"/>
    </g>
 </svg>
