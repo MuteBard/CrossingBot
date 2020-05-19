@@ -24,8 +24,14 @@ export default class App extends Component{
       netGainLossAsBells: 0,
       netGainLossAsPercentage : 0,
       avatar : ""
-    }
+    },
+    turnipTransactionHistory : []
   };
+
+  componentDidMount(){
+    
+  }
+
 
   render(){
     return (
@@ -34,9 +40,9 @@ export default class App extends Component{
         <Header/>
         <Switch>
           <Route exact path="/" component={Home}/>
-          <Route exact path="/profile" component={Profile}/>
-          <Route exact path="/market" component={Market}/>
-          <Route exact path="/catch" component={Catch}/>
+          <Route exact path="/profile" render={(props) => <Profile {...props} state={this.state}/>}/>
+          <Route exact path="/market" render={(props) => <Market {...props} state={this.state}/>}/>
+          <Route exact path="/catch" render={(props) => <Market {...props} state={this.state}/>}/>
         </Switch>
         <Footer/>
         </BrowserRouter>
