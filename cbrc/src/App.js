@@ -11,6 +11,22 @@ import Catch from './Pages/Catch'
 import Profile from './Pages/Profile'
 
 export default class App extends Component{
+  state = {
+    username : "",
+    bells: 0,
+    pocket : {
+      bug : [],
+      fish : [],
+    },
+    liveTurnips : {
+      quantity : 0,
+      marketPrice: 0,
+      netGainLossAsBells: 0,
+      netGainLossAsPercentage : 0,
+      avatar : ""
+    }
+  };
+
   render(){
     return (
       <div>

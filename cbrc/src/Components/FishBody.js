@@ -12,10 +12,6 @@ const SELLALL = "sellall"
 const cardHeaderStyle = {width: 470, textAlign : "center", color : "#2A5D67", backgroundColor : "#4AE3B5" }
 const cardBodyStyle = { width: 470, textAlign : "center", color : "#4AE3B5", backgroundColor : "#2A5D67" }
 
-
-
-
-
 export default class FishBody extends Component{
     state = {
         seconds : 0,

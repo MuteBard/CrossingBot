@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { Row, Col, Card, Tabs, Statistic, Input, Select, Button } from 'antd';
+import { Row, Col, Card, Tabs, Statistic, Input, Select, Button, Table, Tag } from 'antd';
 
 import { ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
 
@@ -27,6 +27,80 @@ export default class Market extends Component {
             this.setState({ loadings: newLoadings });
         }, 6000);
     };
+
+
+    generateTableColumns(){
+        return [
+            {
+                title: 'Business',
+                key: 'business',
+                dataIndex: 'business',
+                render: business => ( 
+                    <Tag color={business === "buy" ? "#4AE3B5" : "#2a5d67" } key={business}>
+                        {business.toUpperCase()}
+                    </Tag>
+                ),
+            },
+            {
+                title: 'Market Price',
+                dataIndex: 'marketprice',
+                key: 'marketprice',
+            },
+            {
+                title: 'Quantity',
+                dataIndex: 'quantity',
+                key: 'quantity',
+            },
+            {
+                title: 'Bells',
+                dataIndex: 'bells',
+                key: 'bells',
+            },
+            {
+                title: 'Growth (Bells)',
+                dataIndex: 'growthbells',
+                key: 'growthbells',
+            },
+            {
+                title: 'Growth (%)',
+                dataIndex: 'growthpercent',
+                key: 'growthpercent',
+            },
+        ]
+    }
+     
+    generateTableData(){
+        return [
+            {
+              key: '1',
+              business: "buy",
+              marketprice: 0,
+              quantity: 0,
+              bells: 0,
+              growthbells: 0,
+              growthpercent: 0,  
+            },
+            {
+              key: '2',
+              business: "sell",
+              marketprice: 0,
+              quantity: 0,
+              bells: 0,
+              growthbells: 0,
+              growthpercent: 0  
+            },
+            {
+              key: '3',
+              business: "buy",
+              marketprice: 0,
+              quantity: 0,
+              bells: 0,
+              growthbells: 0,
+              growthpercent: 0
+            },
+        ];
+    }
+
 
     statistic(base, current, unit, arrow) {
 
@@ -136,6 +210,12 @@ export default class Market extends Component {
                                 5
                             </TabPane>
                         </Tabs>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col className="TransactionCol" span={21} offset={1}>
+                        <div className="title"><strong>TRANSACTIONS</strong></div>
+                        <Table dataSource={this.generateTableData()} columns={this.generateTableColumns()}/>
                     </Col>
                 </Row>
                 <LightCog/>
