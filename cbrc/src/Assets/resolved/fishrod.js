@@ -6,7 +6,7 @@ import './css/resolved.css'
 export default function FishRod({profile}){
   return(
     <span>
-      {profile == true ? <SVG className="profilefishrod" src={fishRodRaw}/> : <SVG className="fishrod" src={fishRodRaw}/>}   
+      {profile === true ? <SVG className="profilefishrod" src={fishRodRaw}/> : <SVG className="fishrod" src={fishRodRaw}/>}   
     </span>
   )
 }

@@ -1,17 +1,11 @@
-import React, {Component} from 'react';
-import { Link } from "react-router-dom"
-import {Carousel, Row, Col, Space, Card, Avatar } from 'antd'; 
-import { UserOutlined } from '@ant-design/icons'; 
+import React, { Component } from 'react';
+import { Row, Col, Card } from 'antd'; 
 
 import "antd/dist/antd.css";
 import "./css/pages.css"
 
 import Hero from '../Assets/resolved/hero'
-import Turnip from '../Assets/resolved/turnip'
-import Bells from '../Assets/resolved/bells'
 import LightCog from '../Assets/resolved/backgroundcogLight'
-
-const { Meta } = Card;
 
 export default class Home extends Component {
     render() {

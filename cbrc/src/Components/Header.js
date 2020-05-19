@@ -1,9 +1,8 @@
 import React from 'react';
 import { Link } from "react-router-dom"
 import { Row, Col, Badge, Avatar} from 'antd';
-import { UserOutlined, BugOutlined, BellOutlined, StockOutlined, SearchOutlined} from '@ant-design/icons'; 
+import { UserOutlined, BugOutlined, StockOutlined } from '@ant-design/icons'; 
 import "antd/dist/antd.css";
-import SVG from 'react-inlinesvg';
 import './css/components.css'
 
 import NamedLogo from '../Assets/resolved/namedLogo'

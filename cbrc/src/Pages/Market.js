@@ -1,10 +1,8 @@
 import React, {Component} from 'react';
-import { Link } from "react-router-dom"
-import { Row, Col, Card, Tabs, Statistic,InputNumber,Input,Select,  Button } from 'antd';
+import { Row, Col, Card, Tabs, Statistic, Input, Select, Button } from 'antd';
 
 import { ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
 
-import { Line } from 'react-chartjs-2';
 import "./css/pages.css"
 import Turnip from '../Assets/resolved/turnip'
 import TurnipsToday from '../Components/TurnipsToday'
@@ -12,38 +10,6 @@ import LightCog from '../Assets/resolved/backgroundcogLight'
 
 const { TabPane } = Tabs; 
 const { Option } = Select;
-
-const cardBodyStyle = { textAlign : "center", color : "#4AE3B5", fontSize : "2em", width: 350}
-
-function getBusinessTabData(key) {
-    console.log(key);
-  }
-  
-function getChartTabData(key) {
-    console.log(key);
-}
-
-function statistic(base, current, unit, arrow) {
-
-    return (
-        current > base ?
-        <Statistic
-            value={current}
-            precision={0}
-            valueStyle={{ color: '#4AE3B5' }}
-            prefix={ arrow ? <ArrowUpOutlined/> : undefined }
-            suffix={ unit != undefined ? unit : undefined }
-        /> 
-        :
-        <Statistic
-            value={current}
-            precision={0}
-            valueStyle={{ color: '#E34A78' }}
-            prefix={ arrow ? <ArrowUpOutlined/> : undefined }
-            suffix={ unit == "percent" ? "%" : undefined }
-         /> 
-    )
-}
 
 export default class Market extends Component {
     state = {
@@ -61,6 +27,32 @@ export default class Market extends Component {
             this.setState({ loadings: newLoadings });
         }, 6000);
     };
+
+    statistic(base, current, unit, arrow) {
+
+        return (
+            current > base ?
+            <Statistic
+                value={current}
+                precision={0}
+                valueStyle={{ color: '#4AE3B5' }}
+                prefix={ arrow ? <ArrowUpOutlined/> : undefined }
+                suffix={ unit !== undefined ? unit : undefined }
+            /> 
+            :
+            <Statistic
+                value={current}
+                precision={0}
+                valueStyle={{ color: '#E34A78' }}
+                prefix={ arrow ? <ArrowDownOutlined/> : undefined }
+                suffix={ unit !== undefined ? unit : undefined}
+             /> 
+        )
+    }
+
+    getChartTabData(key) {
+        console.log(key);
+    }
 
     render() {
         const { loadings } = this.state;
@@ -89,13 +81,13 @@ export default class Market extends Component {
                         <Card className="card" style={{ width: 350 }}>
                             <div className="stats2">
                                 <strong>Bells Earned</strong>
-                                <div>{statistic(0, 23232, "bells", false)}</div>
+                                <div>{this.statistic(0, 23232, "bells", false)}</div>
                             </div>
                         </Card>
                         <Card className="card" style={{ width: 350 }}>
                             <div className="stats2">
                                 <div><strong>Turnip Prices</strong></div> 
-                                {statistic(300, 350, "bells", false)}
+                                {this.statistic(300, 350, "bells", false)}
                             </div>
                             <div className="stats1">
                                 <div>Opening Price</div> 
@@ -113,21 +105,21 @@ export default class Market extends Component {
                         <Card className="card" style={{ width: 350 }}>
                             <div className="stats2">
                                 <div><strong>Turnips Held</strong></div>
-                                <div>{statistic(0, 1, "turnip(s)", false)}</div>
+                                <div>{this.statistic(0, 1, "turnip(s)", false)}</div>
                             </div>
                             <div className="stats2">
                                 <div><strong>Today's Return</strong></div>
-                                <div>{statistic(0, 32, "bells", true)}</div>
+                                <div>{this.statistic(0, 32, "bells", true)}</div>
                             </div>
                             <div className="stats2">
                                 <div><strong>Overall Return</strong></div>
-                                <div>{statistic(0, 10, "%", true)}</div>
+                                <div>{this.statistic(0, 10, "%", true)}</div>
                             </div>
                         </Card>
                     </Col>
                     <Col className="TitleCol" span={12} offset={4}>
                         <div className="title"><strong>STALK MARKET</strong></div>
-                        <Tabs defaultActiveKey="1" onChange={getChartTabData}>
+                        <Tabs defaultActiveKey="1" onChange={this.getChartTabData}>
                             <TabPane tab="Today" key="1">
                                 <TurnipsToday/>
                             </TabPane>

@@ -6,7 +6,7 @@ import './css/resolved.css'
 export default function Turnip({profile}){
   return(
     <span>
-      {profile == true ? <SVG className="profileturnip" src={turnipRaw}/> : <SVG className="turnip" src={turnipRaw}/>}
+      {profile === true ? <SVG className="profileturnip" src={turnipRaw}/> : <SVG className="turnip" src={turnipRaw}/>}
     </span>
   )
 }

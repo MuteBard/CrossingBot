@@ -1,8 +1,7 @@
-import React, {Component} from 'react';
-import { Row, Col, Card, Button, Statistic, Avatar, Progress} from 'antd'; 
+import React, { Component } from 'react';
+import { Row, Col, Card, Button, Statistic, Progress} from 'antd'; 
 import { ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
 
-import BugIcon from '../Assets/resolved/bugIcon'
 import PocketBug from '../Assets/resolved/bugIcon'
 import "antd/dist/antd.css";
 import "./css/components.css"
@@ -12,8 +11,6 @@ const BUG = "bug"
 const SELLALL = "sellall"
 const cardHeaderStyle = {width: 470, textAlign : "center", color : "#2A5D67", backgroundColor : "#4AE3B5" }
 const cardBodyStyle = { width: 470, textAlign : "center", color : "#4AE3B5", backgroundColor : "#2A5D67" }
-const cardBodyStyle2 = { width: 390, textAlign : "center", color : "#4AE3B5", border : "solid 2px #4AE3B5"}
-const cardBodyStyle3 = { textAlign : "center", color : "#4AE3B5", fontSize : "2em"}
 
 
 export default class BugBody extends Component{
@@ -50,15 +47,15 @@ export default class BugBody extends Component{
                 precision={0}
                 valueStyle={{ color: '#4AE3B5' }}
                 prefix={ arrow ? <ArrowUpOutlined/> : undefined }
-                suffix={ unit != undefined ? unit : undefined }
+                suffix={ unit !== undefined ? unit : undefined }
             /> 
             :
             <Statistic
                 value={current}
                 precision={0}
                 valueStyle={{ color: '#E34A78' }}
-                prefix={ arrow ? <ArrowUpOutlined/> : undefined }
-                suffix={ unit == "percent" ? "%" : undefined }
+                prefix={ arrow ? <ArrowDownOutlined/> : undefined }
+                suffix={ unit !== undefined ? unit : undefined }
              /> 
         )
     }
@@ -126,6 +123,9 @@ export default class BugBody extends Component{
             case "DEC":
                 return "December"
                 break
+            default :
+                return "--"
+            
         }
     }
     
@@ -144,7 +144,7 @@ export default class BugBody extends Component{
                                 <div>{this.statistic(0, 23232, "bells", false)}</div>
                             </div>
                         </Card>
-                        {this.state.seconds == 0 
+                        {this.state.seconds === 0 
                         ?
                         <Card className="fade-in">
                             <Button type="primary" block onClick={() => {
@@ -164,7 +164,7 @@ export default class BugBody extends Component{
                     }
                     </Col>
                     <Col span={10} offset={4}>
-                        {name != "" 
+                        {name !== "" 
                             ?
                             <div className="fade-in">
                                 <Card title={name.toUpperCase()} bordered={false} headStyle={cardHeaderStyle} bodyStyle={cardBodyStyle}>
@@ -180,7 +180,7 @@ export default class BugBody extends Component{
                     </Col>
                 </Row>
                 {
-                    pocketBugs != []
+                    pocketBugs !== []
                     ? 
                     <div>
                         <Row className="PocketContainer">

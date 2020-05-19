@@ -6,7 +6,7 @@ import './css/resolved.css'
 export default function Bells({profile}){
   return(
     <span>
-      {profile == true ? <SVG className="profilebells" src={bellsRaw}/> : <SVG className="bells" src={bellsRaw}/>}
+      {profile === true ? <SVG className="profilebells" src={bellsRaw}/> : <SVG className="bells" src={bellsRaw}/>}
     </span>
   )
 }

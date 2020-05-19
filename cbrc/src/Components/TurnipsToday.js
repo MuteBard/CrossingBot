@@ -1,13 +1,5 @@
 import React, {Component} from 'react';
-import { Link } from "react-router-dom"
-import { Row, Col, Card } from 'antd'; 
 import { Line } from 'react-chartjs-2';
-
-// import "antd/dist/antd.css";
-
-
-// const { Meta } = Card;
-
 
 let data = (parameters) =>{ return {
   labels: parameters.times,
