@@ -48,13 +48,13 @@ object HourBlock_ {
 
 
 	val block : Map[String, QuarterBlock] = Map(
-		"a" -> QuarterBlock("heavenly", 0, 0, 100, 50, "+"),
-		"b" -> QuarterBlock("awesome", 0, 0, 35, 15, "+"),
-		"c" -> QuarterBlock("good", 0, 0,15, 5, "+"),
+		"a" -> QuarterBlock("heavenly", 0, 0, 50, 25, "+"),
+		"b" -> QuarterBlock("awesome", 0, 0, 25, 10, "+"),
+		"c" -> QuarterBlock("good", 0, 0,10, 5, "+"),
 		"d" -> QuarterBlock("neutral",0, 0, 5, 0, "#"),
-		"e" -> QuarterBlock("bad", 0, 0, 15, 5, "-"),
-		"f" -> QuarterBlock("awful",0, 0, 35, 15, "-"),
-		"g" -> QuarterBlock("hellish", 0, 0, 100, 50, "-")
+		"e" -> QuarterBlock("bad", 0, 0, 10, 5, "-"),
+		"f" -> QuarterBlock("awful",0, 0, 25, 10, "-"),
+		"g" -> QuarterBlock("hellish", 0, 0, 50, 25, "-")
 	)
 
 }

@@ -12,6 +12,7 @@ import Actors.Initializer.system
 import GraphQL.Queries.allQueries
 import GraphQL.Mutations.allMutations
 import caliban.interop.circe.AkkaHttpCirceAdapter
+import ch.megard.akka.http.cors.scaladsl.CorsDirectives._
 
 object Main extends App with AkkaHttpCirceAdapter {
 	implicit val executionContext: ExecutionContextExecutor = system.dispatcher
@@ -20,10 +21,12 @@ object Main extends App with AkkaHttpCirceAdapter {
 	val interpreter = runtime.unsafeRun(api.interpreter)
 
 	val route =
-		path("api" / "graphql") {
-			adapter.makeHttpService(interpreter)
-		} ~ path("graphiql") {
-			getFromResource("graphiql.html")
+		cors(){
+			path("api" / "graphql") {
+				adapter.makeHttpService(interpreter)
+			} ~ path("graphiql") {
+				getFromResource("graphiql.html")
+			}
 		}
 
 	val bindingFuture = Http().bindAndHandle(route, "localhost", 5000)

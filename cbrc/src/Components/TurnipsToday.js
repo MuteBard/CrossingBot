@@ -30,14 +30,15 @@ let data = (parameters) =>{ return {
 
 export default class MarketToday extends Component {
     render() {
+        let {turnipData, date, colors} = this.props
         let parameters = {
-            title : "Turnip Prices for Sunday May 5 2020",
-            times :  ["12:00 AM","12:15 AM", "12:30 AM", "12:45 AM", "1:00 AM", "1:15 AM", "1:30 AM", "1:45 AM"],
+            title : `Turnip Prices for ${date.month}/${date.day}/${date.year}`,
+            times :  turnipData.map(data => `${data.hour}:${data.minute < 10 ? "0"+data.minute : data.minute}`).reverse(),
             now : {
                 name : "Prices",
-                prices : [112, 120, 123, 140, 132, 108, 96, 96],
-                primary : "#4AE3B5",
-                secondary : "#2A5D67",
+                prices : turnipData.map(data => data.price).reverse(),
+                primary : colors[0],
+                secondary : colors[1],
                 tertiary : "#171332"
             }
         }

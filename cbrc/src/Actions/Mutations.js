@@ -1,9 +1,9 @@
-let UPDATE_USER_CATCH_CATCH = () =>
+let UPDATE_USER_CATCH_CATCH = (username, species) =>
 `mutation{
     catchCreature(username : ${"\""+username+"\""}, species : ${"\""+species+"\""})
 }`
 
-let UPDATE_USER_CATCH_SELL = () =>
+let UPDATE_USER_CATCH_SELL = (username, species, creatureName) =>
 `mutation{ 
     sellOneCreature(username : ${"\""+username+"\""}, species : ${"\""+species+"\""}, creatureName : ${"\""+creatureName+"\""})
 }`

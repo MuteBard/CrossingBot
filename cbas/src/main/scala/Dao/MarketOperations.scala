@@ -11,19 +11,19 @@ import Dao.MongoDBOperations
 import Model.HourBlock_.HourBlock
 import Model.MovementRecord_.MovementRecord
 import Model.QuarterBlock_.QuarterBlock
+import Model.TurnipTime_.TurnipTime
 import akka.stream.alpakka.mongodb.DocumentUpdate
 import org.mongodb.scala.model.{Filters, Updates}
 import system.dispatcher
+
 import scala.language.postfixOps
-
-
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 
 
 object  MarketOperations extends MongoDBOperations {
-	val codecRegistryStalks = fromRegistries(fromProviders(classOf[MovementRecord],classOf[HourBlock], classOf[QuarterBlock]), DEFAULT_CODEC_REGISTRY)
+	val codecRegistryStalks = fromRegistries(fromProviders(classOf[MovementRecord],classOf[HourBlock], classOf[QuarterBlock], classOf[TurnipTime]), DEFAULT_CODEC_REGISTRY)
 
 	private val allMR = db
 		.getCollection("MovementRecord", classOf[MovementRecord])
@@ -51,12 +51,12 @@ object  MarketOperations extends MongoDBOperations {
 
 	def updateMovementRecordField[A](mr : MovementRecord, key :String, value : A) : Unit = {
 		val source = MongoSource(allMR.find(classOf[MovementRecord]))
-			.map(_ => DocumentUpdate(filter = Filters.eq("_id", mr._id), update = Updates.set(key, value)))
+			.map(_ => DocumentUpdate(filter = Filters.eq("id", mr.id), update = Updates.set(key, value)))
 		val taskFuture = source.runWith(MongoSink.updateOne(allMR))
 		taskFuture.onComplete{
 			case Success(_) => ""
 			case Failure (ex) =>
-				log.warn("MarketOperations","updateMovementRecord","Failure",s"Failed to update MovementRecord ${mr._id}'s $key: $ex")
+				log.warn("MarketOperations","updateMovementRecord","Failure",s"Failed to update MovementRecord ${mr.id}'s $key: $ex")
 		}
 	}
 
@@ -66,14 +66,17 @@ object  MarketOperations extends MongoDBOperations {
 		updateMovementRecordField(mr, "todayHigh", mr.todayHigh)
 		updateMovementRecordField(mr, "todayLow", mr.todayLow)
 		updateMovementRecordField(mr, "stalksPurchased", mr.stalksPurchased)
-		updateMovementRecordField(mr, "latestTurnipPrice", mr.latestTurnipPrice)
-		updateMovementRecordField(mr, "turnipPriceHistory", mr.turnipPriceHistory)
+		updateMovementRecordField(mr, "latestTurnip", mr.latestTurnip)
+		updateMovementRecordField(mr, "turnipHistory", mr.turnipHistory)
 		updateMovementRecordField(mr, "hourBlockName", mr.hourBlockName)
 		updateMovementRecordField(mr, "latestHourBlock", mr.latestHourBlock)
 		updateMovementRecordField(mr, "latestQuarterBlock", mr.latestQuarterBlock)
 		updateMovementRecordField(mr, "quarterBlockHistory", mr.quarterBlockHistory)
+		updateMovementRecordField(mr, "year", mr.year)
+		updateMovementRecordField(mr, "month", mr.month)
+		updateMovementRecordField(mr, "day", mr.day)
 
-		log.info("MarketOperations","updateMovementRecord","Success",s"Updated ${mr._id}'s MovementRecord")
+		log.info("MarketOperations","updateMovementRecord","Success",s"Updated ${mr.id}'s MovementRecord")
 	}
 
 	def readEarliestMovementRecord(): MovementRecord = readMovementRecord().head

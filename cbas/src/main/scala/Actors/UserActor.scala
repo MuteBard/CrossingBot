@@ -52,7 +52,7 @@ class UserActor extends Actor with ActorLogging{
 					val marketTurnipPrice = Await.result((marketActor ? MarketActor.Request_Turnip_Price).mapTo[Int], 5 seconds)
 					val userTurnipPrice = liveTurnip.marketPrice
 					val netGainLossAsBells = marketTurnipPrice - userTurnipPrice
-					val netGainLossAsPercentage = (math rint(netGainLossAsBells.toDouble / marketTurnipPrice.toDouble)).toInt
+					val netGainLossAsPercentage = ((netGainLossAsBells.toDouble / marketTurnipPrice.toDouble) * 100).toInt
 					val newLiveTurnip = TurnipTransaction(liveTurnip.business,liveTurnip.quantity,liveTurnip.marketPrice, liveTurnip.totalBells, liveTurnip.status, netGainLossAsBells, netGainLossAsPercentage)
 
 					log.info(s"[Read_One_User] Returning modified USER $username")

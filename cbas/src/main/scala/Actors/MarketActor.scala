@@ -6,7 +6,9 @@ import Auxillary.Time._
 import Dao.MarketOperations
 import Model.Day_.Day
 import Model.MovementRecord_.MovementRecord
+import Model.TurnipTime_.TurnipTime
 import akka.actor.{Actor, ActorLogging}
+
 import scala.language.postfixOps
 
 
@@ -38,23 +40,22 @@ class MarketActor extends Actor with ActorLogging {
 			//			log.info(s"[Create_New_Movement_Record] Checking for difference in block ids ($newHourBlockId,$newQuarterBlockId)")
 			val suspectMovementRecord = MarketOperations.readLatestMovementRecord()
 			val mr =
-				if (suspectMovementRecord._id == todayDateId()) { //if this movement record is within today
+				if (suspectMovementRecord.id == todayDateId()) { //if this movement record is within today
 					suspectMovementRecord
-				} else if (suspectMovementRecord._id == "") { //if this is the very first movement record
+				} else if (suspectMovementRecord.id == "") { //if this is the very first movement record
 					MovementRecord()
-				} else { //if this is a new day and a previous movement record has a date Id
+				} else { //if this is a new day and a previous movement record has a different date Id
 					MovementRecord(
-						_id = suspectMovementRecord._id,
-						latestTurnipPrice = suspectMovementRecord.latestTurnipPrice,
-						todayHigh = suspectMovementRecord.latestTurnipPrice,
-						todayLow = suspectMovementRecord.latestTurnipPrice,
+						id = suspectMovementRecord.id,
+						latestTurnip = suspectMovementRecord.latestTurnip,
+						todayHigh = suspectMovementRecord.latestTurnip.price,
+						todayLow = suspectMovementRecord.latestTurnip.price,
 						stalksPurchased = suspectMovementRecord.stalksPurchased,
-						turnipPriceHistory = List(suspectMovementRecord.turnipPriceHistory.head)
+						turnipHistory = List(suspectMovementRecord.turnipHistory.head)
 					)
 				}
 
 			if ((currentQuarterBlockId != newQuarterBlockId) || (currentHourBlockId == -1 && currentQuarterBlockId == -1)) {
-				//				log.info(s"[Create_New_Movement_Record] Change in block ids found")
 
 				if (dateMarketCreated != todayDateId()) {
 					log.info(s"[Create_New_Movement_Record] A new day has been detected ($newHourBlockId,$newQuarterBlockId)")
@@ -64,24 +65,25 @@ class MarketActor extends Actor with ActorLogging {
 					log.info(s"[Start_Todays_Market] Today's Market: $todayMarket")
 				}
 
-				val newTurnipPrice = mr.latestTurnipPrice + todayMarket.getQuarterBlock(newHourBlockId, newQuarterBlockId).change
+				val newTurnip = TurnipTime(hour,minute,mr.latestTurnip.price + todayMarket.getQuarterBlock(newHourBlockId, newQuarterBlockId).change)
 				val _id = todayDateId()
-				val high = Math.max(newTurnipPrice, mr.todayHigh)
-				val low = Math.min(newTurnipPrice, mr.todayLow)
-				val turnipPriceHistory = newTurnipPrice +: mr.turnipPriceHistory
+				val high = Math.max(newTurnip.price, mr.todayHigh)
+				val low = Math.min(newTurnip.price, mr.todayLow)
+				val turnipHistory = newTurnip +: mr.turnipHistory
 				val stalksPurchased = mr.stalksPurchased
 				val latestHourBlock = todayMarket.getHourBlock(newHourBlockId)
 				val latestHourBlockName = todayMarket.getHourBlock(newHourBlockId).name
 				val latestQuarterBlock = todayMarket.getQuarterBlock(newHourBlockId, newQuarterBlockId)
 				val quarterBlockHistory = todayMarket.getQuarterBlockHistory(newHourBlockId, newQuarterBlockId)
-				val monthForMR = month()
-				val dayForMR = day()
+				val yearForMR = year
+				val monthForMR = month
+				val dayForMR = day
 
-				val newMr = MovementRecord(_id, newHourBlockId, newQuarterBlockId, high, low, stalksPurchased, newTurnipPrice, turnipPriceHistory, latestHourBlockName, latestHourBlock,
-					latestQuarterBlock, quarterBlockHistory, monthForMR, dayForMR
+				val newMr = MovementRecord(_id, newHourBlockId, newQuarterBlockId, high, low, stalksPurchased, newTurnip, turnipHistory, latestHourBlockName, latestHourBlock,
+					latestQuarterBlock, quarterBlockHistory, yearForMR, monthForMR, dayForMR
 				)
 
-				if ((newHourBlockId == 0 && newQuarterBlockId == 0) || ((currentHourBlockId == -1 && currentQuarterBlockId == -1) && mr._id == "")) {
+				if ((newHourBlockId == 0 && newQuarterBlockId == 0) || ((currentHourBlockId == -1 && currentQuarterBlockId == -1) && mr.id == "")) {
 					log.info(s"[Create_New_Movement_Record] Creating new Movement Record ($newHourBlockId,$newQuarterBlockId)")
 					MarketOperations.createMovementRecord(newMr)
 				} else {
@@ -118,10 +120,10 @@ class MarketActor extends Actor with ActorLogging {
 
 		case Request_Turnip_Price =>
 			log.info(s"[Request_Turnip_Price] Getting turnip price")
-			sender() ! MarketOperations.readLatestMovementRecord().latestTurnipPrice
+			sender() ! MarketOperations.readLatestMovementRecord().latestTurnip.price
 
 		case Read_Latest_Movement_Record_Month =>
-			val currentMonth = month()
+			val currentMonth = month
 			log.info(s"[Read_Latest_Movement_Record_Month] Getting all movement records")
 			sender() ! MarketOperations.readMovementRecordListByMonth(currentMonth)
 	}

@@ -21,9 +21,9 @@ object Queries {
 		validatePendingTransaction:     pendingTransactionArgs => UIO[TurnipTransaction],
 
 	    //MovementRecord
-		getDayRecords:                  UIO[MovementRecord],
-		getMonthRecords:                UIO[List[MovementRecord]],
-		getTurnipPrices:                UIO[Int],
+		getDayRecords:                  dummyArgs => UIO[MovementRecord],
+		getMonthRecords:                dummyArgs => UIO[List[MovementRecord]],
+		getTurnipPrices:                dummyArgs => UIO[Int],
 
 		//Bug
 		getAllBugs:                     UIO[List[Bug]],
@@ -49,9 +49,9 @@ object Queries {
 	val allQueries = Queries(
 		args => cbs.getUser(args.username),
 		args => cbs.validatePendingTransaction(args.username, args.business, args.quantity),
-		cbs.getDayRecords,
-		cbs.getMonthRecords,
-		cbs.getTurnipPrices,
+		args => cbs.getDayRecords(args.dummy),
+		args => cbs.getMonthRecords(args.dummy),
+		args => cbs.getTurnipPrices(args.dummy),
 		cbs.getAllBugs,
 		args => cbs.getAllBugsByMonth(args.months),
 		args => cbs.getAllRareBugsByMonth(args.months),

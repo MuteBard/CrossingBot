@@ -144,7 +144,7 @@ let validateTurnipTransactionInput = (Twitch_Data, command) => {
             if(commandAsList[1] > 0){
                 Twitch_Data["quantity"] = commandAsList[1]
             }else{
-                Twitch_Data["failure"] = true
+                Twitch_Data["failure"] = tsrue
                 Twitch_Data["error"] = "Only numbers 1 and greater are allowed"
                 return Twitch_Data
             }
@@ -161,4 +161,4 @@ let validateTurnipTransactionInput = (Twitch_Data, command) => {
 
         return Twitch_Data
     }
-}
+}   

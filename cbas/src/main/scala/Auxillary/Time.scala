@@ -23,14 +23,28 @@ object Time {
 		s"$year$month$day"
 	}
 
-	def month(): Int = {
+	def year: Int = {
 		val dt = Calendar.getInstance()
-		val month = dt.get(Calendar.MONTH)+1
-		month
+		dt.get(Calendar.YEAR)
+	}
+
+	def month: Int = {
+		val dt = Calendar.getInstance()
+		dt.get(Calendar.MONTH)+1
+	}
+
+	def hour: Int = {
+		val dt = Calendar.getInstance()
+		dt.get(Calendar.HOUR_OF_DAY)
+	}
+
+	def minute: Int = {
+		val dt = Calendar.getInstance()
+		dt.get(Calendar.MINUTE)
 	}
 
 	def threeLetterMonth: String = {
-		month() match {
+		month match {
 			case 1 => "JAN"
 			case 2 => "FEB"
 			case 3 => "MAR"
@@ -46,7 +60,7 @@ object Time {
 		}
 	}
 
-	def day(): Int= {
+	def day: Int= {
 		val dt = Calendar.getInstance()
 		val day = dt.get(Calendar.DAY_OF_MONTH)
 		day

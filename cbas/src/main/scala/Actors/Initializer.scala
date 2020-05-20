@@ -1,9 +1,6 @@
 package Actors
 
-import Controller.Main
-import Auxillary.Time.log
 import akka.actor.{ActorRef, ActorSystem, Props}
-import caliban.interop.circe.AkkaHttpCirceAdapter
 
 object Initializer{
 	implicit val system: ActorSystem = ActorSystem("CBAS")

@@ -1,7 +1,7 @@
 package Model
 import scala.util.Random
 object QuarterBlock_ {
-	case class QuarterBlock(name : String, hourBlockId: Int, quarterblockId: Int, max : Int, min : Int, sign: String, change : Int = 0){
+	case class QuarterBlock(name : String, hourBlockId: Int, quarterBlockId: Int, max : Int, min : Int, sign: String, change : Int = 0){
 		def create(hbId : Int, qbId: Int) : QuarterBlock = {
 			val random = new Random
 			val difference = this.max - this.min

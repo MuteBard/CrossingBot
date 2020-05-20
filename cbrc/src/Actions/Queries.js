@@ -64,8 +64,6 @@ let GET_USER_CATCH = (username) =>
 let GET_USER_MARKET = (username) =>
 `query{
     getUser(username:${"\""+username+"\""}){
-        username
-        avatar
         bells
         liveTurnips{
             business
@@ -86,9 +84,44 @@ let GET_USER_MARKET = (username) =>
     }
 }`
 
+let GET_MARKET_CHART_TODAY = () => 
+`query{
+    getDayRecords(dummy : true){
+        todayHigh
+        todayLow
+        stalksPurchased
+        latestTurnip{
+            price
+            hour
+            minute
+        }
+        turnipHistory{
+            price
+            hour
+            minute
+        }
+        year
+        month
+        day
+    }
+}  
+`
+
+let GET_USER_MARKET_VALIDATION = (username, business, quantity) =>
+`query{
+    validatePendingTransaction(username: ${"\""+username+"\""}, business: ${"\""+business+"\""}, quantity: ${quantity}){
+        status
+        business
+        quantity
+        marketPrice
+        totalBells
+    }
+}
+`
 
 module.exports.GET_USER_HOME = GET_USER_HOME
 module.exports.GET_USER_PROFILE = GET_USER_PROFILE
 module.exports.GET_USER_CATCH = GET_USER_CATCH
 module.exports.GET_USER_MARKET = GET_USER_MARKET
-
+module.exports.GET_USER_MARKET_VALIDATION = GET_USER_MARKET_VALIDATION
+module.exports.GET_MARKET_CHART_TODAY = GET_MARKET_CHART_TODAY
