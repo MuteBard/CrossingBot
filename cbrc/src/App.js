@@ -25,7 +25,7 @@ export default class App extends Component{
           <Route exact path="/" component={Home}/>
           <Route exact path="/profile" render={(props) => <Profile {...props} state={this.state}/>}/>
           <Route exact path="/market" render={(props) => <Market {...props} state={this.state}/>}/>
-          <Route exact path="/catch" render={(props) => <Market {...props} state={this.state}/>}/>
+          <Route exact path="/catch" render={(props) => <Catch {...props} state={this.state}/>}/>
         </Switch>
         <Footer/>
         </BrowserRouter>

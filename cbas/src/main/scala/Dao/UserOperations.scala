@@ -90,23 +90,19 @@ object UserOperations extends MongoDBOperations {
 		}
 	}
 
-	def UpdateOneUserTransaction(user : User) : User = {
+	def updateOneUserTransaction(user : User) : User = {
 		genericUpdateUser(user.username, "liveTurnips", user.liveTurnips)
 		genericUpdateUser(user.username, "turnipTransactionHistory", user.turnipTransactionHistory)
 		genericUpdateUser(user.username, "bells", user.bells)
-		log.info("UserOperations","UpdateOneUserTransaction","Success",s"Updated $user.username's bells and turnips")
+		log.info("UserOperations","UpdateOneUserTransaction","Success",s"Updated ${user.username}'s bells and turnips")
 		readOneUser(user.username).head
 	}
 
-	def updateTurnipTransactionStatsUponRetrieval(username : String, liveTurnips : TurnipTransaction): User = {
-		val source = MongoSource(allUsers.find(classOf[User]))
-			.map(_ => DocumentUpdate(filter = Filters.eq("username", username), update = Updates.set("liveTurnips", liveTurnips)))
-		val taskFuture = source.runWith(MongoSink.updateOne(allUsers))
-		taskFuture.onComplete{
-			case Success(_) => log.info("UserOperations","updateTurnipTransactionStatsUponRetrieval","Success",s"Updated $username's turnips")
-			case Failure (ex)   => log.warn("UserOperations","updateTurnipTransactionStatsUponRetrieval","Failure",s"Failed update $username's turnips: $ex")
-		}
-		readOneUser(username).head
+	def updateTurnipTransactionStatsUponRetrieval(user: User): User = {
+		genericUpdateUser(user.username, "liveTurnips", user.liveTurnips)
+		genericUpdateUser(user.username, "turnipTransactionHistory", user.turnipTransactionHistory)
+	    log.info("UserOperations","updateTurnipTransactionStatsUponRetrieval","Success",s"Updated ${user.username}'s turnips")
+		readOneUser(user.username).head
 	}
 
 	def deleteOneForUser(username :String, creatureName : String, creatureBells: Int): Unit = {

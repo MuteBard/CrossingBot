@@ -34,5 +34,7 @@ exports.queryMarketVerificationData = (CBAS_Payload, setMarketUserVerificationSt
 }
 
 exports.mutateMarketAcknowledgementData = (CBAS_Payload, updateUserState) => {
-
+    let mutation = Mutation.UPDATE_USER_MARKET_TRANSACTION(CBAS_Payload.username, CBAS_Payload.business, CBAS_Payload.quantity, CBAS_Payload.marketPrice, CBAS_Payload.totalBells)
+    console.log(mutation)
+    queryGraphQL(mutation, updateUserState)
 }

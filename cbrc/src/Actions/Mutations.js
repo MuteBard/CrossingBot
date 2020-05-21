@@ -10,7 +10,7 @@ let UPDATE_USER_CATCH_SELL = (username, species, creatureName) =>
 
 let UPDATE_USER_MARKET_TRANSACTION = (username, business, quantity, marketPrice, totalBells) => 
 `mutation{ 
-    acknowledgeTransaction(username : ${"\""+username+"\""}, business: ${"\""+business+"\""}, quantity: ${quantity}, marketPrice: ${marketPrice}, totalBells: ${marketPrice})
+    acknowledgeTransaction(username : ${"\""+username+"\""}, business: ${"\""+business+"\""}, quantity: ${quantity}, marketPrice: ${marketPrice}, totalBells: ${totalBells})
 }`
 
 module.exports.UPDATE_USER_CATCH_CATCH = UPDATE_USER_CATCH_CATCH

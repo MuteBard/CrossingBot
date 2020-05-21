@@ -48,15 +48,28 @@ class UserActor extends Actor with ActorLogging{
 				log.info(s"[Read_One_User] USER $username found")
 
 				if (userSeq.head.liveTurnips.business != ""){
-					val liveTurnip = userSeq.head.liveTurnips
+					val user = userSeq.head
+					val liveTurnip = user.liveTurnips
+					val transactionHistory = user.turnipTransactionHistory
 					val marketTurnipPrice = Await.result((marketActor ? MarketActor.Request_Turnip_Price).mapTo[Int], 5 seconds)
-					val userTurnipPrice = liveTurnip.marketPrice
-					val netGainLossAsBells = marketTurnipPrice - userTurnipPrice
-					val netGainLossAsPercentage = ((netGainLossAsBells.toDouble / marketTurnipPrice.toDouble) * 100).toInt
+					val netGainLossAsBells = (marketTurnipPrice * liveTurnip.quantity) - (liveTurnip.marketPrice * liveTurnip.quantity)
+					val netGainLossAsPercentage = ((netGainLossAsBells.toDouble / (marketTurnipPrice * liveTurnip.quantity).toDouble) * 100).toInt
 					val newLiveTurnip = TurnipTransaction(liveTurnip.business,liveTurnip.quantity,liveTurnip.marketPrice, liveTurnip.totalBells, liveTurnip.status, netGainLossAsBells, netGainLossAsPercentage)
+					val newLatestTransaction = TurnipTransaction(
+						transactionHistory.head.business,
+						transactionHistory.head.quantity,
+						transactionHistory.head.marketPrice,
+						transactionHistory.head.totalBells,
+						transactionHistory.head.status,
+						netGainLossAsBells,
+						netGainLossAsPercentage
+					)
+					val newTransactionHistory = newLatestTransaction +: transactionHistory.takeRight(transactionHistory.length - 1)
+					val newUser = User(user.id, user.username, user.fishingPoleLvl, user.bugNetLvl, user.bells,
+						user.pocket, newLiveTurnip, newTransactionHistory, user.avatar)
 
 					log.info(s"[Read_One_User] Returning modified USER $username")
-					sender() !  UserOperations.updateTurnipTransactionStatsUponRetrieval(username, newLiveTurnip)
+					sender() !  UserOperations.updateTurnipTransactionStatsUponRetrieval(newUser)
 				}else{
 					log.info(s"[Read_One_User] Returning USER $username")
 					sender() ! userSeq.head
@@ -68,6 +81,7 @@ class UserActor extends Actor with ActorLogging{
 
 		case Read_One_User_With_Pending_Turnip_Transaction(username, business, quantity) =>
 			log.info(s"[Read_One_User_Pending_Turnip_Transaction] Inquiring MarketActor of turnip prices")
+
 			val marketPrice = Await.result((marketActor ? MarketActor.Request_Turnip_Price).mapTo[Int], 5 seconds)
 			val totalBells = marketPrice * quantity
 			val userSeq = UserOperations.readOneUser(username)
@@ -85,7 +99,7 @@ class UserActor extends Actor with ActorLogging{
 				} else if (business.toLowerCase == "sell") {
 					if (quantity <= 0) {
 						sender() ! TurnipTransaction(business, 0, marketPrice, 0, "Bad request: Quantity below 1")
-					} else if (quantity <= user.turnipTransactionHistory.head.quantity) {
+					} else if (quantity <= user.liveTurnips.quantity) {
 						sender() ! TurnipTransaction(business, quantity, marketPrice, totalBells, "Authorized")
 					} else {
 						sender() ! TurnipTransaction(business, quantity, marketPrice, totalBells, "Unauthorized - Insufficient turnips")
@@ -109,12 +123,12 @@ class UserActor extends Actor with ActorLogging{
 					"Authorized"
 				)
 				val turnipTransactionHistory = List(liveTurnips)
-				val updatedBells = user.bells - totalBells
+				val updatedUserBells = user.bells - totalBells
 
 				marketActor ! MarketActor.Update_Stalks_Purchased(quantity, business)
-				val updatedUser = User(user.id, user.username, user.fishingPoleLvl, user.bugNetLvl, updatedBells,
+				val updatedUser = User(user.id, user.username, user.fishingPoleLvl, user.bugNetLvl, updatedUserBells,
 				user.pocket, liveTurnips, turnipTransactionHistory, user.avatar)
-				UserOperations.UpdateOneUserTransaction(updatedUser)
+				UserOperations.updateOneUserTransaction(updatedUser)
 				sender() ! "Success"
 
 			}else{
@@ -145,7 +159,7 @@ class UserActor extends Actor with ActorLogging{
 					marketActor ! MarketActor.Update_Stalks_Purchased(quantity, business)
 					val updatedUser = User(user.id, user.username, user.fishingPoleLvl, user.bugNetLvl, updatedUserBells,
 					user.pocket, liveTurnips, turnipTransactionHistory, user.avatar)
-					UserOperations.UpdateOneUserTransaction(updatedUser)
+					UserOperations.updateOneUserTransaction(updatedUser)
 					sender() ! "Success"
 
 				}else if(business == "sell") {
@@ -175,12 +189,12 @@ class UserActor extends Actor with ActorLogging{
 					if(newQuantity != 0){
 						val updatedUser = User(user.id, user.username, user.fishingPoleLvl, user.bugNetLvl, updatedBells,
 						user.pocket, liveTurnips, turnipTransactionHistory, user.avatar)
-						UserOperations.UpdateOneUserTransaction(updatedUser)
+						UserOperations.updateOneUserTransaction(updatedUser)
 						sender() ! "Success"
 					}else{
 						val updatedUser = User(user.id, user.username, user.fishingPoleLvl, user.bugNetLvl, updatedBells,
-							user.pocket, TurnipTransaction(), turnipTransactionHistory, user.avatar)
-						 UserOperations.UpdateOneUserTransaction(updatedUser)
+							user.pocket, TurnipTransaction(business = "sell"), turnipTransactionHistory, user.avatar)
+						 UserOperations.updateOneUserTransaction(updatedUser)
 						sender() ! "Success"
 					}
 
@@ -271,25 +285,6 @@ class UserActor extends Actor with ActorLogging{
 				UserOperations.deleteOneForUser(username, creatureName, creatureBells)
 				sender() ! creatureBells
 			}
-
-//		case Delete_One_Creature_From_Pocket_By_Name_Only(username, creatureName) =>
-//			val bug = Await.result((bugActor ? BugActor.Read_One_Bug_By_Name(creatureName)).mapTo[Bug], 3 seconds)
-//			if(bug.id != -1){
-//				log.info(s"[Delete_One_Creature_From_Pocket_By_Name_Only] Selling and deleting $creatureName in $username's pocket")
-//				UserOperations.deleteOneForUser(username, bug.name, bug.bells)
-//				sender() ! bug.bells
-//			}else{
-//				val fish = Await.result((fishActor ? FishActor.Read_One_Fish_By_Name(creatureName)).mapTo[Fish], 3 seconds)
-//				if(fish.id != -1){
-//					log.info(s"[Delete_One_Creature_From_Pocket_By_Name_Only] Selling and deleting $creatureName in $username's pocket")
-//
-//					UserOperations.deleteOneForUser(username, fish.name, fish.bells)
-//					sender() ! fish.bells
-//				}else{
-//					log.info(s"[Delete_One_Creature_From_Pocket_By_Name_Only] Creature is not in database")
-//					sender() ! -1
-//				}
-//			}
 
 		//TODO Prone to 404s
 		case Delete_All_Creatures_From_Pocket(username) =>

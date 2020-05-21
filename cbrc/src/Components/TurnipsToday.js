@@ -32,7 +32,7 @@ export default class MarketToday extends Component {
     render() {
         let {turnipData, date, colors} = this.props
         let parameters = {
-            title : `Turnip Prices for ${date.month}/${date.day}/${date.year}`,
+            title : `TURNIP PRICES FOR ${date.month}/${date.day}/${date.year}`,
             times :  turnipData.map(data => `${data.hour}:${data.minute < 10 ? "0"+data.minute : data.minute}`).reverse(),
             now : {
                 name : "Prices",
@@ -44,7 +44,7 @@ export default class MarketToday extends Component {
         }
         return ( 
             <div>
-                <h2>{parameters.title}</h2>
+                <div className="chartTitle" style={{fontSize:"30px", fontFamily:"Ubuntu", textAlign:"center"}}><strong>{parameters.title}</strong></div>
                 <Line data={data(parameters)} />
             </div>
         )
