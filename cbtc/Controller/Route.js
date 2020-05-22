@@ -1,5 +1,5 @@
 const uri = "http://localhost:5000/api/graphql"
-const options = require('../Configurations/options')
+const headers = require('../Configurations/options').settings_B.headers
 const BUG = "bug"  
 const FISH  = "fish" 
 const axios = require('axios')
@@ -65,20 +65,21 @@ exports.mutateUserPocketCatch = (CBAS_Payload, Twitch_Payload) => {
                     if(char == "#") return "\""
                     else return char
                 }).join("")
-
+            
             Twitch_Payload(JSON.parse(creatureData))
 
             if (operation == "Create"){
-
+        
                 let Twitch_Response = await axios({
                     method: 'GET',
-                    url: `https://api.twitch.tv/helix/users?login=${CBAS_Payload.username}`,
-                    headers: options.settingsB.headers
+                    url: `https://api.twitch.tv/helix/users?login=${ CBAS_Payload.username }`,
+                    headers,
                 })
-
+                .catch(error => console.log(error))
                 CBAS_Payload["id"] = Number(Twitch_Response.data.data[0].id)
-                CBAS_Payload["avatar"] = Twitch_Response.data.data[0].profile_image_url
+                CBAS_Payload["avatar"] = Twitch_Response.data.data[0].profile_image_url 
                 var secondMutation = Mutation.COMPLETE_USER_CREATION(CBAS_Payload.username, CBAS_Payload.id, CBAS_Payload.avatar)
+                console.log("secondMutation",secondMutation)
                 
                 //do a final mutation to the user and update those fields on the user
                 setTimeout(() => {
@@ -92,7 +93,8 @@ exports.mutateUserPocketCatch = (CBAS_Payload, Twitch_Payload) => {
                 }, 3000);
             }
         }
-    })  
+    }) 
+    .catch(error => console.log(error)) 
 }
 
 exports.mutateUserPocketSellOne = (CBAS_Payload, Twitch_Payload) => {

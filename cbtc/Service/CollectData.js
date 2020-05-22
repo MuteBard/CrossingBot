@@ -2,7 +2,7 @@ const tmi = require('tmi.js');
 const options = require('../Configurations/options')
 const bank = require('../FlashData/Bank')
 const process = require('./processData')
-var publicConnection = new tmi.Client(options.settingsA);
+var publicConnection = new tmi.Client(options.settings_A);
 module.exports.publicConnection = publicConnection
 const BUG = "bug"
 const FISH  = "fish"
@@ -37,7 +37,6 @@ publicConnection.on('chat', (channel, userstate, message, self) => {
 
     else if(command == "!bug"){
         Twitch_Data["species"] = BUG
-        process.catchRequest(Twitch_Data)
         process.catchRequest(Twitch_Data)
     }
 

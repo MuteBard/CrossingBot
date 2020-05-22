@@ -1,9 +1,10 @@
 let secret = require('./secret');
 let users = ["#MuteBard"]
-exports.settingsA = {
+
+exports.settings_A = {
     options : {
       debug : false,
-      clientId : "6pvu20x774z6ztsejol3wrzy9yfpvd"
+      clientId : secret.security.TWITCH_CLIENT_ID
     },
     connection: {
       reconnect: true,
@@ -11,15 +12,16 @@ exports.settingsA = {
     },
     identity: {
       username: "crossingbot_",
-      password: secret.security.oauth
+      password: secret.security.TWITCH_OAUTH 
     },
     channels: users
   };
 
   
-  exports.settingsB = {
+  exports.settings_B = {
     headers: {
+        "Client-ID": secret.security.TWITCH_CLIENT_ID,
         "Accept" : "application/vnd.twitchtv.v5+json",
-        "Client-ID": secret.security.oauth2
+        "Authorization" : secret.security.ACCESS_TOKEN
     },
   }
