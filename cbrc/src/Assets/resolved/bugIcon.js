@@ -7,8 +7,7 @@ import './css/resolved.css'
 const SELL = "sell"
 
 export default function BugIcon({traits, handlePocketClick}){
-  let { name, bells, rarity, availability, small, hover} = traits
-  console.log(handlePocketClick)
+  let { name, bells, rarity, image, availability, small, hover} = traits
   
   const content = (
     hover ?
@@ -26,12 +25,32 @@ export default function BugIcon({traits, handlePocketClick}){
 
   return(
     <span>
-      {hover ? 
-      <Popover content={content} title={name}>
-        <SVG className={small ? "bugIconSmall fade-in" : "bugIcon fade-in" } src={bugIcon}/>
-      </Popover>
-      :
-      <SVG className={small ? "bugIconSmall fade-in" : "bugIcon fade-in" } src={bugIcon}/>
+      {
+        hover 
+        ? 
+        
+        <Popover content={content} title={name}>
+          {
+            image 
+            ? 
+            <img className={small ? "bugIconSmall fade-in" : "bugIcon fade-in" } src={image}/>
+            :
+            <SVG className={small ? "bugIconSmall fade-in" : "bugIcon fade-in" } src={bugIcon}/>
+          }  
+        </Popover>
+      
+        :
+
+        <div>
+        {
+          image 
+          ? 
+          <img className={small ? "bugIconSmall fade-in" : "bugIcon fade-in" } src={image}/>
+          :
+          <SVG className={small ? "bugIconSmall fade-in" : "bugIcon fade-in" } src={bugIcon}/>
+        } 
+        </div>
+
       }
     </span>
   )

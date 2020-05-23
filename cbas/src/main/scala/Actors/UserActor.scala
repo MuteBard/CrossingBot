@@ -27,7 +27,9 @@ object UserActor {
 	case class Update_One_User_With_Executing_Turnip_Transaction(username : String, business: String, quantity : Int, marketPrice: Int, totalBells: Int)
 	case class Update_One_User_With_Creature(username : String, species: String)
 	case class Delete_One_Creature_From_Pocket(username: String, species : String, creatureName : String)
-	case class Delete_One_Creature_From_Pocket_By_Name_Only(username: String, creatureName : String)
+	case class Delete_One_Creature_From_Pocket_By_Name(username: String, creatureName : String)
+	case class Delete_All_Bugs_From_Pocket(username: String)
+	case class Delete_All_Fishes_From_Pocket(username: String)
 	case class Delete_All_Creatures_From_Pocket(username: String)
 }
 
@@ -205,6 +207,7 @@ class UserActor extends Actor with ActorLogging{
 			}
 
 		case Update_One_User_With_Creature(username, species) =>
+			val merge : (String, String) => String = (s1, s2) => s1 + s2+" "
 			if(species.toLowerCase() == BUG){
 				val bug = Await.result((bugActor ? BugActor.Read_One_Bug_By_Random()).mapTo[Bug], 2 seconds)
 				log.info(s"[Update_One_User_With_Creature] Verifying if USER with username $username exists")
@@ -216,8 +219,7 @@ class UserActor extends Actor with ActorLogging{
 					if(user.pocket.bug.length < 10){
 						log.info(s"[Update_One_User_With_Creature] Updating pocket")
 						UserOperations.updateUserPocket(userSeq.head, species, pocket)
-						sender() ! s"Success - Update - {#name#:#${bug.name}#,#bells#:#${bug.bells}#,#rarity#:#${bug.rarity}#}"
-
+						sender() ! s"Success | Update | {#name#:#${bug.name}#,#bells#:#${bug.bells}#,#rarity#:#${bug.rarity}#,#availability#:#${bug.availability.fold("")(merge).trim()}#,#img#:#${bug.img}#}"
 					}else{
 						log.info(s"[Update_One_User_With_Creature] $username has more than 10 bugs")
 						sender() ! "BugOverflow"
@@ -227,7 +229,7 @@ class UserActor extends Actor with ActorLogging{
 					log.info(s"[Update_One_User_With_Creature] $username does not exist, creating user")
 					val newUser = User(username = username, pocket = pocket)
 					UserOperations.createOneUser(newUser)
-					sender() ! s"Success - Create - {#name#:#${bug.name}#,#bells#:#${bug.bells}#,#rarity#:#${bug.rarity}#}"
+					sender() ! s"Success | Create | {#name#:#${bug.name}#,#bells#:#${bug.bells}#,#rarity#:#${bug.rarity}#,#availability#:#${bug.availability.fold("")(merge).trim()}#,#img#:#${bug.img}#}"
 				}else{
 					log.info(s"[Update_One_User_With_Creature] month entered is invalid")
 					sender() ! "Failed"
@@ -243,7 +245,7 @@ class UserActor extends Actor with ActorLogging{
 					if(user.pocket.fish.length < 10){
 						log.info(s"[Update_One_User_With_Creature] Updating pocket")
 						UserOperations.updateUserPocket(userSeq.head, species, pocket)
-						sender() ! s"Success - Update - {#name#:#${fish.name}#,#bells#:#${fish.bells}#,#rarity#:#${fish.rarity}#}"
+						sender() ! s"Success | Update | {#name#:#${fish.name}#,#bells#:#${fish.bells}#,#rarity#:#${fish.rarity}#,#availability#:#${fish.availability.fold("")(merge).trim()}#,#img#:#${fish.img}#}"
 					}else{
 						log.info(s"[Update_One_User_With_Creature] $username has more than 10 fishes")
 						sender() ! "FishOverflow"
@@ -252,7 +254,7 @@ class UserActor extends Actor with ActorLogging{
 					log.info(s"[Update_One_User_With_Creature] $username does not exist, creating user")
 					val newUser = User(username = username, pocket = pocket)
 					UserOperations.createOneUser(newUser)
-					sender() ! s"Success - Create - {#name#:#${fish.name}#,#bells#:#${fish.bells}#,#rarity#:#${fish.rarity}#}"
+					sender() ! s"Success | Create | {#name#:#${fish.name}#,#bells#:#${fish.bells}#,#rarity#:#${fish.rarity}#,#availability#:#${fish.availability.fold("")(merge).trim()}#,#img#:#${fish.img}#}"
 				}else{
 					log.info(s"[Update_One_User_With_Creature] month entered is invalid")
 					sender() ! "Failed"
@@ -286,7 +288,16 @@ class UserActor extends Actor with ActorLogging{
 				sender() ! creatureBells
 			}
 
-		//TODO Prone to 404s
+		case Delete_All_Bugs_From_Pocket(username) =>
+			log.info(s"[Delete_All_Bugs_From_Pocket] Selling and deleting all creatures from $username's pocket")
+			val BugBells = UserOperations.deleteAllCreatureForUser(username, BUG)
+			sender() ! BugBells
+
+		case Delete_All_Fishes_From_Pocket(username) =>
+			log.info(s"[Delete_All_Fishes_From_Pocket] Selling and deleting all creatures from $username's pocket")
+			val FishBells = UserOperations.deleteAllCreatureForUser(username, FISH)
+			sender() ! FishBells
+
 		case Delete_All_Creatures_From_Pocket(username) =>
 			log.info(s"[Delete_All_Creature_From_Pocket] Selling and deleting all creatures from $username's pocket")
 			val creatureBells = UserOperations.deleteAllForUser(username)

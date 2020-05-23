@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import { Row, Col, Card, Radio } from 'antd'; 
+import Route from '../Actions/Route'
 
 import "antd/dist/antd.css";
 import "./css/pages.css" 
@@ -13,66 +14,23 @@ import LightCog from '../Assets/resolved/backgroundcogLight'
 import DisplayBug from '../Assets/resolved/bugIcon'
 import DisplayFish from '../Assets/resolved/fishIcon'
 
+
+
 const CATCH = "catch"
 const BUG = "bug"
 const FISH = "fish"
 const SELL = "sell"
 const SELLALL = "sellall"
 
-const dummyBugsList = [
-    {
-        name : "Common Butterfly",
-        img : "",
-        bells: 90,
-        rarity: 2,
-        availability : ["MAR", "APR", "MAY", "JUN", "SEP"],
-        hover: true, small: true
-    },
-    {
-        name : "Oak Silk Moth",
-        img : "",
-        bells: 1200,
-        rarity: 4,
-        availability : ["JUN", "JUL", "AUG", "SEP"],
-        hover: true, small: true
-    },
-] 
-
-const dummyFishesList = [
-    {
-        name : "Dace",
-        img : "",
-        bells: 200,
-        rarity: 3,
-        availability : ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"],
-        hover: true, small: true
-    },
-    {
-        name : "Tadpole",
-        img : "",
-        bells: 100,
-        rarity: 2,
-        availability : ["MAR", "APR", "MAY", "JUN", "JUL"],
-        hover: true, small: true
-    },
-    {
-        name : "Eel",
-        img : "",
-        bells: 2000,
-        rarity: 3,
-        availability : ["JUN", "JUL", "AUG", "SEP"],
-        hover: true, small: true
-    },
-] 
 
 export default class Catch extends Component {
     state = {
         username: "MuteBard",
-        userBells : "",
+        userBells : 0,
         species : BUG,
         name : "",
         img : "",
-        bells: "",
+        bells: 0,
         rarity: "",
         availability: [],
         pocketBugs : [],
@@ -80,11 +38,38 @@ export default class Catch extends Component {
       };
 
     componentDidMount = () => {
+        this.updateData()
 
-        this.setState({
-            pocketBugs : dummyBugsList.map((data) => {return {name : data.name, img : data.img, bells: data.bells, rarity: data.rarity, availability : data.availability, hover: data.hover, small: data.small }}),
-            pocketFishes : dummyFishesList.map((data) => {return {name : data.name, img : data.img, bells: data.bells, rarity: data.rarity, availability : data.availability, hover: data.hover, small: data.small }})
-        })
+    }
+
+    updateData = () => {
+        let CBAS_Payload = { username: "MuteBard"}
+        Route.queryUserPocket(CBAS_Payload, this.setCatchPocketData)
+    }
+
+    setCatchPocketData = (data) => {
+        if(data.newCreature == true){
+            console.log("ENTERED", data)
+            this.setState({
+                name : data.name,
+                bells : data.bells,
+                rarity : data.rarity,
+                availability : data.availability,
+                img : data.img,
+                hover: false,
+                small:false
+            })
+            this.updateData()
+        }
+        else{
+            let pocketBugs = data.getUser.pocket.bug.map(bug => Object.assign(bug, {hover: true, small: true}))
+            let pocketFishes = data.getUser.pocket.fish.map(fish => Object.assign(fish, {hover: true, small: true}))
+            this.setState({
+                userBells : data.getUser.bells,
+                pocketBugs,
+                pocketFishes
+            })
+        }
     }
 
     speciesSelect = e => {
@@ -94,13 +79,11 @@ export default class Catch extends Component {
     handleChildClick = (action, data) => {
         if (action === CATCH){
             if (data === BUG){
-                let pocketBugs = this.state.pocketBugs
-                pocketBugs.push(dummyBugsList[0])
-                this.setState({species : BUG , name : dummyBugsList[0].name, img: "", bells: dummyBugsList[0].bells, rarity: dummyBugsList[0].rarity, availability: dummyBugsList[0].availability, bugs: pocketBugs });
+                let CBAS_Payload = { username: "MuteBard", species : data }
+                Route.mutateCatchCatchOneCreature(CBAS_Payload, this.setCatchPocketData)
             }else if (data === FISH){
-                let pocketFishes = this.state.pocketFishes
-                pocketFishes.push(dummyFishesList[0])
-                this.setState({ species : FISH ,  name : dummyFishesList[0].name, img: "", bells: dummyFishesList[0].bells, rarity: dummyFishesList[0].rarity, availability: dummyFishesList[0].availability, fishes : pocketFishes});
+                let CBAS_Payload = { username: "MuteBard", species : data }
+                Route.mutateCatchCatchOneCreature(CBAS_Payload, this.setCatchPocketData)
             }
         }
         else if(action === SELL){
@@ -124,17 +107,18 @@ export default class Catch extends Component {
                 <Row className="RadioRow">
                     <Col span={5} offset={2}>
                         <Card>
-                            <Radio.Group size="large" onChange={this.speciesSelect} value={this.state.value}>
+                            <Radio.Group size="large" onChange={this.speciesSelect} value={this.state.species}>
                                 <Radio.Button value={BUG}>Catch Bugs</Radio.Button>
                                 <Radio.Button value={FISH}>Catch Fishes</Radio.Button>
                             </Radio.Group>
                         </Card>
                     </Col>
                     <Col span={5} offset={7}>
-                        {this.state.img === "" ?
-                            this.state.species === BUG  ? <DisplayBug traits={{hover: false, small:false}}/> : <DisplayFish traits={{hover: false, small:false}}/>
-                            :
-                            <img alt={this.state.name} src={this.state.img}/>
+                        {this.state.img === ""
+                        ?
+                        this.state.species === BUG  ? <DisplayBug traits={this.state}/> : <DisplayFish traits={this.state}/>
+                        :
+                        <img src={this.state.img}/>
                         }
                     </Col>
                 </Row>

@@ -109,7 +109,7 @@ publicConnection.on('chat', (channel, userstate, message, self) => {
         process.sellOneRequest(Twitch_Data)
     }
 
-    else if(command == "!sell all creatures" ){
+    else if(command == "!sell all" ){
         process.sellAllRequest(Twitch_Data)
     }
 });

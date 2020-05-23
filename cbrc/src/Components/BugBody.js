@@ -130,7 +130,7 @@ export default class BugBody extends Component{
     }
     
     render(){
-        let { name, bells, rarity, availability, pocketBugs} = this.props.data
+        let { name, bells, rarity, availability, pocketBugs, userBells} = this.props.data
         let { handleClick } = this.props 
         let percentProgress = parseInt(100 * (60 - this.state.seconds) / 60)
         let displayseconds = this.state.seconds
@@ -141,7 +141,7 @@ export default class BugBody extends Component{
                         <Card className="card">
                             <div className="stats2">
                                 <strong>Bells Earned</strong>
-                                <div>{this.statistic(0, 23232, "bells", false)}</div>
+                                <div>{this.statistic(0, userBells, "bells", false)}</div>
                             </div>
                         </Card>
                         {this.state.seconds === 0 
@@ -187,7 +187,7 @@ export default class BugBody extends Component{
                             <Col className="PocketCol" span={20} offset={2}>
                                 <p className="PocketColTitle">Your Pocket</p>
                                 <Card>
-                                    {pocketBugs.map(data => <PocketBug handlePocketClick={handleClick} traits={{name : data.name, img : data.img, bells: data.bells, rarity: data.rarity, availability : data.availability, hover: data.hover, small: data.small}}/>)}
+                                    {pocketBugs.map(data => <PocketBug handlePocketClick={handleClick} traits={{name : data.name, image : data.img, bells: data.bells, rarity: data.rarity, availability : data.availability, hover: data.hover, small: data.small}}/>)}
                                 </Card>
                             </Col>
                         </Row>
@@ -209,4 +209,4 @@ export default class BugBody extends Component{
             </div>
         )
     }
-}
+} 

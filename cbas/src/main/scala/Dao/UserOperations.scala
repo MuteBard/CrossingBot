@@ -136,6 +136,51 @@ object UserOperations extends MongoDBOperations {
 		}
 	}
 
+	def deleteAllCreatureForUser(username : String, species : String): Int = {
+		val userList: List[User] = readOneUser(username).toList
+		val user: User = userList.head
+		val bugBells = Await.result(Source(user.pocket.bug).via(Flow[Bug].fold[Int](0)(_ + _.bells)).runWith(Sink.head), 1 second)
+		val fishBells = Await.result(Source(user.pocket.fish).via(Flow[Fish].fold[Int](0)(_ + _.bells)).runWith(Sink.head), 1 second)
+
+		if(species == BUG) {
+			if (bugBells != 0) {
+				val source = Source(userList).map(_ => Filters.eq("username", username))
+				val taskFuture = source.runWith(MongoSink.deleteMany(allUsers))
+				taskFuture.onComplete {
+					case Success(_) =>
+						val bug: List[Bug] = List()
+						val updatedPocket = Pocket(bug, user.pocket.fish)
+						val updatedBells = user.bells + bugBells
+						val newUser = User(user.id, user.username, user.fishingPoleLvl, user.bugNetLvl, updatedBells, updatedPocket, user.liveTurnips, user.turnipTransactionHistory, user.avatar)
+						log.info("UserOperations", "deleteAllCreatureForUser", "Success", s"Deleted $username's bugs")
+						createOneUser(newUser)
+					case Failure(ex) =>
+						log.warn("UserOperations", "deleteAllCreatureForUser", "Failure", s"Failed to delete all bugs in $username's pocket:  $ex")
+				}
+			}
+		}
+
+		if(species == FISH){
+			if (fishBells != 0) {
+				val source = Source(userList).map(_ => Filters.eq("username", username))
+				val taskFuture = source.runWith(MongoSink.deleteMany(allUsers))
+				taskFuture.onComplete {
+					case Success(_) =>
+						val fish: List[Fish] = List()
+						val updatedPocket = Pocket(user.pocket.bug, fish)
+						val updatedBells = user.bells + fishBells
+						val newUser = User(user.id, user.username, user.fishingPoleLvl, user.bugNetLvl, updatedBells, updatedPocket, user.liveTurnips, user.turnipTransactionHistory, user.avatar)
+						log.info("UserOperations", "deleteAllCreatureForUser", "Success", s"Deleted $username's fishes")
+						createOneUser(newUser)
+					case Failure(ex) =>
+						log.warn("UserOperations", "deleteAllCreatureForUser", "Failure", s"Failed to delete all fishes in $username's pocket:  $ex")
+				}
+			}
+		}
+
+		if(species == BUG) bugBells else fishBells
+	}
+
 	def deleteAllForUser(username : String): Int = {
 		val userList: List[User] = readOneUser(username).toList
 		val user: User = userList.head
@@ -147,18 +192,18 @@ object UserOperations extends MongoDBOperations {
 			val taskFuture = source.runWith(MongoSink.deleteMany(allUsers))
 			taskFuture.onComplete {
 				case Success(_) =>
-					log.info("UserOperations", "deleteAllForUser", "Success", s"Deleted USER $username")
 					val bug : List[Bug] = List()
 					val fish : List[Fish] = List()
 					val updatedPocket = Pocket(bug, fish)
 					val updatedBells = user.bells + creatureBells
 					val newUser = User(user.id, user.username, user.fishingPoleLvl, user.bugNetLvl, updatedBells, updatedPocket, user.liveTurnips , user.turnipTransactionHistory, user.avatar)
+					log.info("UserOperations", "deleteAllForUser", "Success", s"Deleted USER $username")
 					createOneUser(newUser)
 				case Failure(ex) =>
-					log.warn("UserOperations", "deleteAllForUser", "Failure", s"Failed to delete all creature's in $username's pocket:  $ex")
+					log.warn("UserOperations", "deleteAllForUser", "Failure", s"Failed to delete all creature in $username's pocket:  $ex")
 			}
 		}else{
-			log.warn("UserOperations", "deleteAllForUser", "Failure", s"Failed to delete creature's in $username's pocket : Nothing in pocket")
+			log.warn("UserOperations", "deleteAllForUser", "Failure", s"Failed to delete creatures in $username's pocket : Nothing in pocket")
 
 		}
 		creatureBells

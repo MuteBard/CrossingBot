@@ -1,3 +1,5 @@
+//<Operation>_<Collection>_<Component>_*
+
 const CURRENT_MONTH = require('../Cron/Timing').month
 
 let GET_USER_HOME = (username) =>
@@ -84,7 +86,7 @@ let GET_USER_MARKET = (username) =>
     }
 }`
 
-let GET_MARKET_CHART_TODAY = () => 
+let GET_MOVEMENTRECORD_MARKET = () => 
 `query{
     getDayRecords(dummy : true){
         todayHigh
@@ -124,4 +126,4 @@ module.exports.GET_USER_PROFILE = GET_USER_PROFILE
 module.exports.GET_USER_CATCH = GET_USER_CATCH
 module.exports.GET_USER_MARKET = GET_USER_MARKET
 module.exports.GET_USER_MARKET_VALIDATION = GET_USER_MARKET_VALIDATION
-module.exports.GET_MARKET_CHART_TODAY = GET_MARKET_CHART_TODAY
+module.exports.GET_MOVEMENTRECORD_MARKET = GET_MOVEMENTRECORD_MARKET

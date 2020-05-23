@@ -128,7 +128,7 @@ export default class FishBody extends Component{
     }
 
     render(){
-        let { name, bells, rarity, availability, pocketFishes} = this.props.data
+        let { name, bells, rarity, availability, pocketFishes, userBells} = this.props.data
         let { handleClick } = this.props
         let percentProgress = parseInt(100 * (60 - this.state.seconds) / 60)
         let displayseconds = this.state.seconds
@@ -140,7 +140,7 @@ export default class FishBody extends Component{
                         <Card className="card">
                             <div className="stats2">
                                 <strong>Bells Earned</strong>
-                                <div>{this.statistic(0, 23232, "bells", false)}</div>
+                                <div>{this.statistic(0, userBells, "bells", false)}</div>
                             </div>
                         </Card>
                         {this.state.seconds === 0 
@@ -153,7 +153,7 @@ export default class FishBody extends Component{
                                 }, 100);
                                 return handleClick(CATCH,FISH) 
                             }}>
-                                Catch a Bug
+                                Catch a Fish
                             </Button>
                         </Card>
                         :
@@ -191,7 +191,7 @@ export default class FishBody extends Component{
                             <Col className="PocketCol" span={20} offset={2}>
                                 <p className="PocketColTitle">Your Pocket</p>
                                 <Card>
-                                    {pocketFishes.map(data => <PocketFish handlePocketClick={handleClick} traits={{name : data.name, img : data.img, bells: data.bells, rarity: data.rarity, availability : data.availability, hover: data.hover, small: data.small}}/>)}
+                                    {pocketFishes.map(data => <PocketFish handlePocketClick={handleClick} traits={{name : data.name, image : data.img, bells: data.bells, rarity: data.rarity, availability : data.availability, hover: data.hover, small: data.small}}/>)}
                                 </Card>
                             </Col>
                         </Row>

@@ -87,6 +87,9 @@ object Service {
 		    creatureName : String
 		):                                                  UIO[Int]
 
+		def sellAllBugs(username: String) :                 UIO[Int]
+
+		def sellAllFishes(username: String) :               UIO[Int]
 
 		def sellAllCreatures(username : String):            UIO[Int]
 
@@ -235,6 +238,16 @@ object Service {
 
 		def sellOneCreature(username: String, species : String, creatureName : String): UIO[Int] = {
 			val bells = Await.result((userActor ? UserActor.Delete_One_Creature_From_Pocket(username, species, creatureName)).mapTo[Int], 3 seconds)
+			IO.succeed(bells)
+		}
+
+		def sellAllBugs(username: String) : UIO[Int] = {
+			val bells = Await.result((userActor ? UserActor.Delete_All_Bugs_From_Pocket(username)).mapTo[Int], 3 seconds)
+			IO.succeed(bells)
+		}
+
+		def sellAllFishes(username: String) : UIO[Int] = {
+			val bells = Await.result((userActor ? UserActor.Delete_All_Fishes_From_Pocket(username)).mapTo[Int], 3 seconds)
 			IO.succeed(bells)
 		}
 
