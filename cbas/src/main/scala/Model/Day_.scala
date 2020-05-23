@@ -7,21 +7,43 @@ import scala.util.Random
 object Day_ {
 
 	case class Day(hourBlocks : List[HourBlock] = null){
-		def generate() : Day = {
+		def generate(performance : String) : Day = {
 			val hour = HourBlock()
-			val random = new Random
 			val hourBlocks = (0 to 23).map(hourBlockId => {
-				val value = random.nextInt(10) + 1
-				value match {
-					case x if (1 to 3).contains(x) => hour.sleepy(hourBlockId)
-					case x if (4 to 5).contains(x) =>  hour.normal(hourBlockId)
-					case x if (6 to 8).contains(x) => hour.good(hourBlockId)
-					case 9 => hour.bad(hourBlockId)
-					case 10 => hour.risky(hourBlockId)
+				if(performance == "good"){
+					goodDay(hour, hourBlockId)
+				}else{
+					badDay(hour, hourBlockId)
 				}
 			}).toList
 			Day(hourBlocks)
 		}
+
+		def goodDay(hour : HourBlock, hourBlockId : Int): HourBlock = {
+			val random = new Random
+			val value = random.nextInt(10) + 1
+			value match {
+				case x if (1 to 3).contains(x) => hour.sleepy(hourBlockId)
+				case x if (4 to 5).contains(x) =>  hour.normal(hourBlockId)
+				case x if (6 to 8).contains(x) => hour.good(hourBlockId)
+				case 9 => hour.bad(hourBlockId)
+				case 10 => hour.risky(hourBlockId)
+			}
+		}
+
+
+		def badDay(hour : HourBlock, hourBlockId : Int): HourBlock = {
+			val random = new Random
+			val value = random.nextInt(10) + 1
+			value match {
+				case x if (1 to 3).contains(x) => hour.sleepy(hourBlockId)
+				case x if (4 to 5).contains(x) =>  hour.normal(hourBlockId)
+				case x if (6 to 8).contains(x) =>  hour.bad(hourBlockId)
+				case 9 => hour.good(hourBlockId)
+				case 10 => hour.risky(hourBlockId)
+			}
+		}
+
 
 		def getHourBlock(index : Int): HourBlock = {
 			hourBlocks(index)

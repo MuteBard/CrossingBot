@@ -41,7 +41,7 @@ object  MarketOperations extends MongoDBOperations {
 
 	def updateStalksPurchased(amount : Int) : Unit = {
 		val source = MongoSource(allMR.find(classOf[MovementRecord]))
-			.map(mr => DocumentUpdate(filter = Filters.eq("_id", todayDateId()), update = Updates.set("stalksPurchased", mr.stalksPurchased + amount)))
+			.map(mr => DocumentUpdate(filter = Filters.eq("id", todayDateId()), update = Updates.set("stalksPurchased", mr.stalksPurchased + amount)))
 		val taskFuture = source.runWith(MongoSink.updateOne(allMR))
 		taskFuture.onComplete{
 			case Success(_) => log.info("MarketOperations","updateStalksPurchased","Success",s"Updated MovementRecord ${todayDateId()}'s stalksPurchased")
@@ -55,8 +55,7 @@ object  MarketOperations extends MongoDBOperations {
 		val taskFuture = source.runWith(MongoSink.updateOne(allMR))
 		taskFuture.onComplete{
 			case Success(_) => ""
-			case Failure (ex) =>
-				log.warn("MarketOperations","updateMovementRecord","Failure",s"Failed to update MovementRecord ${mr.id}'s $key: $ex")
+			case Failure (ex) => log.warn("MarketOperations","updateMovementRecordField","Failure",s"Failed to update MovementRecord ${mr.id}'s $key: $ex")
 		}
 	}
 
@@ -82,6 +81,9 @@ object  MarketOperations extends MongoDBOperations {
 	def readEarliestMovementRecord(): MovementRecord = readMovementRecord().head
 
 	def readLatestMovementRecord(): MovementRecord = readMovementRecord().reverse.head
+	def readLastTwoDaysMovementRecords(): Seq[MovementRecord] = readMovementRecord().reverse.take(2)
+	def readLastWeekMovementRecords(): Seq[MovementRecord] = readMovementRecord().reverse.take(7)
+	def readLastMonthMovementRecords(): Seq[MovementRecord] = readMovementRecord().reverse.take(30)
 
 	def readMovementRecord(): Seq[MovementRecord] = {
 		val source = MongoSource(allMR.find(classOf[MovementRecord]))

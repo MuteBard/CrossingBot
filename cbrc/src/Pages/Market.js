@@ -16,6 +16,7 @@ export default class Market extends Component {
         loadings: [],
         visible: false,
         bells: 0,
+        stalksPurchased : 0,
         liveTurnips : {
           quantity : 0,
           marketPrice: 0,
@@ -84,6 +85,7 @@ export default class Market extends Component {
                     minute : data.getDayRecords.latestTurnip.minute
                 },
                 turnipHistory : data.getDayRecords.turnipHistory,
+                stalksPurchased : data.getDayRecords.stalksPurchased,
                 todayHigh : data.getDayRecords.todayHigh,
                 todayLow : data.getDayRecords.todayLow,
                 opening : data.getDayRecords.turnipHistory[data.getDayRecords.turnipHistory.length - 1].price,
@@ -373,6 +375,10 @@ export default class Market extends Component {
                             <div className="stats2">
                                 <div><strong>Today's Low</strong></div>
                                 <div>{this.statistic(this.state.opening, this.state.todayLow,"bells", false)}</div>
+                            </div>
+                            <div className="stats2">
+                                <div><strong>Worldwide Purchases</strong></div>
+                                <div>{this.statistic(0, this.state.stalksPurchased,"turnips", false)}</div>
                             </div>
                         </Card>
                     </Col>
