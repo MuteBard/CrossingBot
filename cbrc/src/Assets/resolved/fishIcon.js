@@ -4,6 +4,7 @@ import { Popover, Button } from 'antd';
 import fishIcon from '../raw/fishIcon.svg'
 import './css/resolved.css'
 
+const FISH = "fish"
 const SELL = "sell"
 
 export default function FishIcon({traits, handlePocketClick}){
@@ -15,8 +16,12 @@ export default function FishIcon({traits, handlePocketClick}){
     <div>
       <p>Bells : {bells}</p>
       <p>Rarity : {rarity}</p>
-      <p>Availability: {availability.map(month => `${month}, `)}</p>
-      <Button type="primary" block onClick={() => handlePocketClick(SELL, name)}>
+      <p>Availability: {availability.map((month, idx, array) => {
+          if(idx === array.length - 1)return `${month}`
+          else return `${month}, `
+        })}
+      </p>
+      <Button type="primary" block onClick={() => handlePocketClick(SELL, {species : FISH, name})}>
         Sell for {bells} bells
       </Button>
     </div>

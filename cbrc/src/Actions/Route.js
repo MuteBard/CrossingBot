@@ -85,9 +85,22 @@ exports.mutateCatchCatchOneCreature = async (CBAS_Payload, callback) => {
 }
  
 
-// exports.mutateCatchSellOneCreature (CBAS_Payload)
+exports.mutateCatchSellOneCreature = (CBAS_Payload, updateUserState) => {
+    let mutation = Mutation.UPDATE_USER_CATCH_SELL_ONE(CBAS_Payload.username, CBAS_Payload.species, CBAS_Payload.name)
+    queryGraphQL(mutation, updateUserState)
+}
 
-// exports.mutateCatchCSellAllSpecies = (CBAS_Payload)
+exports.mutateCatchSellAllSpecies = (CBAS_Payload, updateUserState) => {
+    if(CBAS_Payload.species === BUG){
+        let mutation = Mutation.UPDATE_USER_CATCH_SELL_BUGS(CBAS_Payload.username)
+        queryGraphQL(mutation, updateUserState)
+    }
+    else if(CBAS_Payload.species === FISH){
+        let mutation = Mutation.UPDATE_USER_CATCH_SELL_FISHES(CBAS_Payload.username)
+        queryGraphQL(mutation, updateUserState)
+    }
+
+}
 
 
 

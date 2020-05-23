@@ -147,7 +147,7 @@ export default class FishBody extends Component{
                         ?
                         <Card className="fade-in">
                             <Button type="primary" block onClick={() => {
-                                this.setState({seconds : 5})
+                                this.setState({seconds : 60})
                                 setTimeout(() => {
                                     this.fishIsLocked() 
                                 }, 100);

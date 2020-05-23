@@ -78,25 +78,16 @@ export default class Catch extends Component {
 
     handleChildClick = (action, data) => {
         if (action === CATCH){
-            if (data === BUG){
-                let CBAS_Payload = { username: "MuteBard", species : data }
-                Route.mutateCatchCatchOneCreature(CBAS_Payload, this.setCatchPocketData)
-            }else if (data === FISH){
-                let CBAS_Payload = { username: "MuteBard", species : data }
-                Route.mutateCatchCatchOneCreature(CBAS_Payload, this.setCatchPocketData)
-            }
+            let CBAS_Payload = { username: "MuteBard", species : data }
+            Route.mutateCatchCatchOneCreature(CBAS_Payload, this.setCatchPocketData)
         }
         else if(action === SELL){
-            console.log(data)
-            // this.state.bugs.filter
+            let CBAS_Payload = { username: "MuteBard", species : data.species, name: data.name }
+            Route.mutateCatchSellOneCreature(CBAS_Payload, this.updateData)
         }
-        else if(action === SELLALL){
-            if(data === BUG){
-                // this.state.bugs.map
-                console.log(data)
-            }else if (data === FISH){
-                console.log(data)
-            }
+        else if(action === SELLALL){    
+            let CBAS_Payload = { username: "MuteBard", species : data}
+            Route.mutateCatchSellAllSpecies(CBAS_Payload, this.updateData)
         }
     }
 
