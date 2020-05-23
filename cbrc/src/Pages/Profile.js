@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-
 import { Row, Col, Statistic } from 'antd';
 import { ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
+import Route from '../Actions/Route'    
 
 import "antd/dist/antd.css";
 import "./css/pages.css" 
@@ -17,6 +17,35 @@ import BugNet from '../Assets/resolved/bugnet'
 import FishRod from '../Assets/resolved/fishrod'
 
 export default class Catch extends Component {
+    state = {
+        quantity : 0,
+        netGainLossAsBells: 0,
+        netGainLossAsPercentage : 0,
+        userbells : 0,
+        pocketBugs : [],
+        pocketFishes : [],
+      };
+
+
+    componentDidMount = () => {
+        this.updateData()
+    }
+
+    updateData = () => {
+        let setCatchPocketData = (data) =>{
+            this.setState({
+                quantity : data.getUser.liveTurnips.quantity,
+                netGainLossAsBells: data.getUser.liveTurnips.netGainLossAsBells,
+                netGainLossAsPercentage : data.getUser.liveTurnips.netGainLossAsPercentage,
+                userbells : data.getUser.bells,
+                pocketBugs : data.getUser.pocket.bug,
+                pocketFishes : data.getUser.pocket.fish,
+            })
+        }
+
+        let CBAS_Payload = { username: "MuteBard"}
+        Route.queryProfileUserData(CBAS_Payload, setCatchPocketData)
+    }
 
     statistic(base, current, unit, arrow) {
         
@@ -60,15 +89,15 @@ export default class Catch extends Component {
                     </Col>
                     <Col span={5} offset={2}>
                         <div><strong>Turnips Held</strong></div>
-                        <div>{this.statistic(0, 1, "turnip(s)", false)}</div>
+                        <div>{this.statistic(0, this.state.quantity, "turnip(s)", false)}</div>
                     </Col>
                     <Col span={5} offset={1}>
                         <div><strong>Today's Return</strong></div>
-                        <div>{this.statistic(0, 32, "bells", true)}</div>
+                        <div>{this.statistic(0, this.state.netGainLossAsBells, "bells", true)}</div>
                     </Col>
                     <Col span={5} offset={1}>
                         <div><strong>Overall Return</strong></div>
-                        <div>{this.statistic(0, 10, "%", true)}</div>
+                        <div>{this.statistic(0, this.state.netGainLossAsPercentage, "%", true)}</div>
                     </Col>
                 </Row>
                 
@@ -78,29 +107,27 @@ export default class Catch extends Component {
                     </Col>
                     <Col span={5} offset={2}>
                         <p className="itemTitle"><strong>Bells Earned</strong></p>
-                        <div>{this.statistic(0, 23232, "bells", false)}</div>
+                        <div>{this.statistic(0, this.state.userbells, "bells", false)}</div>
                     </Col>
                 </Row>
                 
                 <Row className="row" align="middle">
                     <Col offset={1}>
-                        
                         <BugNet profile={true}/>
                     </Col>
                     <Col span={15} offset={2}>
-                        <p className="itemTitle"><strong>Bugs Owned (2/10)</strong></p>
-                        <BugIcon traits={{hover: false, small:true}}/><BugIcon traits={{hover: false, small:true}}/>                     
+                        <p className="itemTitle"><strong>Bugs Owned ({this.state.pocketBugs.length}/10)</strong></p>
+                        {this.state.pocketBugs.map(bug => <img src={bug.img}/>)}
                     </Col>
                 </Row>
                 
                 <Row className="row" align="middle">
                     <Col offset={1}>
-                        
                         <FishRod profile={true}/>
                     </Col>
                     <Col span={15} offset={2}>
-                        <p className="itemTitle"><strong>Fishes Owned (2/10)</strong></p>
-                        <FishIcon traits={{hover: false, small:true}}/><FishIcon traits={{hover: false, small:true}}/>                 
+                        <p className="itemTitle"><strong>Fishes Owned ({this.state.pocketFishes.length}/10)</strong></p>
+                        {this.state.pocketFishes.map(fish => <img src={fish.img}/>)}
                     </Col>
                 </Row>
                 <LightCog/>             

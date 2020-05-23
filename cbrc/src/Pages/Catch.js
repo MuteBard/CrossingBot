@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { Row, Col, Card, Radio } from 'antd'; 
+import { Row, Col, Card, Radio, Modal, Button } from 'antd'; 
 import Route from '../Actions/Route'
 
 import "antd/dist/antd.css";
@@ -25,6 +25,7 @@ const SELLALL = "sellall"
 
 export default class Catch extends Component {
     state = {
+        visible: false,
         username: "MuteBard",
         userBells : 0,
         species : BUG,
@@ -39,7 +40,6 @@ export default class Catch extends Component {
 
     componentDidMount = () => {
         this.updateData()
-
     }
 
     updateData = () => {
@@ -47,9 +47,17 @@ export default class Catch extends Component {
         Route.queryUserPocket(CBAS_Payload, this.setCatchPocketData)
     }
 
+    showModal = () => {
+        this.setState({
+            visible: true,
+        });
+    };
+
     setCatchPocketData = (data) => {
-        if(data.newCreature == true){
-            console.log("ENTERED", data)
+        if(data === "BugOverflow" || data === "FishOverflow"){
+            this.showModal()
+        }
+        else if(data.newCreature == true){
             this.setState({
                 name : data.name,
                 bells : data.bells,
@@ -114,6 +122,21 @@ export default class Catch extends Component {
                     </Col>
                 </Row>
                 {this.state.species === BUG ? <BugBody data={this.state} handleClick={this.handleChildClick}/>  : <FishBody data={this.state} handleClick={this.handleChildClick}/>}
+                <Modal
+                    title={`Too Many ${this.state.species === BUG ? "Bugs" : "Fishes"}`}
+                    visible={this.state.visible}
+                    onCancel={this.handleCancel}
+                    onOk={this.handleOk}
+                    footer={[
+                    <Button key="back" onClick={this.handleCancel}>
+                        Cancel
+                    </Button>
+                    ]}
+                > 
+                    <p>
+                        Sell a couple {this.state.species === BUG ? "bugs" : "fishes"} first before catching more
+                    </p>
+                </Modal>
                 <LightCog/>
                 
             </div> 
