@@ -81,7 +81,15 @@ export default class Catch extends Component {
     }
 
     speciesSelect = e => {
-        this.setState({ species : e.target.value});
+        this.setState({ 
+            species : e.target.value,
+            name : "",
+            bells : "",
+            rarity : "",
+            availability : "",
+            img : "",  
+        });
+
     }
 
     handleChildClick = (action, data) => {

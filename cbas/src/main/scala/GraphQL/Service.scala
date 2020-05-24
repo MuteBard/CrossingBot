@@ -32,7 +32,7 @@ object Service {
 		//--MovementRecord--
 		//Queries
 		def getDayRecords(dummy : Boolean):                 UIO[MovementRecord]
-		def getMonthRecords(dummy : Boolean):               UIO[List[MovementRecord]]
+		def getNDayRecords(days: Int):                      UIO[List[MovementRecord]]
 		def getTurnipPrices(dummy : Boolean):               UIO[Int]
 
 
@@ -117,9 +117,9 @@ object Service {
 			IO.succeed(movementRecord)
 		}
 
-		def getMonthRecords(dummy : Boolean): UIO[List[MovementRecord]] = {
-			val movementRecordsForMonth = Await.result((marketActor ? MarketActor.Read_Latest_Movement_Record_Month).mapTo[List[MovementRecord]], 2 seconds)
-			IO.succeed(movementRecordsForMonth)
+		def getNDayRecords(days : Int): UIO[List[MovementRecord]] = {
+			val nMovementRecords = Await.result((marketActor ? MarketActor.Read_Latest_N_Days_Movement_Record(days)).mapTo[Seq[MovementRecord]], 2 seconds).toList
+			IO.succeed(nMovementRecords)
 		}
 
 		def getTurnipPrices(dummy : Boolean): UIO[Int] = {

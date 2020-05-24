@@ -26,6 +26,7 @@ object MovementRecord_ {
          day: Int = 0,
 	)
 	case class toggleArgs(running : Boolean)
+	case class daysArgs(days : Int)
 
 }
 

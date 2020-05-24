@@ -81,9 +81,8 @@ object  MarketOperations extends MongoDBOperations {
 	def readEarliestMovementRecord(): MovementRecord = readMovementRecord().head
 
 	def readLatestMovementRecord(): MovementRecord = readMovementRecord().reverse.head
-	def readLastTwoDaysMovementRecords(): Seq[MovementRecord] = readMovementRecord().reverse.take(2)
-	def readLastWeekMovementRecords(): Seq[MovementRecord] = readMovementRecord().reverse.take(7)
-	def readLastMonthMovementRecords(): Seq[MovementRecord] = readMovementRecord().reverse.take(30)
+	def readLastNDaysMovementRecords(n : Int): Seq[MovementRecord] = readMovementRecord().reverse.take(n)
+
 
 	def readMovementRecord(): Seq[MovementRecord] = {
 		val source = MongoSource(allMR.find(classOf[MovementRecord]))
@@ -97,12 +96,12 @@ object  MarketOperations extends MongoDBOperations {
 	}
 
 
-	def readMovementRecordListByMonth(month :  Int): List[MovementRecord] = {
-		val source = MongoSource(allMR.find(classOf[MovementRecord])).filter(mr => true)
-		val daySeqFuture = source.runWith(Sink.seq)
-		val daySeq : Seq[MovementRecord] = Await.result(daySeqFuture, 3 seconds)
-		daySeq.toList
-	}
+//	def readMovementRecordListByMonth(month :  Int): List[MovementRecord] = {
+//		val source = MongoSource(allMR.find(classOf[MovementRecord])).filter(mr => true)
+//		val daySeqFuture = source.runWith(Sink.seq)
+//		val daySeq : Seq[MovementRecord] = Await.result(daySeqFuture, 3 seconds)
+//		daySeq.toList
+//	}
 
 	def deleteOldestMovementRecords(month : Int) :  Unit = {
 		val mrList  = readMovementRecord().toList

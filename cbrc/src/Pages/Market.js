@@ -4,7 +4,8 @@ import { ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
 import Route from '../Actions/Route'
 import "./css/pages.css"
 import Turnip from '../Assets/resolved/turnip'
-import TurnipsToday from '../Components/TurnipsToday'
+import MarketToday from '../Components/MarketToday'
+import MarketNDays from '../Components/MarketNDays'
 import LightCog from '../Assets/resolved/backgroundcogLight'
 const CronJob = require('cron').CronJob
 
@@ -48,7 +49,8 @@ export default class Market extends Component {
             status : "",
             marketPrice : -1,
             totalBells : -1
-        }
+        },
+        
 
     };
     componentDidMount(){
@@ -104,6 +106,8 @@ export default class Market extends Component {
         }, 1000); 
         Route.queryMarketChartData(CBAS_Payload, setMarketChartData)
     }
+
+
 
     validateTransaction = () => {
         let setMarketUserVerificationData = (data) => {
@@ -305,26 +309,20 @@ export default class Market extends Component {
                     <Col span={21} offset={1}>
                         <Tabs defaultActiveKey="1" onChange={this.getChartTabData}>
                             <TabPane tab="Today" key="1">
-                                <TurnipsToday turnipData={this.state.turnipHistory} date={this.state.date} colors={this.state.latestTurnip.price <  this.state.opening ?  ["#E34A78","#A41943"] : ["#4AE3B5","#2A5D67"] }/>
+                                <MarketToday turnipData={this.state.turnipHistory} date={this.state.date} colors={this.state.latestTurnip.price <  this.state.opening ?  ["#E34A78","#A41943"] : ["#4AE3B5","#2A5D67"] }/>
                             </TabPane>
-                            {/* <TabPane tab="Past Week" key="2">
-                                2
+                            <TabPane tab="Past Week" key="2">
+                                <MarketNDays days={7} colors={this.state.latestTurnip.price <  this.state.opening ?  ["#E34A78","#A41943"] : ["#4AE3B5","#2A5D67"] }/>
                             </TabPane>
                             <TabPane tab="Past Month" key="3">
-                                3
+                                <MarketNDays days={30} colors={this.state.latestTurnip.price <  this.state.opening ?  ["#E34A78","#A41943"] : ["#4AE3B5","#2A5D67"] }/>
                             </TabPane>
-                            <TabPane tab="Past Year" key="4">
-                                4
-                            </TabPane>
-                            <TabPane tab="All Time" key="5">
-                                5
-                            </TabPane> */}
                         </Tabs>
                     </Col>
                 </Row>
                 <Row>
-                    <Col span={5} offset={2}>
-                        <Card style={{ width: 450 }}>
+                    <Col span={5} offset={3}>
+                        <Card style={{ width: 450, backgroundColor : "#EEEEEE" }}>
                             <Input.Group compact className="inputGroup">
                                 <Select style={{ paddingRight: "10px" }} defaultValue="Business" onChange={this.handleTurnipBusiness}>
                                     <Option value="Buy">Buy</Option>
@@ -349,7 +347,7 @@ export default class Market extends Component {
                         </Card>
                     </Col>
                     <Col span={5} offset={5}>
-                        <Card className="card" style={{ width: 450 }}>
+                        <Card className="card" style={{ width: 450, backgroundColor : "#EEEEEE" }}>
                             <div className="stats2">
                                 <strong>Bells in Wallet</strong>
                                 <div>{this.statistic(0, this.state.bells, "bells", false)}</div>
@@ -358,8 +356,8 @@ export default class Market extends Component {
                     </Col>
                 </Row>
                 <Row>
-                    <Col span={5} offset={2}>
-                        <Card className="card" style={{ width: 450 }}>
+                    <Col span={5} offset={3}> 
+                        <Card className="card" style={{ width: 450, backgroundColor : "#EEEEEE"}}>
                             <div className="stats2">
                                 <div><strong>Market Price</strong></div> 
                                 {this.statistic(this.state.opening, this.state.latestTurnip.price,"bells", false)}
@@ -385,7 +383,7 @@ export default class Market extends Component {
                     {
                     this.state.liveTurnips.quantity !== 0 ? 
                         <Col span={5} offset={5}>      
-                            <Card className="card" style={{ width: 450 }}>
+                            <Card className="card" style={{ width: 450, backgroundColor : "#EEEEEE" }}>
                                 <div className="stats2">
                                     <strong>Locked Market Price</strong>
                                     <div>{this.statistic(0, this.state.liveTurnips.marketPrice, "bells", false)}</div>

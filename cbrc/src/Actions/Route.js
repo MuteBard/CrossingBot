@@ -28,6 +28,14 @@ exports.queryMarketUserData = (CBAS_Payload, callback) => {
     queryGraphQL(query, callback)
 }
 
+exports.queryMarketChartDataForNDays = (CBAS_Payload, callback) => {
+    let query = Query.GET_N_DAYS_MOVEMENTRECORD_MARKET(CBAS_Payload.days)
+    queryGraphQL(query, callback)
+
+    
+    
+} 
+
 exports.queryMarketChartData = (CBAS_Payload, callback) => {
     let query = Query.GET_MOVEMENTRECORD_MARKET()
     queryGraphQL(query, callback)

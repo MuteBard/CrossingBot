@@ -22,7 +22,7 @@ object Queries {
 
 	    //MovementRecord
 		getDayRecords:                  dummyArgs => UIO[MovementRecord],
-		getMonthRecords:                dummyArgs => UIO[List[MovementRecord]],
+		getNDayRecords:                 daysArgs => UIO[List[MovementRecord]],
 		getTurnipPrices:                dummyArgs => UIO[Int],
 
 		//Bug
@@ -50,7 +50,7 @@ object Queries {
 		args => cbs.getUser(args.username),
 		args => cbs.validatePendingTransaction(args.username, args.business, args.quantity),
 		args => cbs.getDayRecords(args.dummy),
-		args => cbs.getMonthRecords(args.dummy),
+		args => cbs.getNDayRecords(args.days),
 		args => cbs.getTurnipPrices(args.dummy),
 		cbs.getAllBugs,
 		args => cbs.getAllBugsByMonth(args.months),

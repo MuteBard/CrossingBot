@@ -104,6 +104,21 @@ let GET_MOVEMENTRECORD_MARKET = () =>
 }  
 `
 
+let GET_N_DAYS_MOVEMENTRECORD_MARKET = (numberOfDays) => 
+`query{
+    getNDayRecords(days:${numberOfDays}){
+        turnipHistory{
+            price
+            hour
+            minute
+        }
+        year
+        month
+        day
+    }
+}  
+`
+
 let GET_TURNIPTRANSACTION_MARKET_VALIDATION = (username, business, quantity) =>
 `query{
     validatePendingTransaction(username: ${"\""+username+"\""}, business: ${"\""+business+"\""}, quantity: ${quantity}){
@@ -122,3 +137,4 @@ module.exports.GET_USER_CATCH = GET_USER_CATCH
 module.exports.GET_USER_MARKET = GET_USER_MARKET
 module.exports.GET_TURNIPTRANSACTION_MARKET_VALIDATION = GET_TURNIPTRANSACTION_MARKET_VALIDATION
 module.exports.GET_MOVEMENTRECORD_MARKET = GET_MOVEMENTRECORD_MARKET
+module.exports.GET_N_DAYS_MOVEMENTRECORD_MARKET = GET_N_DAYS_MOVEMENTRECORD_MARKET

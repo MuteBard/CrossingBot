@@ -15,7 +15,7 @@ import scala.language.postfixOps
 object MarketActor {
 	case class  Create_New_Movement_Record(hourBlock :Int, quarterBlock : Int)
 	case object Read_Latest_Movement_Record_Day
-	case object Read_Latest_Movement_Record_Month
+	case class  Read_Latest_N_Days_Movement_Record(n : Int)
 	case object Request_Turnip_Price
 	case class  Update_Stalks_Purchased(quantity : Int, business : String)
 	case object Delete_Earliest_Movement_Records
@@ -38,7 +38,7 @@ class MarketActor extends Actor with ActorLogging {
 		case Create_New_Movement_Record(newHourBlockId, newQuarterBlockId) =>
 
 			//log.info(s"[Create_New_Movement_Record] Checking for difference in block ids ($newHourBlockId,$newQuarterBlockId)")
-			val twoMRs = MarketOperations.readLastTwoDaysMovementRecords()
+			val twoMRs = MarketOperations.readLastNDaysMovementRecords(2)
 			val suspectTodayMarket = twoMRs(0)
 
 //			val suspectMovementRecord = MarketOperations.readLatestMovementRecord()
@@ -126,6 +126,10 @@ class MarketActor extends Actor with ActorLogging {
 			log.info(s"[Read_Latest_Movement_Record_Day] Getting latest Movement Record")
 			sender() ! MarketOperations.readLatestMovementRecord()
 
+		case Read_Latest_N_Days_Movement_Record(n : Int) =>
+			log.info(s"[Read_Latest_N_Days_Movement_Record_Day] Getting latest Movement Record")
+			sender() ! MarketOperations.readLastNDaysMovementRecords(n)
+
 		case Update_Stalks_Purchased(quantity, business) =>
 			log.info(s"[Update_Stalks_Purchased] Updating total live stalks")
 			if (business == "sell") {
@@ -139,9 +143,5 @@ class MarketActor extends Actor with ActorLogging {
 			log.info(s"[Request_Turnip_Price] Getting turnip price")
 			sender() ! MarketOperations.readLatestMovementRecord().latestTurnip.price
 
-		case Read_Latest_Movement_Record_Month =>
-			val currentMonth = month
-			log.info(s"[Read_Latest_Movement_Record_Month] Getting all movement records")
-			sender() ! MarketOperations.readMovementRecordListByMonth(currentMonth)
 	}
 }
