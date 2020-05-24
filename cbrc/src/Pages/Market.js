@@ -312,10 +312,10 @@ export default class Market extends Component {
                                 <MarketToday turnipData={this.state.turnipHistory} date={this.state.date} colors={this.state.latestTurnip.price <  this.state.opening ?  ["#E34A78","#A41943"] : ["#4AE3B5","#2A5D67"] }/>
                             </TabPane>
                             <TabPane tab="Past Week" key="2">
-                                <MarketNDays days={7} colors={this.state.latestTurnip.price <  this.state.opening ?  ["#E34A78","#A41943"] : ["#4AE3B5","#2A5D67"] }/>
+                                <MarketNDays days={7} />
                             </TabPane>
                             <TabPane tab="Past Month" key="3">
-                                <MarketNDays days={30} colors={this.state.latestTurnip.price <  this.state.opening ?  ["#E34A78","#A41943"] : ["#4AE3B5","#2A5D67"] }/>
+                                <MarketNDays days={30} />
                             </TabPane>
                         </Tabs>
                     </Col>

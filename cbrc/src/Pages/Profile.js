@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Row, Col, Statistic } from 'antd';
+import { Row, Col, Statistic, Button } from 'antd';
 import { ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
 import Route from '../Actions/Route'    
 
@@ -25,11 +25,26 @@ export default class Catch extends Component {
         userbells : 0,
         pocketBugs : [],
         pocketFishes : [],
+        stopped : false,
+        onChannel : true
       };
 
 
     componentDidMount = () => {
         this.updateData()
+    }
+
+    toggleCrossingBot = (value) => {
+        console.log(value)
+        this.setState({
+            stopped : value
+        })
+    }
+
+    removeCrossingBot = () => {
+        this.setState({
+            onChannel : false
+        })
     }
 
     updateData = () => {
@@ -131,14 +146,25 @@ export default class Catch extends Component {
                         {this.state.pocketFishes.map(fish => <img src={fish.img}/>)}
                     </Col>
                 </Row>
-                <Row className="row" align="middle">
+                {
+                  this.state.onChannel === true 
+                  ?
+                  <Row className="row" align="middle">
                     <Col offset={1}>
-                        <Logo2 stopped={false}/>
+                        <Logo2 stopped={this.state.stopped}/>
                     </Col>
-                    <Col span={15} offset={2}>
-                        <p className="itemTitle"><strong>TBA</strong></p>
+                    <Col span={6} offset={2}> 
+                        <p className="itemTitle"><strong>Actions for Your Twitch Channel</strong></p>  
+                        {this.state.stopped == true ? <Button type="primary" onClick={() => this.toggleCrossingBot(false)}>Turn On CrossingBot</Button> : <Button type="primary" onClick={() => this.toggleCrossingBot(true)}>Turn Off CrossingBot</Button> }
                     </Col>
-                </Row>
+                    <Col span={6} offset={2}> 
+                        <p className="itemTitle"><strong>Completely remove from your Twitch Channel</strong></p>               
+                        <Button type="danger" onClick={() => this.removeCrossingBot()}>Remove CrossingBot</Button>
+                    </Col>
+                  </Row>
+                  :
+                  null
+                }
                 <LightCog/>             
             </div> 
         )

@@ -35,7 +35,10 @@ export default class MarketToday extends Component {
     state = {
         turnipsHistory : [],
         latestDate : "",
-        earliestDate: ""
+        earliestDate: "",
+        firstRecordedPrice : 0,
+        lastRecordedPrice :0
+
     }
 
     componentDidMount() {
@@ -69,7 +72,9 @@ export default class MarketToday extends Component {
             this.setState({
                 turnipsHistory,
                 latestDate,
-                earliestDate
+                earliestDate,
+                firstRecordedPrice : turnipsHistory.slice().reverse()[0],
+                lastRecordedPrice : turnipsHistory[0].price
             })
         }
 
@@ -79,7 +84,10 @@ export default class MarketToday extends Component {
 
     render() {
 
-        let {colors} = this.props
+
+        let colors = ["#4AE3B5","#2A5D67"] 
+        // let colors = this.state.firstRecordedPrice >  this.state.lastRecordedPrice ?  ["#E34A78","#A41943"] : ["#4AE3B5","#2A5D67"] 
+
         let parameters = {
             title : `TURNIP PRICES FOR ${this.state.earliestDate} - ${this.state.latestDate}`,
             times :  this.state.turnipsHistory.map(data => `${data.hour}:${data.minute < 10 ? "0"+data.minute : data.minute} ${data.month}/${data.day}`).reverse(),
