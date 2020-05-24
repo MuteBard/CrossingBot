@@ -99,61 +99,62 @@ object Service {
 	class CBS extends CrossingBotService{
 		implicit val timeout: Timeout = Timeout(5 seconds)
 		var num = 0
+		val chill = 10
 		//--User--
 		//Queries
 		def getUser(username : String) : IO[NotFound, User] = {
-			val user = Await.result((userActor ? UserActor.Read_One_User(username)).mapTo[User], 10 seconds)
+			val user = Await.result((userActor ? UserActor.Read_One_User(username)).mapTo[User], chill seconds)
 			if(user.id != -2) IO.succeed(user)
 			else IO.fail(NotFound(""))
 		}
 		def validatePendingTransaction(username: String, business : String, quantity : Int) : UIO[TurnipTransaction] = {
-			val turnipTransaction = Await.result((userActor ? UserActor.Read_One_User_With_Pending_Turnip_Transaction(username, business, quantity)).mapTo[TurnipTransaction], 2 seconds)
+			val turnipTransaction = Await.result((userActor ? UserActor.Read_One_User_With_Pending_Turnip_Transaction(username, business, quantity)).mapTo[TurnipTransaction], chill seconds)
 			IO.succeed(turnipTransaction)
 		}
 		//--MovementRecord--
 
 		def getDayRecords(dummy : Boolean): UIO[MovementRecord] = {
-			val movementRecord = Await.result((marketActor ? MarketActor.Read_Latest_Movement_Record_Day).mapTo[MovementRecord], 2 seconds)
+			val movementRecord = Await.result((marketActor ? MarketActor.Read_Latest_Movement_Record_Day).mapTo[MovementRecord], chill seconds)
 			IO.succeed(movementRecord)
 		}
 
 		def getNDayRecords(days : Int): UIO[List[MovementRecord]] = {
-			val nMovementRecords = Await.result((marketActor ? MarketActor.Read_Latest_N_Days_Movement_Record(days)).mapTo[Seq[MovementRecord]], 2 seconds).toList
+			val nMovementRecords = Await.result((marketActor ? MarketActor.Read_Latest_N_Days_Movement_Record(days)).mapTo[Seq[MovementRecord]], chill seconds).toList
 			IO.succeed(nMovementRecords)
 		}
 
 		def getTurnipPrices(dummy : Boolean): UIO[Int] = {
-			val turnips = Await.result((marketActor ? MarketActor.Request_Turnip_Price).mapTo[Int], 2 seconds)
+			val turnips = Await.result((marketActor ? MarketActor.Request_Turnip_Price).mapTo[Int], chill seconds)
 			IO.succeed(turnips)
 		}
 
 		//--Bug--
 		def getAllBugs: UIO[List[Bug]] = {
-			val allBugs = Await.result((bugActor ? BugActor.Read_Bug_All).mapTo[List[Bug]], 2 seconds)
+			val allBugs = Await.result((bugActor ? BugActor.Read_Bug_All).mapTo[List[Bug]], chill seconds)
 			IO.succeed(allBugs)
 		}
 		def getAllBugsByMonth(months : List[String]) : IO[NotFound, List[Bug]] = {
-			val allBugs = Await.result((bugActor ? BugActor.Read_All_Bug_By_Month(months)).mapTo[List[Bug]], 2 seconds)
+			val allBugs = Await.result((bugActor ? BugActor.Read_All_Bug_By_Month(months)).mapTo[List[Bug]], chill seconds)
 			if(allBugs.nonEmpty) IO.succeed(allBugs)
 			else IO.fail(NotFound(""))
 		}
 		def getAllRareBugsByMonth(months : List[String]) : IO[NotFound, List[Bug]] = {
-			val allBugs = Await.result((bugActor ? BugActor.Read_All_Rarest_Bug_By_Month(months)).mapTo[List[Bug]], 2 seconds)
+			val allBugs = Await.result((bugActor ? BugActor.Read_All_Rarest_Bug_By_Month(months)).mapTo[List[Bug]], chill seconds)
 			if(allBugs.nonEmpty) IO.succeed(allBugs)
 			else IO.fail(NotFound(""))
 		}
 		def getBugById(id: Int): IO[NotFound, Bug] = {
-			val bug = Await.result((bugActor ? BugActor.Read_One_Bug_By_Id(id)).mapTo[Bug], 2 seconds)
+			val bug = Await.result((bugActor ? BugActor.Read_One_Bug_By_Id(id)).mapTo[Bug], chill seconds)
 			if(bug.id != -1) IO.succeed(bug)
 			else IO.fail(NotFound(""))
 		}
 		def getBugByName(name : String): IO[NotFound, Bug] = {
-			val bug = Await.result((bugActor ? BugActor.Read_One_Bug_By_Name(name)).mapTo[Bug], 2 seconds)
+			val bug = Await.result((bugActor ? BugActor.Read_One_Bug_By_Name(name)).mapTo[Bug], chill seconds)
 			if(bug.id != -1) IO.succeed(bug)
 			else IO.fail(NotFound(""))
 		}
 		def getBugByRandom(dummy : Boolean): IO[NotFound, Bug] = {
-			val bug = Await.result((bugActor ? BugActor.Read_One_Bug_By_Random()).mapTo[Bug], 2 seconds)
+			val bug = Await.result((bugActor ? BugActor.Read_One_Bug_By_Random()).mapTo[Bug], chill seconds)
 			if(bug.id != -1) IO.succeed(bug)
 			else IO.fail(NotFound(""))
 		}
@@ -161,43 +162,43 @@ object Service {
 
 		//--Fish--
 		def getAllFishes: UIO[List[Fish]] = {
-			val allFishes = Await.result((fishActor ? FishActor.Read_Fish_All).mapTo[List[Fish]], 2 seconds)
+			val allFishes = Await.result((fishActor ? FishActor.Read_Fish_All).mapTo[List[Fish]], chill seconds)
 			IO.succeed(allFishes)
 		}
 		def getAllFishesByMonth(months : List[String]) : IO[NotFound, List[Fish]] = {
-			val allFishes = Await.result((fishActor ? FishActor.Read_All_Fish_By_Month(months)).mapTo[List[Fish]], 2 seconds)
+			val allFishes = Await.result((fishActor ? FishActor.Read_All_Fish_By_Month(months)).mapTo[List[Fish]], chill seconds)
 			if(allFishes.nonEmpty) IO.succeed(allFishes)
 			else IO.fail(NotFound(""))
 		}
 		def getAllRareFishesByMonth(months : List[String]) : IO[NotFound, List[Fish]] = {
-			val allFishes = Await.result((fishActor ? FishActor.Read_All_Rarest_Fish_By_Month(months)).mapTo[List[Fish]], 2 seconds)
+			val allFishes = Await.result((fishActor ? FishActor.Read_All_Rarest_Fish_By_Month(months)).mapTo[List[Fish]], chill seconds)
 			if(allFishes.nonEmpty) IO.succeed(allFishes)
 			else IO.fail(NotFound(""))
 		}
 		def getFishById(id: Int): IO[NotFound, Fish] = {
-			val fish = Await.result((fishActor ? FishActor.Read_One_Fish_By_Id(id)).mapTo[Fish], 2 seconds)
+			val fish = Await.result((fishActor ? FishActor.Read_One_Fish_By_Id(id)).mapTo[Fish], chill seconds)
 			if(fish.id != -1) IO.succeed(fish)
 			else IO.fail(NotFound(""))
 		}
 		def getFishByName(name : String): IO[NotFound, Fish] = {
-			val fish = Await.result((fishActor ? FishActor.Read_One_Fish_By_Name(name)).mapTo[Fish], 2 seconds)
+			val fish = Await.result((fishActor ? FishActor.Read_One_Fish_By_Name(name)).mapTo[Fish], chill seconds)
 			if(fish.id != -1) IO.succeed(fish)
 			else IO.fail(NotFound(""))
 		}
 		def getFishByRandom(dummy : Boolean): IO[NotFound, Fish] = {
-			val fish = Await.result((fishActor ? FishActor.Read_One_Fish_By_Random()).mapTo[Fish], 2 seconds)
+			val fish = Await.result((fishActor ? FishActor.Read_One_Fish_By_Random()).mapTo[Fish], chill seconds)
 			if(fish.id != -1) IO.succeed(fish)
 			else IO.fail(NotFound(""))
 		}
 
 		def getCreatureSummaryByName(name: String): IO[NotFound, String] = {
 			val merge : (String, String) => String = (s1, s2) => s1 + s2+" "
-			val bug = Await.result((bugActor ? BugActor.Read_One_Bug_By_Name(name)).mapTo[Bug], 2 seconds)
+			val bug = Await.result((bugActor ? BugActor.Read_One_Bug_By_Name(name)).mapTo[Bug], chill seconds)
 			if(bug.id != -1){
 					val str = s"The ${bug.name} is worth ${bug.bells} bells and it has a rarity of lvl ${bug.rarity}. It is available during these following months: ${bug.availability.fold("")(merge)}".trim()
 				IO.succeed(str)
 			}else{
-				val fish = Await.result((fishActor ? FishActor.Read_One_Fish_By_Name(name)).mapTo[Fish], 2 seconds)
+				val fish = Await.result((fishActor ? FishActor.Read_One_Fish_By_Name(name)).mapTo[Fish], chill seconds)
 				if(fish.id != -1) {
 					val str = s"The ${fish.name} is worth ${fish.bells} bells and it has a rarity of lvl ${fish.rarity}. It is available during these following months: ${fish.availability.fold("")(merge)}".trim()
 					IO.succeed(str)
@@ -209,7 +210,7 @@ object Service {
 
 		//Mutations
 		def catchCreature(username: String, species: String): IO[NotFound, String] = {
-			val status = Await.result((userActor ? UserActor.Update_One_User_With_Creature(username, species)).mapTo[String], 4 seconds)
+			val status = Await.result((userActor ? UserActor.Update_One_User_With_Creature(username, species)).mapTo[String], chill seconds)
 			if(status != "Failure") { //there's 4 options for status
 				IO.succeed(status)
 			}else{
@@ -218,7 +219,7 @@ object Service {
 		}
 
 		def finalizeUserCreation(username: String, id: Int, avatar: String): IO[NotFound, String] = {
-			val status = Await.result((userActor ? UserActor.FinalizeUserCreation(username, id, avatar)).mapTo[String], 4 seconds)
+			val status = Await.result((userActor ? UserActor.FinalizeUserCreation(username, id, avatar)).mapTo[String], chill seconds)
 			if(status == "Success"){
 				IO.succeed(status)
 			}else{
@@ -228,7 +229,7 @@ object Service {
 		}
 
 		def acknowledgeTransaction(username : String, business: String, quantity : Int, marketPrice: Int, totalBells: Int) : IO[NotFound, String] = {
-			val status = Await.result((userActor ? UserActor.Update_One_User_With_Executing_Turnip_Transaction(username, business, quantity, marketPrice, totalBells)).mapTo[String], 3 seconds)
+			val status = Await.result((userActor ? UserActor.Update_One_User_With_Executing_Turnip_Transaction(username, business, quantity, marketPrice, totalBells)).mapTo[String], chill seconds)
 			if(status == "Success"){
 				IO.succeed("Success")
 			}else{
@@ -237,36 +238,36 @@ object Service {
 		}
 
 		def sellOneCreature(username: String, species : String, creatureName : String): UIO[Int] = {
-			val bells = Await.result((userActor ? UserActor.Delete_One_Creature_From_Pocket(username, species, creatureName)).mapTo[Int], 3 seconds)
+			val bells = Await.result((userActor ? UserActor.Delete_One_Creature_From_Pocket(username, species, creatureName)).mapTo[Int], chill seconds)
 			IO.succeed(bells)
 		}
 
 		def sellAllBugs(username: String) : UIO[Int] = {
-			val bells = Await.result((userActor ? UserActor.Delete_All_Bugs_From_Pocket(username)).mapTo[Int], 3 seconds)
+			val bells = Await.result((userActor ? UserActor.Delete_All_Bugs_From_Pocket(username)).mapTo[Int], chill seconds)
 			IO.succeed(bells)
 		}
 
 		def sellAllFishes(username: String) : UIO[Int] = {
-			val bells = Await.result((userActor ? UserActor.Delete_All_Fishes_From_Pocket(username)).mapTo[Int], 3 seconds)
+			val bells = Await.result((userActor ? UserActor.Delete_All_Fishes_From_Pocket(username)).mapTo[Int], chill seconds)
 			IO.succeed(bells)
 		}
 
 		def sellAllCreatures(username : String): UIO[Int] = {
-			val bells = Await.result((userActor ? UserActor.Delete_All_Creatures_From_Pocket(username)).mapTo[Int], 3 seconds)
+			val bells = Await.result((userActor ? UserActor.Delete_All_Creatures_From_Pocket(username)).mapTo[Int], chill seconds)
 			IO.succeed(bells)
 		}
 
 		def populate: UIO[String] = {
-			val status = Await.result((startActor ? StartActor.Create_Creatures_All).mapTo[String], 3 seconds)
+			val status = Await.result((startActor ? StartActor.Create_Creatures_All).mapTo[String], chill seconds)
 			IO.succeed(status)
 		}
 
 		def toggleMarket(running : Boolean) : UIO[String] = {
 			if(running){
-				val status = Await.result((startActor ? StartActor.Start_Market_Timers).mapTo[String], 3 seconds)
+				val status = Await.result((startActor ? StartActor.Start_Market_Timers).mapTo[String], chill seconds)
 				IO.succeed(status)
 			}else{
-				val status = Await.result((startActor ? StartActor.Stop_Market_Timers).mapTo[String], 3 seconds)
+				val status = Await.result((startActor ? StartActor.Stop_Market_Timers).mapTo[String], chill seconds)
 				IO.succeed(status)
 			}
 		}

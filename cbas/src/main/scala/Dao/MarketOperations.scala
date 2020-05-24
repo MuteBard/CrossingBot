@@ -24,6 +24,7 @@ import scala.util.{Failure, Success}
 
 object  MarketOperations extends MongoDBOperations {
 	val codecRegistryStalks = fromRegistries(fromProviders(classOf[MovementRecord],classOf[HourBlock], classOf[QuarterBlock], classOf[TurnipTime]), DEFAULT_CODEC_REGISTRY)
+	final val chill = 10
 
 	private val allMR = db
 		.getCollection("MovementRecord", classOf[MovementRecord])
@@ -87,21 +88,13 @@ object  MarketOperations extends MongoDBOperations {
 	def readMovementRecord(): Seq[MovementRecord] = {
 		val source = MongoSource(allMR.find(classOf[MovementRecord]))
 		val daySeqFuture = source.runWith(Sink.seq)
-		val daySeq : Seq[MovementRecord] = Await.result(daySeqFuture, 3 seconds)
+		val daySeq : Seq[MovementRecord] = Await.result(daySeqFuture, chill seconds)
 		if(daySeq.isEmpty){
 			List(MovementRecord())
 		}else{
 			daySeq
 		}
 	}
-
-
-//	def readMovementRecordListByMonth(month :  Int): List[MovementRecord] = {
-//		val source = MongoSource(allMR.find(classOf[MovementRecord])).filter(mr => true)
-//		val daySeqFuture = source.runWith(Sink.seq)
-//		val daySeq : Seq[MovementRecord] = Await.result(daySeqFuture, 3 seconds)
-//		daySeq.toList
-//	}
 
 	def deleteOldestMovementRecords(month : Int) :  Unit = {
 		val mrList  = readMovementRecord().toList

@@ -13,6 +13,10 @@ object User_ {
 		liveTurnips : TurnipTransaction = TurnipTransaction(),
 		turnipTransactionHistory : List[TurnipTransaction] = List(),
 		avatar : String = "",
+		encryptedPw : String = "",
+		
+
+
 	)
 
 	//Arguments

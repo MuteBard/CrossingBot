@@ -19,7 +19,7 @@ import scala.language.postfixOps
 
 object BugOperations extends MongoDBOperations{
 	val codecRegistry = fromRegistries(fromProviders(classOf[Bug]), DEFAULT_CODEC_REGISTRY)
-
+	final val chill = 10
 	private val allBugs = db
 		.getCollection("bug", classOf[Bug])
 		.withCodecRegistry(codecRegistry)
@@ -36,21 +36,21 @@ object BugOperations extends MongoDBOperations{
 	def readAll(): List[Bug] = {
 		val source = MongoSource(allBugs.find(classOf[Bug]))
 		val bugSeqFuture = source.runWith(Sink.seq)
-		val bugSeq : Seq[Bug] = Await.result(bugSeqFuture, 2 seconds)
+		val bugSeq : Seq[Bug] = Await.result(bugSeqFuture, chill seconds)
 		bugSeq.toList
 	}
 
 	def readOneById(query : Int) : Seq[Bug] = {
 		val source = MongoSource(allBugs.find(classOf[Bug])).filter(bugs => bugs.id == query)
 		val bugSeqFuture = source.runWith(Sink.seq)
-		val bugSeq : Seq[Bug] = Await.result(bugSeqFuture, 1 seconds)
+		val bugSeq : Seq[Bug] = Await.result(bugSeqFuture, chill seconds)
 		bugSeq
 	}
 
 	def readOneByName(query : String) : Seq[Bug] = {
 		val source = MongoSource(allBugs.find(classOf[Bug])).filter(bugs => bugs.name == query)
 		val bugSeqFuture = source.runWith(Sink.seq)
-		val bugSeq : Seq[Bug] = Await.result(bugSeqFuture, 1 seconds)
+		val bugSeq : Seq[Bug] = Await.result(bugSeqFuture, chill seconds)
 		bugSeq
 	}
 
@@ -64,7 +64,7 @@ object BugOperations extends MongoDBOperations{
 	def readAllByMonth(query : List[String]) : List[Bug] = {
 		val source = MongoSource(allBugs.find(classOf[Bug])).filter(bugs => bugs.availability.intersect(query) == query)
 		val bugSeqFuture = source.runWith(Sink.seq)
-		val bugSeq : Seq[Bug] = Await.result(bugSeqFuture, 1 seconds)
+		val bugSeq : Seq[Bug] = Await.result(bugSeqFuture, chill seconds)
 		bugSeq.toList
 	}
 
@@ -72,14 +72,14 @@ object BugOperations extends MongoDBOperations{
 		val month = List(threeLetterMonth)
 		val source = MongoSource(allBugs.find(classOf[Bug])).filter(bugs => (bugs.rarity == queryInt) && bugs.availability.intersect(month) == month)
 		val bugSeqFuture = source.runWith(Sink.seq)
-		val bugSeq : Seq[Bug] = Await.result(bugSeqFuture, 1 seconds)
+		val bugSeq : Seq[Bug] = Await.result(bugSeqFuture, chill seconds)
 		Random.shuffle(bugSeq.toList).head
 	}
 
 	def readAllRarestByMonth(queryList : List[String]) : List[Bug] = {
 		val source = MongoSource(allBugs.find(classOf[Bug])).filter(bugs => (bugs.rarity == 5 || bugs.rarity == 4 ) && bugs.availability.intersect(queryList) == queryList)
 		val bugSeqFuture = source.runWith(Sink.seq)
-		val bugSeq : Seq[Bug] = Await.result(bugSeqFuture, 1 seconds)
+		val bugSeq : Seq[Bug] = Await.result(bugSeqFuture, chill seconds)
 		bugSeq.toList
 	}
 

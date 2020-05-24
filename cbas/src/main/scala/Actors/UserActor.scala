@@ -37,7 +37,9 @@ class UserActor extends Actor with ActorLogging{
 	final val BUG = "bug"
 	final val FISH = "fish"
 	import UserActor._
-	implicit val timeout = Timeout(5 seconds)
+	final val chill = 10
+	implicit val timeout = Timeout(chill seconds)
+
 	override def receive: Receive = {
 
 		case Read_One_User(username) =>
@@ -53,7 +55,7 @@ class UserActor extends Actor with ActorLogging{
 					val user = userSeq.head
 					val liveTurnip = user.liveTurnips
 					val transactionHistory = user.turnipTransactionHistory
-					val marketTurnipPrice = Await.result((marketActor ? MarketActor.Request_Turnip_Price).mapTo[Int], 5 seconds)
+					val marketTurnipPrice = Await.result((marketActor ? MarketActor.Request_Turnip_Price).mapTo[Int], chill seconds)
 					val netGainLossAsBells = (marketTurnipPrice * liveTurnip.quantity) - (liveTurnip.marketPrice * liveTurnip.quantity)
 					val netGainLossAsPercentage = ((netGainLossAsBells.toDouble / (marketTurnipPrice * liveTurnip.quantity).toDouble) * 100).toInt
 					val newLiveTurnip = TurnipTransaction(liveTurnip.business,liveTurnip.quantity,liveTurnip.marketPrice, liveTurnip.totalBells, liveTurnip.status, netGainLossAsBells, netGainLossAsPercentage)
@@ -84,7 +86,7 @@ class UserActor extends Actor with ActorLogging{
 		case Read_One_User_With_Pending_Turnip_Transaction(username, business, quantity) =>
 			log.info(s"[Read_One_User_Pending_Turnip_Transaction] Inquiring MarketActor of turnip prices")
 
-			val marketPrice = Await.result((marketActor ? MarketActor.Request_Turnip_Price).mapTo[Int], 5 seconds)
+			val marketPrice = Await.result((marketActor ? MarketActor.Request_Turnip_Price).mapTo[Int], chill seconds)
 			val totalBells = marketPrice * quantity
 			val userSeq = UserOperations.readOneUser(username)
 			if (userSeq.nonEmpty) {
@@ -209,7 +211,7 @@ class UserActor extends Actor with ActorLogging{
 		case Update_One_User_With_Creature(username, species) =>
 			val merge : (String, String) => String = (s1, s2) => s1 + s2+" "
 			if(species.toLowerCase() == BUG){
-				val bug = Await.result((bugActor ? BugActor.Read_One_Bug_By_Random()).mapTo[Bug], 2 seconds)
+				val bug = Await.result((bugActor ? BugActor.Read_One_Bug_By_Random()).mapTo[Bug], chill seconds)
 				log.info(s"[Update_One_User_With_Creature] Verifying if USER with username $username exists")
 				val userSeq = UserOperations.readOneUser(username)
 				val pocket = Pocket(List(bug), List())
@@ -235,7 +237,7 @@ class UserActor extends Actor with ActorLogging{
 					sender() ! "Failed"
 				}
 			}else if(species.toLowerCase() == FISH){
-				val fish = Await.result((fishActor ? FishActor.Read_One_Fish_By_Random()).mapTo[Fish], 2 seconds)
+				val fish = Await.result((fishActor ? FishActor.Read_One_Fish_By_Random()).mapTo[Fish], chill seconds)
 				log.info(s"[Update_One_User_With_Creature] Verifying if USER with username $username exists")
 				val userSeq = UserOperations.readOneUser(username)
 				val pocket = Pocket(List(), List(fish))
@@ -279,11 +281,11 @@ class UserActor extends Actor with ActorLogging{
 		case Delete_One_Creature_From_Pocket(username, species, creatureName) =>
 			log.info(s"[Delete_One_Creature_From_Pocket] Selling and deleting $creatureName in $username's pocket")
 			if (species == BUG){
-				val creatureBells =  Await.result((bugActor ? BugActor.Read_One_Bug_By_Name(creatureName)).mapTo[Bug], 3 seconds).bells
+				val creatureBells =  Await.result((bugActor ? BugActor.Read_One_Bug_By_Name(creatureName)).mapTo[Bug], chill seconds).bells
 				UserOperations.deleteOneForUser(username, creatureName, creatureBells)
 				sender() ! creatureBells
 			}else if (species == FISH){
-				val creatureBells = Await.result((fishActor ? FishActor.Read_One_Fish_By_Name(creatureName)).mapTo[Fish], 3 seconds).bells
+				val creatureBells = Await.result((fishActor ? FishActor.Read_One_Fish_By_Name(creatureName)).mapTo[Fish], chill seconds).bells
 				UserOperations.deleteOneForUser(username, creatureName, creatureBells)
 				sender() ! creatureBells
 			}

@@ -61,8 +61,14 @@ export default class Market extends Component {
     cronDataUpdate = () => { 
         let job = new CronJob('1-59/15 * * * *', () => {
             this.updateData()
+            this.refresh()
           }, null, true, 'America/Los_Angeles');
         job.start();
+    }
+    refresh = () => {
+        setTimeout(() => {
+            window.location.reload(false);        
+        }, 2000);
     }
 
     updateData = () => {
@@ -129,8 +135,12 @@ export default class Market extends Component {
                 verified : {
                     status : "",
                     marketPrice : 0,
-                    totalBells : 0
+                    totalBells : 0,
+                },
+                select : {
+                    quantity : 1,
                 }
+
             })
             this.updateData()
         }
@@ -154,10 +164,11 @@ export default class Market extends Component {
     }
 
     handleTurnipQuantity = value => {
+        
         this.setState({
             select : {
                 business : this.state.select.business,
-                quantity : value
+                quantity : value > 99999999 ? 99999999 : value
             }
         })
     }
@@ -168,12 +179,11 @@ export default class Market extends Component {
         });
         this.updateData()     
         setTimeout(() => {
-            console.log(this.state.verified.status)  
             if(this.state.verified.status === "Authorized"){
-                console.log(this.state.verified.marketPrice)  
-                console.log(this.state.latestTurnip.price)  
                 if(this.state.verified.marketPrice == this.state.latestTurnip.price ){
                     this.acknowledgeTransaction()
+                    this.refresh()
+
                 }else{
                     this.showModal()
                 }
@@ -191,6 +201,9 @@ export default class Market extends Component {
                     status : "",
                     marketPrice : 0,
                     totalBells : 0
+                },
+                select : {
+                    quantity : 1,
                 }
             });
         }, 1000);  
@@ -345,6 +358,19 @@ export default class Market extends Component {
                                 </div>
                             </Input.Group>
                         </Card>
+                        {
+                        this.state.select.business !== "" 
+                            ?
+                            <Card className="card" style={{ width: 450, backgroundColor : "#EEEEEE" }}>
+                                <div className="stats2">
+                                    <div><strong>Pending {this.state.select.business == "buy" ? "Cost" : "Sale"}</strong></div>
+                                    {this.statistic(0, this.state.select.quantity * this.state.latestTurnip.price ,"bells", false)}
+                                </div>
+                            </Card>
+                            :
+                            null
+                        }
+
                     </Col>
                     <Col span={5} offset={5}>
                         <Card className="card" style={{ width: 450, backgroundColor : "#EEEEEE" }}>
@@ -434,7 +460,7 @@ export default class Market extends Component {
                         {this.state.verified.status === "Authorized" 
                         ?             
                         <p>                           
-                            You are {this.state.verified.status} to {this.state.select.business} {this.state.select.quantity} turnip(s) for a market price of {this.state.verified.marketPrice} bells for a total of {this.state.verified.totalBells} bells. Would you like to confirm this transaction? (Please decide before the next market price update)
+                            You are {this.state.verified.status} to {this.state.select.business} {this.state.select.quantity} turnip(s) for a market price of {this.state.verified.marketPrice} bells for a total of {this.state.verified.totalBells} bells. Would you like to confirm this transaction?
                         </p>
                         :
                         <p>                           

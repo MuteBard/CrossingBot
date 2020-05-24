@@ -26,6 +26,7 @@ import system.dispatcher
 object UserOperations extends MongoDBOperations {
 	final val BUG = "bug"
 	final val FISH = "fish"
+	final val chill = 10
 	val codecRegistryUser = fromRegistries(fromProviders(classOf[User], classOf[TurnipTransaction],classOf[Pocket], classOf[Bug], classOf[Fish]), DEFAULT_CODEC_REGISTRY)
 	val codecRegistryPocket = fromRegistries(fromProviders(classOf[User],classOf[Pocket], classOf[Bug], classOf[Fish]), DEFAULT_CODEC_REGISTRY)
 
@@ -51,7 +52,7 @@ object UserOperations extends MongoDBOperations {
 	def readOneUser(username : String): Seq[User] = {
 		val source = MongoSource(allUsers.find(classOf[User])).filter(users => users.username == username)
 		val userSeqFuture = source.runWith(Sink.seq)
-		val userSeq : Seq[User] = Await.result(userSeqFuture, 10 seconds)
+		val userSeq : Seq[User] = Await.result(userSeqFuture, chill seconds)
 		userSeq
 	}
 
@@ -139,8 +140,8 @@ object UserOperations extends MongoDBOperations {
 	def deleteAllCreatureForUser(username : String, species : String): Int = {
 		val userList: List[User] = readOneUser(username).toList
 		val user: User = userList.head
-		val bugBells = Await.result(Source(user.pocket.bug).via(Flow[Bug].fold[Int](0)(_ + _.bells)).runWith(Sink.head), 1 second)
-		val fishBells = Await.result(Source(user.pocket.fish).via(Flow[Fish].fold[Int](0)(_ + _.bells)).runWith(Sink.head), 1 second)
+		val bugBells = Await.result(Source(user.pocket.bug).via(Flow[Bug].fold[Int](0)(_ + _.bells)).runWith(Sink.head), chill second)
+		val fishBells = Await.result(Source(user.pocket.fish).via(Flow[Fish].fold[Int](0)(_ + _.bells)).runWith(Sink.head), chill second)
 
 		if(species == BUG) {
 			if (bugBells != 0) {
@@ -184,8 +185,8 @@ object UserOperations extends MongoDBOperations {
 	def deleteAllForUser(username : String): Int = {
 		val userList: List[User] = readOneUser(username).toList
 		val user: User = userList.head
-		val bugBells = Await.result(Source(user.pocket.bug).via(Flow[Bug].fold[Int](0)(_ + _.bells)).runWith(Sink.head), 1 second)
-		val fishBells = Await.result(Source(user.pocket.fish).via(Flow[Fish].fold[Int](0)(_ + _.bells)).runWith(Sink.head), 1 second)
+		val bugBells = Await.result(Source(user.pocket.bug).via(Flow[Bug].fold[Int](0)(_ + _.bells)).runWith(Sink.head), chill second)
+		val fishBells = Await.result(Source(user.pocket.fish).via(Flow[Fish].fold[Int](0)(_ + _.bells)).runWith(Sink.head), chill second)
 		val creatureBells = bugBells + fishBells
 		if (creatureBells != 0) {
 			val source = Source(userList).map(_ => Filters.eq("username", username))

@@ -20,6 +20,7 @@ import scala.language.postfixOps
 
 object FishOperations extends MongoDBOperations {
 	val codecRegistry = fromRegistries(fromProviders(classOf[Fish]), DEFAULT_CODEC_REGISTRY)
+	final val chill = 10
 
 	private val allFishes = db
 		.getCollection("fish", classOf[Fish])
@@ -37,21 +38,21 @@ object FishOperations extends MongoDBOperations {
 	def readAll(): List[Fish] = {
 		val source = MongoSource(allFishes.find(classOf[Fish]))
 		val fishSeqFuture = source.runWith(Sink.seq)
-		val fishSeq : Seq[Fish] = Await.result(fishSeqFuture, 2 seconds)
+		val fishSeq : Seq[Fish] = Await.result(fishSeqFuture, chill seconds)
 		fishSeq.toList
 	}
 
 	def readOneById(query : Int) : Seq[Fish] = {
 		val source = MongoSource(allFishes.find(classOf[Fish])).filter(fishes => fishes.id == query)
 		val fishSeqFuture = source.runWith(Sink.seq)
-		val fishSeq : Seq[Fish] = Await.result(fishSeqFuture, 1 seconds)
+		val fishSeq : Seq[Fish] = Await.result(fishSeqFuture, chill seconds)
 		fishSeq
 	}
 
 	def readOneByName(query : String) : Seq[Fish] = {
 		val source = MongoSource(allFishes.find(classOf[Fish])).filter(fishes => fishes.name == query)
 		val fishSeqFuture = source.runWith(Sink.seq)
-		val fishSeq : Seq[Fish] = Await.result(fishSeqFuture, 1 seconds)
+		val fishSeq : Seq[Fish] = Await.result(fishSeqFuture, chill seconds)
 		fishSeq
 	}
 	//	def readOneByRarity(query : Int) : Fish = {
@@ -64,7 +65,7 @@ object FishOperations extends MongoDBOperations {
 	def readAllByMonth(query : List[String]) : List[Fish] = {
 		val source = MongoSource(allFishes.find(classOf[Fish])).filter(fishes => fishes.availability.intersect(query) == query)
 		val fishSeqFuture = source.runWith(Sink.seq)
-		val fishSeq : Seq[Fish] = Await.result(fishSeqFuture, 1 seconds)
+		val fishSeq : Seq[Fish] = Await.result(fishSeqFuture, chill seconds)
 		fishSeq.toList
 	}
 
@@ -72,14 +73,14 @@ object FishOperations extends MongoDBOperations {
 		val month = List(threeLetterMonth)
 		val source = MongoSource(allFishes.find(classOf[Fish])).filter(fishes => (fishes.rarity == queryInt) && fishes.availability.intersect(month) == month)
 		val fishSeqFuture = source.runWith(Sink.seq)
-		val fishSeq : Seq[Fish] = Await.result(fishSeqFuture, 1 seconds)
+		val fishSeq : Seq[Fish] = Await.result(fishSeqFuture, chill seconds)
 		Random.shuffle(fishSeq.toList).head
 	}
 
 	def readAllRarestByMonth(queryList : List[String]) : List[Fish] = {
 		val source = MongoSource(allFishes.find(classOf[Fish])).filter(fishes => (fishes.rarity == 5 || fishes.rarity == 4) && fishes.availability.intersect(queryList) == queryList)
 		val fishSeqFuture = source.runWith(Sink.seq)
-		val fishSeq : Seq[Fish] = Await.result(fishSeqFuture, 1 seconds)
+		val fishSeq : Seq[Fish] = Await.result(fishSeqFuture, chill seconds)
 		fishSeq.toList
 	}
 }
