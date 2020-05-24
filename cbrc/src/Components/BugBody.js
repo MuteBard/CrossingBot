@@ -21,7 +21,7 @@ export default class BugBody extends Component{
     componentDidMount = () => {
         let lsSeconds = localStorage.getItem('bugSeconds')
         let lsTimeStamp = localStorage.getItem('bugTimeStamp')
-        if(localStorage.getItem('bugSeconds') > 60) localStorage.clear();
+        localStorage.clear();
         if(lsSeconds > 0){
             let oldTime = lsTimeStamp
             let currTime = parseInt(new Date().getTime() / 1000)

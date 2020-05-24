@@ -9,22 +9,22 @@ import NamedLogo from '../Assets/resolved/namedLogo'
 
 export default function Header(){
   return(
-      <Row className = "Header" align="middle" component={Link} to="/">
+      <Row className = "Header" align="middle">
         <Col span={6}>
           <Link to='/'>
             <NamedLogo/>
           </Link>
         </Col>
-        <Col className="headerItem" span={3} offset={8} component={Link} to="/market">
-          <Link className="linkWrap" to='/market'>
-            <div class="headerText">Market</div>
-            <StockOutlined style={{fontSize:"3em", color:"#2A5D67"}}/>
-          </Link>
-        </Col>
-        <Col className="headerItem" span={3}>
+        <Col className="headerItem" span={3} offset={8}>
           <Link className="linkWrap" to='/catch'>
             <div class="headerText">Catch</div>
             <BugOutlined style={{fontSize:"3em", color:"#2A5D67"}}/>
+          </Link>
+        </Col>
+        <Col className="headerItem" span={3}>
+          <Link className="linkWrap" to='/market'>
+            <div class="headerText">Market</div>
+            <StockOutlined style={{fontSize:"3em", color:"#2A5D67"}}/>
           </Link>
         </Col>
         <Col className="headerProfile" span={3} offset={1}>

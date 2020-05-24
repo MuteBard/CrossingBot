@@ -20,7 +20,7 @@ export default class FishBody extends Component{
     componentDidMount = () => {
         let lsSeconds = localStorage.getItem('fishSeconds')
         let lsTimeStamp = localStorage.getItem('fishTimeStamp')
-        if(localStorage.getItem('fishSeconds') > 60) localStorage.clear();
+        localStorage.clear();
         if(lsSeconds > 0){
             let oldTime = lsTimeStamp
             let currTime = parseInt(new Date().getTime() / 1000)
