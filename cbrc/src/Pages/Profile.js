@@ -15,6 +15,7 @@ import Bells from '../Assets/resolved/bells'
 import Turnip from '../Assets/resolved/turnip'
 import BugNet from '../Assets/resolved/bugnet'
 import FishRod from '../Assets/resolved/fishrod'
+import Logo2 from '../Assets/resolved/logo2'
 
 export default class Catch extends Component {
     state = {
@@ -128,6 +129,14 @@ export default class Catch extends Component {
                     <Col span={15} offset={2}>
                         <p className="itemTitle"><strong>Fishes Owned ({this.state.pocketFishes.length}/10)</strong></p>
                         {this.state.pocketFishes.map(fish => <img src={fish.img}/>)}
+                    </Col>
+                </Row>
+                <Row className="row" align="middle">
+                    <Col offset={1}>
+                        <Logo2 stopped={false}/>
+                    </Col>
+                    <Col span={15} offset={2}>
+                        <p className="itemTitle"><strong>TBA</strong></p>
                     </Col>
                 </Row>
                 <LightCog/>             
