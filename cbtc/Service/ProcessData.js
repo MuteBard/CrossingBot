@@ -10,6 +10,29 @@ let respondToTwitch = (Twitch_Payload) =>{
     maintainConnection.publicConnection.action(Twitch_Payload.channel, Twitch_Payload.message)
 }
 
+exports.applyCBForUsers = (callback) => {
+    bank.supplyBankWithAddedUsers(callback)
+}
+
+exports.setCBForUser = (Twitch_Data) => {
+    let CBAS_Payload = {"username" : Twitch_Data.username, "added" : Twitch_Data.added } 
+    let Twitch_Payload = (response) => { 
+        let CBAS_Data = null
+        let message = ""
+        if (Twitch_Data.added == true){
+            message = `${Twitch_Data.username}, you have added crossingbot_ to your channel! It will be live in your channel within 10 minutes ${addFlower()}` 
+        }else if (Twitch_Data.added == false){
+            message = `${Twitch_Data.username}, you have removed crossingbot_ to your channel. It will be gone from your channel within 10 minutes ${addFlower()}` 
+        }else
+            message = `Hey ${Twitch_Data.channel.split("#")[1]}, something went wrong with CrossingBot. Please contact MuteBard ${addFlower()}`
+        respondToTwitch({
+            channel : Twitch_Data.channel,
+            message
+        })
+    }
+    Route.mutateAddCBforUser(CBAS_Payload, Twitch_Payload)
+}
+
 exports.bellsRequest = (Twitch_Data) => {
     let CBAS_Payload = {"username" : Twitch_Data.username } 
     let Twitch_Payload = (response) => { 

@@ -16,6 +16,7 @@ object Queries {
 	case class Queries(
 		//User
 		getUser:                        usernameArgs => IO[NotFound, User],
+		getUsersWithCBAdded:            dummyArgs => UIO[List[User]],
 
 	    //TurnipTransaction
 		validatePendingTransaction:     pendingTransactionArgs => UIO[TurnipTransaction],
@@ -48,6 +49,7 @@ object Queries {
 
 	val allQueries = Queries(
 		args => cbs.getUser(args.username),
+		args => cbs.getUsersWithCBAdded(args.dummy),
 		args => cbs.validatePendingTransaction(args.username, args.business, args.quantity),
 		args => cbs.getDayRecords(args.dummy),
 		args => cbs.getNDayRecords(args.days),

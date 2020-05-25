@@ -183,6 +183,14 @@ let ALL_FISHES =
 }
 `
 
+let ALL_ADDED_USERS =
+`query{
+	getUsersWithCBAdded(dummy : true){
+    username
+  }
+}  
+`
+
 module.exports.USER_BELLS_REQUEST = USER_BELLS_REQUEST
 module.exports.USER_TURNIP_STATS_REQUEST = USER_TURNIP_STATS_REQUEST
 module.exports.USER_FISH_REQUEST = USER_FISH_REQUEST
@@ -201,3 +209,4 @@ module.exports.FISH_BY_NAME = FISH_BY_NAME
 module.exports.CREATURE_SUMMARY_BY_NAME = CREATURE_SUMMARY_BY_NAME
 module.exports.ALL_BUGS = ALL_BUGS
 module.exports.ALL_FISHES = ALL_FISHES
+module.exports.ALL_ADDED_USERS = ALL_ADDED_USERS

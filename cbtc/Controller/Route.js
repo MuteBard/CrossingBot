@@ -29,6 +29,17 @@ exports.queryAllFishes = (CBTC_DataBank) => {
     queryGraphQL(query, CBTC_DataBank)
 }
 
+exports.queryAllAddedUsers = (CBTC_DataBank) => {
+    let query = Query.ALL_ADDED_USERS
+    queryGraphQL(query, CBTC_DataBank)
+}
+
+exports.mutateAddCBforUser = (CBAS_Payload, callback) => {
+    let mutation = Mutation.UPDATE_USER_HOME_SET_CROSSINGBOT(CBAS_Payload.username, CBAS_Payload.added)
+    console.log(mutation)
+    queryGraphQL(mutation, callback)
+}
+
 exports.queryCreature = (CBAS_Payload, Twitch_Payload) => {
     let query = ""
     if(CBAS_Payload.species == "bug"){

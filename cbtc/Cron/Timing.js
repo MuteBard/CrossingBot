@@ -1,4 +1,6 @@
 const CronJob = require('cron').CronJob
+let minutes = (minutes) => 1000 * 60 * minutes
+let hours = (hours) => 1000 * 60 * 60 * hours
 let currentMonth = () => {
         let monthNum = (new Date()).getMonth()
         switch(monthNum){
@@ -86,5 +88,7 @@ let currentMonth = () => {
       }, null, true, 'America/Los_Angeles');
     job.start();
 
+module.exports.minutes = minutes
+module.exports.hours = hours
 module.exports.friendly =  userFriendlyMonth(month)
 module.exports.month = "[\""+month+"\"]"

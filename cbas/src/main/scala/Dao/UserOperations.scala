@@ -56,6 +56,27 @@ object UserOperations extends MongoDBOperations {
 		userSeq
 	}
 
+	def readAllChannelsWithCrossingBotAdded() : Seq[User] = {
+		val source = MongoSource(allUsers.find(classOf[User])).filter(users => users.addedToChannel)
+		val userSeqFuture = source.runWith(Sink.seq)
+		val userSeq : Seq[User] = Await.result(userSeqFuture, chill seconds)
+		userSeq
+	}
+
+	def updateUserChannelsWithCrossingBotAdded(username: String, added  : Boolean) : Unit = {
+		val source = MongoSource(allUsers.find(classOf[User]))
+			.map(user => {
+				DocumentUpdate(filter = Filters.eq("username", user.username), update = Updates.set("addedToChannel", added ))
+			})
+		val taskFuture = source.runWith(MongoSink.updateOne(allUsers))
+		taskFuture.onComplete {
+			case Success(_) =>
+				log.info("UserOperations", "updateUserPocket", "Success", s"Updated CrossingBot presence for $username's channel")
+			case Failure(ex) =>
+				log.warn("UserOperations", "updateUserPocket", "Failure", s"Failed to update CrossingBot presence for $username's channel: $ex")
+		}
+	}
+
 	def updateUserPocket(user : User, species: String, pocketedCreature: Pocket ) : Unit = {
 		val source = MongoSource(allUsers.find(classOf[User]))
 			.map(user => {
@@ -126,7 +147,7 @@ object UserOperations extends MongoDBOperations {
 
 					val updatedPocket = Pocket(bugList, fishList)
 					val updatedBells = user.bells + creatureBells
-					val newUser = User(user.id, user.username, user.fishingPoleLvl, user.bugNetLvl, updatedBells, updatedPocket, user.liveTurnips, user.turnipTransactionHistory, user.avatar)
+					val newUser = User(user.id, user.username, user.fishingPoleLvl, user.bugNetLvl, updatedBells, updatedPocket, user.liveTurnips, user.turnipTransactionHistory, user.avatar, user.encryptedPw, user.addedToChannel)
 					createOneUser(newUser)
 					log.info("UserOperations", "deleteOneForUser", "Success", s"Sold $creatureName for $creatureBells bells")
 				case Failure(ex) =>
@@ -152,7 +173,7 @@ object UserOperations extends MongoDBOperations {
 						val bug: List[Bug] = List()
 						val updatedPocket = Pocket(bug, user.pocket.fish)
 						val updatedBells = user.bells + bugBells
-						val newUser = User(user.id, user.username, user.fishingPoleLvl, user.bugNetLvl, updatedBells, updatedPocket, user.liveTurnips, user.turnipTransactionHistory, user.avatar)
+						val newUser = User(user.id, user.username, user.fishingPoleLvl, user.bugNetLvl, updatedBells, updatedPocket, user.liveTurnips, user.turnipTransactionHistory, user.avatar, user.encryptedPw, user.addedToChannel)
 						log.info("UserOperations", "deleteAllCreatureForUser", "Success", s"Deleted $username's bugs")
 						createOneUser(newUser)
 					case Failure(ex) =>

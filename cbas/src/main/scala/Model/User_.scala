@@ -14,9 +14,7 @@ object User_ {
 		turnipTransactionHistory : List[TurnipTransaction] = List(),
 		avatar : String = "",
 		encryptedPw : String = "",
-		
-
-
+		addedToChannel : Boolean = false,
 	)
 
 	//Arguments
@@ -25,5 +23,7 @@ object User_ {
 	case class finalizeUserArgs(username : String, id : Int, avatar : String)
 	case class sellCreatureArgs(username : String, species : String, creatureName : String)
 	case class sellCreatureByNameArgs(username : String, creatureName : String)
+	case class authenticationArgs(username : String, encryptedPw : String)
+	case class addToChannelArgs(username: String, added : Boolean)
 
 }

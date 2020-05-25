@@ -18,6 +18,11 @@ let queryGraphQL = (query, callback) => {
 }
 
 
+exports.mutateAddCBforUser = (CBAS_Payload, callback) => {
+    let mutation = Mutation.UPDATE_USER_HOME_SET_CROSSINGBOT(CBAS_Payload.username, CBAS_Payload.added)
+    queryGraphQL(mutation, callback)
+}
+
 exports.queryProfileUserData = (CBAS_Payload, callback) => {
     let query = Query.GET_USER_PROFILE(CBAS_Payload.username)
     queryGraphQL(query, callback)
@@ -30,10 +35,7 @@ exports.queryMarketUserData = (CBAS_Payload, callback) => {
 
 exports.queryMarketChartDataForNDays = (CBAS_Payload, callback) => {
     let query = Query.GET_N_DAYS_MOVEMENTRECORD_MARKET(CBAS_Payload.days)
-    queryGraphQL(query, callback)
-
-    
-    
+    queryGraphQL(query, callback)    
 } 
 
 exports.queryMarketChartData = (CBAS_Payload, callback) => {

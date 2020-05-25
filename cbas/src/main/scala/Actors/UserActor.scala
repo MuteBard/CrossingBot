@@ -23,6 +23,8 @@ object UserActor {
 //	case class Create_One_User(user : User )
 	case class Read_One_User(username : String)
 	case class Read_One_User_With_Pending_Turnip_Transaction(username : String, business : String, quantity : Int)
+	case object Read_All_Stream_Added_Users
+	case class Update_User_Stream_Added(username: String, added : Boolean)
 	case class FinalizeUserCreation(username:  String, id : Int, avatar : String)
 	case class Update_One_User_With_Executing_Turnip_Transaction(username : String, business: String, quantity : Int, marketPrice: Int, totalBells: Int)
 	case class Update_One_User_With_Creature(username : String, species: String)
@@ -115,6 +117,17 @@ class UserActor extends Actor with ActorLogging{
 				sender() ! TurnipTransaction(business, 0, 0, 0, "Unauthorized - User does not exist")
 			}
 
+
+		case Read_All_Stream_Added_Users =>
+			log.info(s"[Read_All_Stream_Added_Users] Confirming pending transaction")
+			val userList = UserOperations.readAllChannelsWithCrossingBotAdded().toList
+			sender() ! userList
+
+		case Update_User_Stream_Added(username, added ) =>
+			log.info(s"[Read_All_Stream_Added_Users] Confirming pending transaction")
+			UserOperations.updateUserChannelsWithCrossingBotAdded(username, added)
+			sender() ! "Success"
+
 		case Update_One_User_With_Executing_Turnip_Transaction(username, business, quantity, marketPrice, totalBells) =>
 			log.info(s"[Update_One_User_With_Executing_Turnip_Transaction] Confirming pending transaction")
 			val user = UserOperations.readOneUser(username).head
@@ -131,7 +144,7 @@ class UserActor extends Actor with ActorLogging{
 
 				marketActor ! MarketActor.Update_Stalks_Purchased(quantity, business)
 				val updatedUser = User(user.id, user.username, user.fishingPoleLvl, user.bugNetLvl, updatedUserBells,
-				user.pocket, liveTurnips, turnipTransactionHistory, user.avatar)
+				user.pocket, liveTurnips, turnipTransactionHistory, user.avatar, user.encryptedPw, user.addedToChannel)
 				UserOperations.updateOneUserTransaction(updatedUser)
 				sender() ! "Success"
 
@@ -162,7 +175,7 @@ class UserActor extends Actor with ActorLogging{
 					val updatedUserBells = user.bells - totalBells
 					marketActor ! MarketActor.Update_Stalks_Purchased(quantity, business)
 					val updatedUser = User(user.id, user.username, user.fishingPoleLvl, user.bugNetLvl, updatedUserBells,
-					user.pocket, liveTurnips, turnipTransactionHistory, user.avatar)
+					user.pocket, liveTurnips, turnipTransactionHistory, user.avatar, user.encryptedPw, user.addedToChannel)
 					UserOperations.updateOneUserTransaction(updatedUser)
 					sender() ! "Success"
 
@@ -192,12 +205,12 @@ class UserActor extends Actor with ActorLogging{
 
 					if(newQuantity != 0){
 						val updatedUser = User(user.id, user.username, user.fishingPoleLvl, user.bugNetLvl, updatedBells,
-						user.pocket, liveTurnips, turnipTransactionHistory, user.avatar)
+						user.pocket, liveTurnips, turnipTransactionHistory, user.avatar, user.encryptedPw, user.addedToChannel)
 						UserOperations.updateOneUserTransaction(updatedUser)
 						sender() ! "Success"
 					}else{
 						val updatedUser = User(user.id, user.username, user.fishingPoleLvl, user.bugNetLvl, updatedBells,
-							user.pocket, TurnipTransaction(business = "sell"), turnipTransactionHistory, user.avatar)
+							user.pocket, TurnipTransaction(business = "sell"), turnipTransactionHistory, user.avatar, user.encryptedPw, user.addedToChannel)
 						 UserOperations.updateOneUserTransaction(updatedUser)
 						sender() ! "Success"
 					}

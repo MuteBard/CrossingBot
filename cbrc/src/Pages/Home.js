@@ -4,11 +4,30 @@ import { Row, Col, Card, Button } from 'antd';
 import "antd/dist/antd.css";
 import "./css/pages.css"
 
+import Route from '../Actions/Route'
 import HeroTop from '../Assets/resolved/HeroTop'
 import HeroBottom from '../Assets/resolved/HeroBottom'
 import LightCog from '../Assets/resolved/backgroundcogLight'
 
 export default class Home extends Component {
+    state = {
+      pressed : false
+    }
+    
+
+    addCrossingBotToChannel(){
+      let updateUserChannelWithCrossingBot = (data) => {
+        console.log(data)
+        if (data.isCrossingBotAdded == "Success"){
+          this.setState({
+            pressed : true
+          })
+        }
+      }
+      let CBAS_Payload = {username : "MuteBard", added : true}
+      Route.mutateAddCBforUser(CBAS_Payload, updateUserChannelWithCrossingBot)
+    }
+
     render() {
       return ( 
         <div className="HomeContainer"> 
@@ -20,17 +39,27 @@ export default class Home extends Component {
           </Row>
           <HeroBottom/>
           <Row className="row" align="middle">
-            <Col span={24} offset={2}>
+            <Col span={22} offset={2}>
               <Card style={{ width: 1200, backgroundColor : "#EEEEEE" }}>
                 <div className="howToUse"><strong>How to Register</strong></div>
                 <ol className="listText">
                   <li> Press this button <br/>
-                    <Button type="primary" key="back" onClick={this.handleCancel}>
-                        Add crossingbot_ to Mutebard's chat
-                    </Button> <br/> 
-                    Or go to a twitch channel that has crossingbot_
+                    
+                    {
+                      this.state.pressed == false 
+                      ? 
+                      <div>
+                        <Button type="primary" key="back" onClick={() => this.addCrossingBotToChannel()}>
+                            Add crossingbot_ to Mutebard's chat
+                        </Button> <br/> 
+                        <div>Or go to a twitch channel that has crossingbot_</div>
+                      </div>
+                      :
+                      <div>Awesome! Now head to your Twitch channel page</div>
+                    }
+
                     </li>
-                  <li>Type <strong>!bug</strong> or <strong>!fish</strong> in your Twitch text channel</li>
+                  <li>Type <strong>!bug</strong> or <strong>!fish</strong> in the Twitch text channel</li>
                   <li>Refresh this page</li>
                   And thats it! You are ready to use CrossingBot either on Twitch and on this website!
                 </ol>
@@ -38,7 +67,7 @@ export default class Home extends Component {
             </Col>
           </Row>
           <Row className="row" align="middle">
-            <Col span={24} offset={2}>
+            <Col span={22} offset={2}>
               <Card style={{ width: 1200, backgroundColor : "#EEEEEE" }}>
                 <div className="howToUse"><strong>Twitch Commands</strong></div>
                 <ul className="listText">

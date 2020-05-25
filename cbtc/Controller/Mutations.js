@@ -1,3 +1,8 @@
+let UPDATE_USER_HOME_SET_CROSSINGBOT = (username, added) =>
+`mutation{
+    isCrossingBotAdded(username : ${"\""+username+"\""}, added : ${added})
+}`
+
 let CATCH_REQUEST = (username, species) =>
 `mutation{
      catchCreature(username : ${"\""+username+"\""}, species : ${"\""+species+"\""})
@@ -20,6 +25,7 @@ let ACKNOWLEDGE_TRANSACTION = (username, business, quantity, marketPrice, totalB
     acknowledgeTransaction(username : ${"\""+username+"\""}, business: ${"\""+business+"\""}, quantity: ${quantity}, marketPrice: ${marketPrice}, totalBells: ${marketPrice})
 }`
 
+module.exports.UPDATE_USER_HOME_SET_CROSSINGBOT = UPDATE_USER_HOME_SET_CROSSINGBOT
 module.exports.CATCH_REQUEST = CATCH_REQUEST
 module.exports.COMPLETE_USER_CREATION  = COMPLETE_USER_CREATION 
 module.exports.SELL_ONE_CREATURE  = SELL_ONE_CREATURE 

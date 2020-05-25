@@ -11,6 +11,7 @@ object Mutations {
 	case class Mutations(
 	    //User
 	    catchCreature :           catchCreatureArgs => IO[NotFound, String],
+	    isCrossingBotAdded:       addToChannelArgs => UIO[String],
 	    finalizeUserCreation :     finalizeUserArgs => IO[NotFound, String],
 	    sellOneCreature :         sellCreatureArgs => UIO[Int],
 	    sellAllBugs :             usernameArgs => UIO[Int],
@@ -25,6 +26,7 @@ object Mutations {
 
 	val allMutations = Mutations(
 		args => cbs.catchCreature(args.username, args.species),
+		args => cbs.isCrossingBotAdded(args.username, args.added),
 		args => cbs.finalizeUserCreation(args.username, args.id, args.avatar),
 		args => cbs.sellOneCreature(args.username, args.species, args.creatureName),
 		args => cbs.sellAllBugs(args.username),

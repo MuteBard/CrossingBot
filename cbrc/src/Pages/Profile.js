@@ -25,8 +25,9 @@ export default class Catch extends Component {
         userbells : 0,
         pocketBugs : [],
         pocketFishes : [],
-        stopped : false,
+        added : true,
         onChannel : true
+        
       };
 
 
@@ -34,18 +35,18 @@ export default class Catch extends Component {
         this.updateData()
     }
 
-    toggleCrossingBot = (value) => {
-        console.log(value)
-        this.setState({
-            stopped : value
-        })
-    }
-
-    removeCrossingBot = () => {
-        this.setState({
-            onChannel : false
-        })
-    }
+    toggleCrossingBot(value){
+        let updateUserChannelWithCrossingBot = (data) => {
+            console.log(data)
+          if (data.isCrossingBotAdded == "Success"){
+            this.setState({
+                added : value
+            })
+          }
+        }
+        let CBAS_Payload = {username : "MuteBard", added : value}
+        Route.mutateAddCBforUser(CBAS_Payload, updateUserChannelWithCrossingBot)
+      }
 
     updateData = () => {
         let setCatchPocketData = (data) =>{
@@ -151,15 +152,11 @@ export default class Catch extends Component {
                   ?
                   <Row className="row" align="middle">
                     <Col offset={1}>
-                        <Logo2 stopped={this.state.stopped}/>
+                        <Logo2 stopped={!this.state.added}/>
                     </Col>
                     <Col span={6} offset={2}> 
                         <p className="itemTitle"><strong>Actions for Your Twitch Channel</strong></p>  
-                        {this.state.stopped == true ? <Button type="primary" onClick={() => this.toggleCrossingBot(false)}>Turn On CrossingBot</Button> : <Button type="primary" onClick={() => this.toggleCrossingBot(true)}>Turn Off CrossingBot</Button> }
-                    </Col>
-                    <Col span={6} offset={2}> 
-                        <p className="itemTitle"><strong>Completely remove from your Twitch Channel</strong></p>               
-                        <Button type="danger" onClick={() => this.removeCrossingBot()}>Remove CrossingBot</Button>
+                        {this.state.added == true ? <Button type="primary" onClick={() => this.toggleCrossingBot(false)}>Turn Off CrossingBot</Button> : <Button type="primary" onClick={() => this.toggleCrossingBot(true)}>Turn On CrossingBot</Button> }
                     </Col>
                   </Row>
                   :

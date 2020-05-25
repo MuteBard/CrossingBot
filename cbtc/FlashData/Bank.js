@@ -2,6 +2,7 @@ const Route = require('../Controller/Route')
 
 var bugBank = []
 var fishBank = []
+var usernames = []
 var pendingTurnipTransactionDictionary = {}
 
 
@@ -29,8 +30,6 @@ let updateUserInPendingTransactionDictionary = (username, marketPrice, totalBell
 }
 
 
-
-
 supplyBankWithCreatures = () => {
     
     let supplyBankWithBugs = () => {
@@ -54,11 +53,26 @@ supplyBankWithCreatures = () => {
     supplyBankWithBugs()
 } 
 
+supplyBankWithAddedUsers = (callback) => {
+    let CBTC_DataBank = (response) => {
+        usernames = response.getUsersWithCBAdded.map(user => `#${user.username}`)
+        module.exports.usernames = usernames 
+        if(callback != null){
+            callback()
+        }
+    }
+    Route.queryAllAddedUsers(CBTC_DataBank)
+}
 
-supplyBankWithCreatures()
+
+
+supplyBankWithCreatures(null)
+supplyBankWithAddedUsers(null)
 
 
 module.exports.supplyPendingTurnipTransactionDictionary = supplyPendingTurnipTransactionDictionary
 module.exports.retrivePendingTurnipTransactionDictionary = retrivePendingTurnipTransactionDictionary
 module.exports.deleteUserFromPendingTransactionDictionary = deleteUserFromPendingTransactionDictionary
 module.exports.updateUserInPendingTransactionDictionary = updateUserInPendingTransactionDictionary
+
+module.exports.supplyBankWithAddedUsers = supplyBankWithAddedUsers

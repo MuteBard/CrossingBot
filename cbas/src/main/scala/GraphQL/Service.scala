@@ -23,6 +23,7 @@ object Service {
 		//--User--
     	//Queries
 		def getUser(username : String):                     IO[NotFound, User]
+		def getUsersWithCBAdded(dummy: Boolean):            UIO[List[User]]
 		def validatePendingTransaction(
 			username : String,
 			business : String,
@@ -62,6 +63,11 @@ object Service {
 		//--Start--
 		def populate:                                       UIO[String]
 		def toggleMarket(running : Boolean):                UIO[String]
+
+		def isCrossingBotAdded(
+			username : String,
+			added : Boolean
+		    ):                                              UIO[String]
 
 		def catchCreature(
 			 username: String,
@@ -107,6 +113,12 @@ object Service {
 			if(user.id != -2) IO.succeed(user)
 			else IO.fail(NotFound(""))
 		}
+
+		def getUsersWithCBAdded(dummy : Boolean): UIO[List[User]] = {
+			val userList = Await.result((userActor ? UserActor.Read_All_Stream_Added_Users).mapTo[List[User]], chill seconds)
+			IO.succeed(userList)
+		}
+
 		def validatePendingTransaction(username: String, business : String, quantity : Int) : UIO[TurnipTransaction] = {
 			val turnipTransaction = Await.result((userActor ? UserActor.Read_One_User_With_Pending_Turnip_Transaction(username, business, quantity)).mapTo[TurnipTransaction], chill seconds)
 			IO.succeed(turnipTransaction)
@@ -209,6 +221,12 @@ object Service {
 		}
 
 		//Mutations
+
+		def isCrossingBotAdded(username: String, added: Boolean) : UIO[String] = {
+			val status = Await.result((userActor ? UserActor.Update_User_Stream_Added(username, added)).mapTo[String], chill seconds)
+			IO.succeed(status)
+		}
+
 		def catchCreature(username: String, species: String): IO[NotFound, String] = {
 			val status = Await.result((userActor ? UserActor.Update_One_User_With_Creature(username, species)).mapTo[String], chill seconds)
 			if(status != "Failure") { //there's 4 options for status
