@@ -10,6 +10,7 @@ object Mutations {
 	case class dummyArgs(dummy : Boolean)
 	case class Mutations(
 	    //User
+	    createUser :              createUserArgs => UIO[String],
 	    catchCreature :           catchCreatureArgs => IO[NotFound, String],
 	    isCrossingBotAdded:       addToChannelArgs => UIO[String],
 	    finalizeUserCreation :     finalizeUserArgs => IO[NotFound, String],
@@ -25,6 +26,7 @@ object Mutations {
 	val cbs : CrossingBotService = new CBS()
 
 	val allMutations = Mutations(
+		args => cbs.createOneUser(args.username, args.id, args.avatar, args.addedToChannel),
 		args => cbs.catchCreature(args.username, args.species),
 		args => cbs.isCrossingBotAdded(args.username, args.added),
 		args => cbs.finalizeUserCreation(args.username, args.id, args.avatar),

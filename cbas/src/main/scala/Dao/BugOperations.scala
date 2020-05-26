@@ -25,7 +25,6 @@ object BugOperations extends MongoDBOperations{
 		.withCodecRegistry(codecRegistry)
 
 	def createAll(): Unit = {
-		println(Bugs)
 		val source = Source(Bugs)
 		val taskFuture = source.grouped(2).runWith(MongoSink.insertMany(allBugs))
 		taskFuture.onComplete{

@@ -3,7 +3,7 @@ const minutes = require('../Cron/Timing').minutes
 const options = require('../Configurations/options')
 const bank = require('../FlashData/Bank')
 const process = require('./processData')
-const duration = minutes(10)
+const duration = minutes(5)
 
 let setOptionsToConnection = () => {
     options.settings_A["channels"] =  bank.usernames

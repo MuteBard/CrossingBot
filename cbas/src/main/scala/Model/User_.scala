@@ -25,5 +25,6 @@ object User_ {
 	case class sellCreatureByNameArgs(username : String, creatureName : String)
 	case class authenticationArgs(username : String, encryptedPw : String)
 	case class addToChannelArgs(username: String, added : Boolean)
+	case class createUserArgs(username: String, id: Int, avatar: String, addedToChannel: Boolean)
 
 }

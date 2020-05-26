@@ -20,11 +20,12 @@ import scala.language.postfixOps
 
 
 object UserActor {
-//	case class Create_One_User(user : User )
+
+	case class Create_One_User(username : String, id : Int, avatar: String, addedToChannel : Boolean)
 	case class Read_One_User(username : String)
 	case class Read_One_User_With_Pending_Turnip_Transaction(username : String, business : String, quantity : Int)
 	case object Read_All_Stream_Added_Users
-	case class Update_User_Stream_Added(username: String, added : Boolean)
+	case class Update_User_Stream_Added(username: String, addedToChannel : Boolean)
 	case class FinalizeUserCreation(username:  String, id : Int, avatar : String)
 	case class Update_One_User_With_Executing_Turnip_Transaction(username : String, business: String, quantity : Int, marketPrice: Int, totalBells: Int)
 	case class Update_One_User_With_Creature(username : String, species: String)
@@ -43,6 +44,12 @@ class UserActor extends Actor with ActorLogging{
 	implicit val timeout = Timeout(chill seconds)
 
 	override def receive: Receive = {
+
+		case Create_One_User(username, id, avatar, addedToChannel) => {
+			val newUser = User(username = username,  id = id, avatar = avatar, addedToChannel = addedToChannel)
+			UserOperations.createOneUser(newUser)
+			sender() ! "Success"
+		}
 
 		case Read_One_User(username) =>
 			log.info(s"[Read_One_User] Getting USER with username $username")
@@ -119,12 +126,12 @@ class UserActor extends Actor with ActorLogging{
 
 
 		case Read_All_Stream_Added_Users =>
-			log.info(s"[Read_All_Stream_Added_Users] Confirming pending transaction")
+			log.info(s"[Read_All_Stream_Added_Users] Getting all users with addToChannel value as true")
 			val userList = UserOperations.readAllChannelsWithCrossingBotAdded().toList
 			sender() ! userList
 
 		case Update_User_Stream_Added(username, added ) =>
-			log.info(s"[Read_All_Stream_Added_Users] Confirming pending transaction")
+			log.info(s"[Read_All_Stream_Added_Users] changing $username's addToChannel value to $added")
 			UserOperations.updateUserChannelsWithCrossingBotAdded(username, added)
 			sender() ! "Success"
 

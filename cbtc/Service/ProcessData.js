@@ -20,9 +20,9 @@ exports.setCBForUser = (Twitch_Data) => {
         let CBAS_Data = null
         let message = ""
         if (Twitch_Data.added == true){
-            message = `${Twitch_Data.username}, you have added crossingbot_ to your channel! It will be live in your channel within 10 minutes ${addFlower()}` 
+            message = `${Twitch_Data.username}, you have queued to add crossingbot_ to your channel! It will be live in your channel within 5 minutes or less ${addFlower()}` 
         }else if (Twitch_Data.added == false){
-            message = `${Twitch_Data.username}, you have removed crossingbot_ to your channel. It will be gone from your channel within 10 minutes ${addFlower()}` 
+            message = `${Twitch_Data.username}, you have queued to remove crossingbot_ to your channel. It will be gone from your channel within 5 minutes or less ${addFlower()}` 
         }else
             message = `Hey ${Twitch_Data.channel.split("#")[1]}, something went wrong with CrossingBot. Please contact MuteBard ${addFlower()}`
         respondToTwitch({

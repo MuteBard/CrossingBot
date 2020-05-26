@@ -61,13 +61,20 @@ object Service {
 
 		//Mutations
 		//--Start--
+		def createOneUser(
+			username : String,
+			id : Int,
+			avatar : String,
+			addedToChannel : Boolean
+
+		):                                                  UIO[String]
 		def populate:                                       UIO[String]
 		def toggleMarket(running : Boolean):                UIO[String]
 
 		def isCrossingBotAdded(
 			username : String,
 			added : Boolean
-		    ):                                              UIO[String]
+		):                                              UIO[String]
 
 		def catchCreature(
 			 username: String,
@@ -221,7 +228,10 @@ object Service {
 		}
 
 		//Mutations
-
+		def createOneUser(username: String, id: Int, avatar: String, addedToChannel: Boolean): UIO[String] = {
+			val status = Await.result((userActor ? UserActor.Create_One_User(username, id, avatar, addedToChannel)).mapTo[String], chill seconds)
+			IO.succeed(status)
+		}
 		def isCrossingBotAdded(username: String, added: Boolean) : UIO[String] = {
 			val status = Await.result((userActor ? UserActor.Update_User_Stream_Added(username, added)).mapTo[String], chill seconds)
 			IO.succeed(status)

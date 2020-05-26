@@ -3,6 +3,11 @@ let UPDATE_USER_HOME_SET_CROSSINGBOT = (username, added) =>
     isCrossingBotAdded(username : ${"\""+username+"\""}, added : ${added})
 }`
 
+let CREATE_USER = (username, id, avatar, addedToChannel) =>
+`mutation{
+    createUser(username : ${"\""+username+"\""}, id : ${"\""+id+"\""}, avatar : ${"\""+avatar+"\""}, addedToChannel : ${"\""+addedToChannel+"\""})
+}`
+
 let CATCH_REQUEST = (username, species) =>
 `mutation{
      catchCreature(username : ${"\""+username+"\""}, species : ${"\""+species+"\""})
@@ -25,6 +30,7 @@ let ACKNOWLEDGE_TRANSACTION = (username, business, quantity, marketPrice, totalB
     acknowledgeTransaction(username : ${"\""+username+"\""}, business: ${"\""+business+"\""}, quantity: ${quantity}, marketPrice: ${marketPrice}, totalBells: ${marketPrice})
 }`
 
+module.exports.CREATE_USER = CREATE_USER
 module.exports.UPDATE_USER_HOME_SET_CROSSINGBOT = UPDATE_USER_HOME_SET_CROSSINGBOT
 module.exports.CATCH_REQUEST = CATCH_REQUEST
 module.exports.COMPLETE_USER_CREATION  = COMPLETE_USER_CREATION 

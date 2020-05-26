@@ -25,9 +25,7 @@ export default class Catch extends Component {
         userbells : 0,
         pocketBugs : [],
         pocketFishes : [],
-        added : true,
-        onChannel : true
-        
+        addedToChannel : true,
       };
 
 
@@ -40,12 +38,32 @@ export default class Catch extends Component {
             console.log(data)
           if (data.isCrossingBotAdded == "Success"){
             this.setState({
-                added : value
+                addedToChannel : value
             })
           }
         }
-        let CBAS_Payload = {username : "MuteBard", added : value}
-        Route.mutateAddCBforUser(CBAS_Payload, updateUserChannelWithCrossingBot)
+
+        // let headers = {
+        //     "Client-ID": secret.security.TWITCH_CLIENT_ID,
+        //     "Accept" : "application/vnd.twitchtv.v5+json",
+        //     "Authorization" : secret.security.ACCESS_TOKEN
+        // }
+
+        // let Twitch_Response = await axios({
+        //     method: 'GET',
+        //     url: `https://api.twitch.tv/helix/users?login=${ CBAS_Payload.username }`,
+        //     headers,
+        // })
+        // .catch(error => console.log(error))
+        // CBAS_Payload["id"] = Number(Twitch_Response.data.data[0].id)
+        // CBAS_Payload["avatar"] = Twitch_Response.data.data[0].profile_image_url 
+
+
+        let CBAS_Payload = {username : "MuteBard", addedToChannel : value, failure: false}
+        
+
+        
+        Route.mutateCBforUserOrCreateUser(CBAS_Payload, updateUserChannelWithCrossingBot)
       }
 
     updateData = () => {
@@ -147,21 +165,17 @@ export default class Catch extends Component {
                         {this.state.pocketFishes.map(fish => <img src={fish.img}/>)}
                     </Col>
                 </Row>
-                {
-                  this.state.onChannel === true 
-                  ?
-                  <Row className="row" align="middle">
+
+                <Row className="row" align="middle">
                     <Col offset={1}>
-                        <Logo2 stopped={!this.state.added}/>
+                        <Logo2 stopped={!this.state.addedToChannel}/>
                     </Col>
                     <Col span={6} offset={2}> 
                         <p className="itemTitle"><strong>Actions for Your Twitch Channel</strong></p>  
-                        {this.state.added == true ? <Button type="primary" onClick={() => this.toggleCrossingBot(false)}>Turn Off CrossingBot</Button> : <Button type="primary" onClick={() => this.toggleCrossingBot(true)}>Turn On CrossingBot</Button> }
+                        {this.state.addedToChannel == true ? <Button type="primary" onClick={() => this.toggleCrossingBot(false)}>Turn Off CrossingBot</Button> : <Button type="primary" onClick={() => this.toggleCrossingBot(true)}>Turn On CrossingBot</Button> }
                     </Col>
-                  </Row>
-                  :
-                  null
-                }
+                </Row>
+
                 <LightCog/>             
             </div> 
         )
