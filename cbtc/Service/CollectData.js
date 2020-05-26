@@ -3,9 +3,18 @@ const minutes = require('../Cron/Timing').minutes
 const options = require('../Configurations/options')
 const bank = require('../FlashData/Bank')
 const process = require('./processData')
-const duration = minutes(5)
+const duration = minutes(10)
+const BUG = "bug"
+const FISH  = "fish"
 
-let setOptionsToConnection = () => {
+
+let startApp = () => {
+    bank.supplyBankWithAddedUsers(setOptionsForConnection)
+    bank.supplyBankWithCreatures()
+}
+
+
+let setOptionsForConnection = () => {
     options.settings_A["channels"] =  bank.usernames
     var publicConnection = new tmi.Client(options.settings_A);  
     module.exports.publicConnection = publicConnection
@@ -13,25 +22,21 @@ let setOptionsToConnection = () => {
 }
 
 let connectToTwitch = (publicConnection) => {
-    
-    const BUG = "bug"
-    const FISH  = "fish"
-    
+        
     var creatureDictionary = {}
     var pendingTurnipTransactionDictionary = {}
+    var timeDictionary = {}
 
     publicConnection.connect().then(() => console.log("CBTC is ready to facilitate communication between CBAS and Twitch"))
     
-    //reconnection to add crossingbot on their channels
     setTimeout(() => {
         publicConnection.disconnect().then(() => {
-        console.log("Reconnecting Soon to update streamer list")
-        process.applyCBForUsers(setOptionsToConnection) 
+        console.log("Reconnecting, updating list of users that want crossingBot added to their channels")
+        process.applyNewCrossingBotSettingForUsers(setOptionsForConnection) 
         })
     }, duration)
 
     publicConnection.on('chat', (channel, userstate, message, self) => {
-        
         const dataBank = require('../FlashData/Bank')
         creatureDictionary = createCreatureDictionary(dataBank.bugBank, dataBank.fishBank)
     
@@ -42,8 +47,6 @@ let connectToTwitch = (publicConnection) => {
         }
     
         let command = message.toLowerCase().trim()
-
-
 
         if(command == "+crossingbot"){
             Twitch_Data["added"] = true
@@ -67,18 +70,33 @@ let connectToTwitch = (publicConnection) => {
             process.turnipsStatsRequest(Twitch_Data)
         }
     
-        else if(command == "!bug"){
-            Twitch_Data["species"] = BUG
+        else if(command == "!bug"){ 
+            Twitch_Data["time"] = parseInt(new Date().getTime() / 1000)
+            if(timeDictionary[Twitch_Data["username"]] == undefined || Twitch_Data["time"] - timeDictionary[Twitch_Data["username"]] > 60 ){
+                Twitch_Data["species"] = BUG
+                timeDictionary[Twitch_Data["username"]] = Twitch_Data["time"]
+            }else{
+                Twitch_Data["failure"] = true
+                Twitch_Data["error"] = `There is still ${60 - (Twitch_Data["time"] - timeDictionary[Twitch_Data["username"]])} seconds until you can catch another bug`
+            }
             process.catchRequest(Twitch_Data)
         }
     
         else if(command == "!fish"){
-            Twitch_Data["species"] = FISH
+            Twitch_Data["time"] = parseInt(new Date().getTime() / 1000)
+            if(timeDictionary[Twitch_Data["username"]] == undefined || Twitch_Data["time"] - timeDictionary[Twitch_Data["username"]] < 60 ){
+                Twitch_Data["species"] = FISH
+                timeDictionary[Twitch_Data["username"]] = Twitch_Data["time"]
+                
+            }else{
+                Twitch_Data["failure"] = true
+                Twitch_Data["error"] = `There is still ${60 - (Twitch_Data["time"] - timeDictionary[Twitch_Data["username"]])} seconds until you can catch another fish`
+            }
             process.catchRequest(Twitch_Data)
         }
     
         else if(command == "!rare bugs"){
-            Twitch_Data["species"] = BUG
+            Twitch_Data["species"] = BUG 
             process.rareCreaturesRequest(Twitch_Data)
         }
     
@@ -127,7 +145,6 @@ let connectToTwitch = (publicConnection) => {
         else if(command == "!market"){
             process.marketPriceRequest(Twitch_Data)
         }
-    
     
         else if(command.includes("!sell") && !command.includes("all")){
             let creatureName = properlyCaseCreatureName(command)
@@ -203,4 +220,4 @@ let connectToTwitch = (publicConnection) => {
     }   
 }
 
-setOptionsToConnection()
+startApp()

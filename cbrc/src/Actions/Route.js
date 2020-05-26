@@ -21,7 +21,7 @@ let queryGraphQL = (query, callback) => {
 exports.mutateCBforUserOrCreateUser = (CBAS_Payload, callback) => {
     let updateMutation = Mutation.UPDATE_USER_HOME_SET_CROSSINGBOT(CBAS_Payload.username, CBAS_Payload.added)
     // let creationMutation = Mutation.CREATE_USER(CBAS_Payload.username, CBAS_Payload.id, CBAS_Payload.avatar, CBAS_Payload.addedToChannel )
-    queryGraphQL(mutation, callback)
+    queryGraphQL(updateMutation, callback)
 }
 
 exports.queryProfileUserData = (CBAS_Payload, callback) => {

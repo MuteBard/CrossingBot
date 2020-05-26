@@ -10,7 +10,7 @@ let respondToTwitch = (Twitch_Payload) =>{
     maintainConnection.publicConnection.action(Twitch_Payload.channel, Twitch_Payload.message)
 }
 
-exports.applyCBForUsers = (callback) => {
+exports.applyNewCrossingBotSettingForUsers = (callback) => {
     bank.supplyBankWithAddedUsers(callback)
 }
 
@@ -20,9 +20,9 @@ exports.setCBForUser = (Twitch_Data) => {
         let CBAS_Data = null
         let message = ""
         if (Twitch_Data.added == true){
-            message = `${Twitch_Data.username}, you have queued to add crossingbot_ to your channel! It will be live in your channel within 5 minutes or less ${addFlower()}` 
+            message = `${Twitch_Data.username}, you have queued to add crossingbot_ to your channel! It will be live in your channel within 10 minutes or less ${addFlower()}` 
         }else if (Twitch_Data.added == false){
-            message = `${Twitch_Data.username}, you have queued to remove crossingbot_ to your channel. It will be gone from your channel within 5 minutes or less ${addFlower()}` 
+            message = `${Twitch_Data.username}, you have queued to remove crossingbot_ to your channel. It will be gone from your channel within 10 minutes or less ${addFlower()}` 
         }else
             message = `Hey ${Twitch_Data.channel.split("#")[1]}, something went wrong with CrossingBot. Please contact MuteBard ${addFlower()}`
         respondToTwitch({
@@ -80,24 +80,35 @@ exports.turnipsStatsRequest = (Twitch_Data) => {
 
 exports.catchRequest = (Twitch_Data) => {
     let CBAS_Payload = {"username" : Twitch_Data.username, "species" : Twitch_Data.species } 
-    let Twitch_Payload = (response) => { 
-        let CBAS_Data = response
-        let message = ""
-        if(CBAS_Data == "BugOverflow"){
-            message = `${Twitch_Data.username}, you already have 10 bugs! Try selling some! ${addFlower()}`
-        }else if(CBAS_Data == "FishOverflow"){
-            message = `${Twitch_Data.username}, you already have 10 fishes! Try selling some! ${addFlower()}`
-        }else if(CBAS_Data.name != null){
-            message = `${Twitch_Data.username} caught a ${CBAS_Data.name}, worth ${CBAS_Data.bells} bells! ${appraisal(CBAS_Data.rarity)} ${addFlower()}`
-        }else{
-            message = `Hey ${Twitch_Data.channel.split("#")[1]}, something went wrong with CrossingBot. Please contact MuteBard ${addFlower()}`
+    if(!Twitch_Data.failure){
+        let Twitch_Payload = (response) => { 
+            let CBAS_Data = response
+            let message = ""
+            if(CBAS_Data == "BugOverflow"){
+                message = `${Twitch_Data.username}, you already have 10 bugs! Try selling some! ${addFlower()}`
+            }else if(CBAS_Data == "FishOverflow"){
+                message = `${Twitch_Data.username}, you already have 10 fishes! Try selling some! ${addFlower()}`
+            }else if(CBAS_Data.name != null){
+                message = `${Twitch_Data.username} caught a ${CBAS_Data.name}, worth ${CBAS_Data.bells} bells! ${appraisal(CBAS_Data.rarity)} ${addFlower()}`
+            }else{
+                message = `Hey ${Twitch_Data.channel.split("#")[1]}, something went wrong with CrossingBot. Please contact MuteBard ${addFlower()}`
+            }
+            respondToTwitch({
+                "channel" : Twitch_Data.channel, 
+                message
+            })
         }
+        console.log("enteredB")
+        Route.mutateUserPocketCatch(CBAS_Payload, Twitch_Payload)  
+
+    }else{
+        let message = `${Twitch_Data.username}, ${Twitch_Data.error} ${addFlower()}`
         respondToTwitch({
-            "channel" : Twitch_Data.channel, 
+            channel : Twitch_Data.channel,
             message
         })
     }
-    Route.mutateUserPocketCatch(CBAS_Payload, Twitch_Payload)    
+
 } 
 
 exports.pocketRequest = (Twitch_Data) => {

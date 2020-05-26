@@ -65,14 +65,9 @@ supplyBankWithAddedUsers = (callback) => {
 }
 
 
-
-supplyBankWithCreatures(null)
-supplyBankWithAddedUsers(null)
-
-
 module.exports.supplyPendingTurnipTransactionDictionary = supplyPendingTurnipTransactionDictionary
 module.exports.retrivePendingTurnipTransactionDictionary = retrivePendingTurnipTransactionDictionary
 module.exports.deleteUserFromPendingTransactionDictionary = deleteUserFromPendingTransactionDictionary
 module.exports.updateUserInPendingTransactionDictionary = updateUserInPendingTransactionDictionary
-
+module.exports.supplyBankWithCreatures = supplyBankWithCreatures
 module.exports.supplyBankWithAddedUsers = supplyBankWithAddedUsers

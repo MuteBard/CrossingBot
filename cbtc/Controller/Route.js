@@ -66,16 +66,15 @@ exports.mutateUserPocketCatch = (CBAS_Payload, Twitch_Payload) => {
     fetch({ query : firstMutation })
     .then(async CBAS_Response => {
         if(CBAS_Response.data.catchCreature == "BugOverflow" || CBAS_Response.data.catchCreature == "FishOverflow"){  
-            
             Twitch_Payload(CBAS_Response.data.catchCreature)
 
-        }else if( CBAS_Response.data.catchCreature.split("-")[0].trim() == "Success"){
-            let operation = CBAS_Response.data.catchCreature.split("-")[1].trim()
-            let creatureData = CBAS_Response.data.catchCreature.split("-")[2].trim().split("")
-                .map(char => {
-                    if(char == "#") return "\""
-                    else return char
-                }).join("")
+        }else if( CBAS_Response.data.catchCreature.split("|")[0].trim() == "Success"){
+            let operation = CBAS_Response.data.catchCreature.split("|")[1].trim()
+            let creatureData = (CBAS_Response.data.catchCreature.split("|")[2].trim().split("")
+            .map(char => {
+                if(char == "#") return "\""
+                else return char
+            }).join(""))
             
             Twitch_Payload(JSON.parse(creatureData))
 
