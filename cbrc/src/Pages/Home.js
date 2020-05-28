@@ -13,8 +13,6 @@ export default class Home extends Component {
     state = {
       pressed : false
     }
-    
-
     addCrossingBotToChannel(){
       let updateUserChannelWithCrossingBot = (data) => {
         console.log(data)
@@ -25,7 +23,7 @@ export default class Home extends Component {
         }
       }
       let CBAS_Payload = {username : "MuteBard", added : true}
-      Route.mutateAddCBforUser(CBAS_Payload, updateUserChannelWithCrossingBot)
+      Route.mutateCBforUserOrCreateUser(CBAS_Payload, updateUserChannelWithCrossingBot)
     }
 
     render() {

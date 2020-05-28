@@ -87,7 +87,7 @@ const MONTH_RECORD =
 
 const TURNIP_PRICES =
 `query{
-    getTurnipPrices()
+    getTurnipPrices(dummy : true)
 }`
 
 let BUG_BY_NAME = (creatureName) =>

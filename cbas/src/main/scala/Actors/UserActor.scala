@@ -300,14 +300,30 @@ class UserActor extends Actor with ActorLogging{
 
 		case Delete_One_Creature_From_Pocket(username, species, creatureName) =>
 			log.info(s"[Delete_One_Creature_From_Pocket] Selling and deleting $creatureName in $username's pocket")
-			if (species == BUG){
-				val creatureBells =  Await.result((bugActor ? BugActor.Read_One_Bug_By_Name(creatureName)).mapTo[Bug], chill seconds).bells
-				UserOperations.deleteOneForUser(username, creatureName, creatureBells)
-				sender() ! creatureBells
-			}else if (species == FISH){
-				val creatureBells = Await.result((fishActor ? FishActor.Read_One_Fish_By_Name(creatureName)).mapTo[Fish], chill seconds).bells
-				UserOperations.deleteOneForUser(username, creatureName, creatureBells)
-				sender() ! creatureBells
+			val userSeq = UserOperations.readOneUser(username)
+
+			val userExists = userSeq.nonEmpty
+			if (userExists) {
+				if (species == BUG) {
+					if (userSeq.head.pocket.bug.map(bug => bug.name).contains(creatureName)){
+						val creatureBells = Await.result((bugActor ? BugActor.Read_One_Bug_By_Name(creatureName)).mapTo[Bug], chill seconds).bells
+						UserOperations.deleteOneForUser(username, creatureName, creatureBells)
+						sender() ! creatureBells
+					}else{
+						sender() ! 0
+					}
+
+				} else if (species == FISH) {
+					if (userSeq.head.pocket.fish.map(fish => fish.name).contains(creatureName)) {
+						val creatureBells = Await.result((fishActor ? FishActor.Read_One_Fish_By_Name(creatureName)).mapTo[Fish], chill seconds).bells
+						UserOperations.deleteOneForUser(username, creatureName, creatureBells)
+						sender() ! creatureBells
+					}else{
+						sender() ! 0
+					}
+				} else {
+					sender() ! 0
+				}
 			}
 
 		case Delete_All_Bugs_From_Pocket(username) =>

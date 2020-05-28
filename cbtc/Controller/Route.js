@@ -1,5 +1,5 @@
-const uri = "http://localhost:5000/api/graphql"
-const headers = require('../Configurations/options').settings_B.headers
+const uri = 'http://localhost:5000/api/graphql'
+const headers = require('../Configurations/Options').settings_B.headers
 const BUG = "bug"  
 const FISH  = "fish" 
 const axios = require('axios')
@@ -8,10 +8,11 @@ const Mutation = require('./Mutations')
 const { createApolloFetch } = require('apollo-fetch');
 const fetch = createApolloFetch({ uri })
 
-
+//GRAPHQL
 let queryGraphQL = (query, callback) => {
     fetch({ query })
     .then(CBAS_response => {
+        console.log(CBAS_response)
         callback(CBAS_response.data)
     }).catch(error =>{
         callback(null)

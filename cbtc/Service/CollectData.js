@@ -1,6 +1,6 @@
 const tmi = require('tmi.js');
 const minutes = require('../Cron/Timing').minutes
-const options = require('../Configurations/options')
+const options = require('../Configurations/Options')
 const bank = require('../FlashData/Bank')
 const process = require('./processData')
 const duration = minutes(10)
@@ -8,7 +8,7 @@ const BUG = "bug"
 const FISH  = "fish"
 
 
-let startApp = () => {
+let startBot = () => {
     bank.supplyBankWithAddedUsers(setOptionsForConnection)
     bank.supplyBankWithCreatures()
 }
@@ -31,7 +31,7 @@ let connectToTwitch = (publicConnection) => {
     
     setTimeout(() => {
         publicConnection.disconnect().then(() => {
-        console.log("Reconnecting, updating list of users that want crossingBot added to their channels")
+        console.log("Reconnecting, updating list of users that want CrossingBot added to their channels")
         process.applyNewCrossingBotSettingForUsers(setOptionsForConnection) 
         })
     }, duration)
@@ -71,27 +71,37 @@ let connectToTwitch = (publicConnection) => {
         }
     
         else if(command == "!bug"){ 
-            Twitch_Data["time"] = parseInt(new Date().getTime() / 1000)
-            if(timeDictionary[Twitch_Data["username"]] == undefined || Twitch_Data["time"] - timeDictionary[Twitch_Data["username"]] > 60 ){
-                Twitch_Data["species"] = BUG
-                timeDictionary[Twitch_Data["username"]] = Twitch_Data["time"]
+
+            Twitch_Data["species"] = BUG
+            Twitch_Data["time"] =  { bugTime : parseInt(new Date().getTime() / 1000)}
+            let username = Twitch_Data["username"]
+            
+            if(timeDictionary[username] == undefined){
+                timeDictionary[username] = Twitch_Data["time"];
+            }else if(timeDictionary[username].bugTime == undefined || Twitch_Data["time"] - timeDictionary[username].bugTime > 60){
+                timeDictionary[username] = Object.assign(timeDictionary[username], Twitch_Data["time"]);
             }else{
                 Twitch_Data["failure"] = true
-                Twitch_Data["error"] = `There is still ${60 - (Twitch_Data["time"] - timeDictionary[Twitch_Data["username"]])} seconds until you can catch another bug`
+                Twitch_Data["error"] = `There is still ${60 - (Twitch_Data["time"].bugTime - timeDictionary[username].bugTime)} seconds until you can catch another bug`
             }
             process.catchRequest(Twitch_Data)
         }
     
         else if(command == "!fish"){
-            Twitch_Data["time"] = parseInt(new Date().getTime() / 1000)
-            if(timeDictionary[Twitch_Data["username"]] == undefined || Twitch_Data["time"] - timeDictionary[Twitch_Data["username"]] < 60 ){
-                Twitch_Data["species"] = FISH
-                timeDictionary[Twitch_Data["username"]] = Twitch_Data["time"]
-                
+
+            Twitch_Data["species"] = FISH
+            Twitch_Data["time"] =  { fishTime : parseInt(new Date().getTime() / 1000)}
+            let username = Twitch_Data["username"]
+
+            if(timeDictionary[username] == undefined){
+                timeDictionary[username] = Twitch_Data["time"];
+            }else if(timeDictionary[username].fishTime == undefined || Twitch_Data["time"] - timeDictionary[username].fishTime > 60){
+                timeDictionary[username] = Object.assign(timeDictionary[username], Twitch_Data["time"]);
             }else{
                 Twitch_Data["failure"] = true
-                Twitch_Data["error"] = `There is still ${60 - (Twitch_Data["time"] - timeDictionary[Twitch_Data["username"]])} seconds until you can catch another fish`
+                Twitch_Data["error"] = `There is still ${60 - (Twitch_Data["time"].fishTime - timeDictionary[username].fishTime)} seconds until you can catch another fish`
             }
+
             process.catchRequest(Twitch_Data)
         }
     
@@ -164,9 +174,10 @@ let connectToTwitch = (publicConnection) => {
     });
     
     let properlyCaseCreatureName = (command) => {
-        let commandAsListOfWords = command.trim().split(" ").map(word => word.substring(0,1).toUpperCase() + word.substring(1).toLowerCase()+" ")
-        let creatureNameProperlyCased = commandAsListOfWords.filter((word, idx) => idx > 0)
-        return creatureNameProperlyCased.join("").trim()
+        let commandAsListOfWords = command.trim().split(" ").map(word => word.substring(0,1).toUpperCase() + word.substring(1)+" ")
+        let creatureNameProperlyCased = commandAsListOfWords.filter((word, idx) => idx > 0).join("").trim()
+        let creatureHyphensAddressed = creatureNameProperlyCased.split("-").map( word => word.substring(0,1).toUpperCase() + word.substring(1)).join("-").trim()
+        return creatureHyphensAddressed
     }
     
     let createCreatureDictionary = (bugList, fishList) => {
@@ -220,4 +231,6 @@ let connectToTwitch = (publicConnection) => {
     }   
 }
 
-startApp()
+module.exports.startBot = startBot
+
+

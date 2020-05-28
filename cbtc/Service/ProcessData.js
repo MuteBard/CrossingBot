@@ -62,8 +62,8 @@ exports.turnipsStatsRequest = (Twitch_Data) => {
             if(CBAS_Data.quantity != 0){
                 let change = ""
                 if(CBAS_Data.netGainLossAsBells == 0) change = `haven't changed in value`
-                else if (CBAS_Data.netGainLossAsBells > 0) change = `increased in value by ${CBAS_Data.netGainLossAsBells} at a rate of ${CBAS_Data.netGainLossAsPercentage}` 
-                else change = `decreased in value by ${CBAS_Data.netGainLossAsBells} at a rate of ${CBAS_Data.netGainLossAsPercentage}`
+                else if (CBAS_Data.netGainLossAsBells > 0) change = `increased in value by ${CBAS_Data.netGainLossAsBells} bells at a rate of ${CBAS_Data.netGainLossAsPercentage}%` 
+                else change = `decreased in value by ${CBAS_Data.netGainLossAsBells} bells at a rate of ${CBAS_Data.netGainLossAsPercentage}%`
                 message = `${Twitch_Data.username}, you have ${CBAS_Data.quantity} ${turnipsPlural}! So far your ${turnipsPlural} have ${change} ${addFlower()}` 
             }else{
                 message = `${Twitch_Data.username}, you have 0 ${turnipsPlural}! ${addFlower()}` 
@@ -98,7 +98,6 @@ exports.catchRequest = (Twitch_Data) => {
                 message
             })
         }
-        console.log("enteredB")
         Route.mutateUserPocketCatch(CBAS_Payload, Twitch_Payload)  
 
     }else{
@@ -143,7 +142,6 @@ exports.pocketRequest = (Twitch_Data) => {
 }
 
 exports.creatureRequest = (Twitch_Data) => {
-    console.log(Twitch_Data)
     if(!Twitch_Data.failure){
         let CBAS_Payload = { "species" : Twitch_Data.species, "creatureName" : Twitch_Data.creatureName } 
         let Twitch_Payload = (response) => { 
@@ -182,11 +180,16 @@ exports.sellOneRequest = (Twitch_Data) => {
         let Twitch_Payload = (response) => { 
             let CBAS_Data = null
             let message = ""
+
             if(response != null){
-                CBAS_Data = response.sellOneCreature
-                message = `${Twitch_Data.username}, you sold ${Twitch_Data.creatureName} for ${CBAS_Data} ${addFlower()}`
+                CBAS_Data = response.sellOneCreatures
+                if(CBAS_Data > 0){
+                    message = `${Twitch_Data.username}, you sold everything for ${CBAS_Data}! ${addFlower()}`
+                }else{
+                    message = `${Twitch_Data.username}, you do not have that ${Twitch_Data.species} ${addFlower()}`
+                }
             }else{
-                message = `${Twitch_Data.username}, you do not have that ${Twitch_Data.species} to sell ${addFlower()}`
+                message = `${Twitch_Data.username}, try !bug or !fish first. ${addFlower()}`
             }
             respondToTwitch({
                 channel : Twitch_Data.channel,
@@ -232,7 +235,6 @@ exports.rareCreaturesRequest = (Twitch_Data) => {
             if(CBAS_Payload.species == BUG){
                 CBAS_Data = response.getAllRareBugsByMonth
             }else if(CBAS_Payload.species == FISH){
-                console.log(response)
                 CBAS_Data = response.getAllRareFishesByMonth
             }
             let pluaralSpecies = CBAS_Payload.species == BUG ? "bugs" : "fishes"
@@ -266,7 +268,6 @@ exports.validatingTurnipTransactionRequest = (Twitch_Data) => {
                 bank.updateUserInPendingTransactionDictionary(Twitch_Data.username, CBAS_Data.marketPrice, CBAS_Data.totalBells)
 
             }else if(status == "unauthorized"){
-                console.log("unauthorized", CBAS_Data)
                 let reason = CBAS_Data.status.split("-")[1].toLowerCase(0).trim()
                 message = `${Twitch_Data.username}, you are ${status} to ${CBAS_Data.business} ${CBAS_Data.quantity} ${turnipsPlural} at a market price of ${CBAS_Data.marketPrice} bells for a total of ${CBAS_Data.totalBells} bells. You have ${reason} ${addFlower()}`
                 bank.deleteUserFromPendingTransactionDictionary(Twitch_Data.username)

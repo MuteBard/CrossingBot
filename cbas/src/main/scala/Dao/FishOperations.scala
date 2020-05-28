@@ -11,10 +11,12 @@ import org.mongodb.scala.bson.codecs.Macros._
 
 import scala.util.{Failure, Random, Success}
 import Actors.Initializer.system
+import org.mongodb.scala.model.Filters
 
 import scala.concurrent.duration._
 import scala.concurrent.Await
 import system.dispatcher
+
 import scala.language.postfixOps
 
 
@@ -27,11 +29,17 @@ object FishOperations extends MongoDBOperations {
 		.withCodecRegistry(codecRegistry)
 
 	def createAll(): Unit = {
-		val source = Source(Fishes)
-		val taskFuture = source.grouped(2).runWith(MongoSink.insertMany[Fish](allFishes))
-		taskFuture.onComplete{
-			case Success(_) => log.info("FishOperations","createAll","Success",s"Created ${Fishes.length} FISH")
-			case Failure (ex) => log.warn("FishOperations","createAll","Failure",s"Failed create: $ex")
+		val source = Source(Fishes).map(_ => Filters.eq("species", "fish"))
+		val taskFuture = source.runWith(MongoSink.deleteMany(allFishes))
+		taskFuture.onComplete {
+			case Success(_) =>
+				val secondSource = Source(Fishes)
+				val secondTaskFuture = secondSource.grouped(2).runWith(MongoSink.insertMany[Fish](allFishes))
+				secondTaskFuture.onComplete {
+					case Success(_) => log.info("FishOperations", "createAll", "Success", s"Created ${Fishes.length} FISH")
+					case Failure(ex) => log.warn("FishOperations", "createAll", "Failure", s"Failed create: $ex")
+				}
+			case Failure(ex) => log.warn("FishOperations", "createAll", "Failure", s"Failed delete all: $ex")
 		}
 	}
 

@@ -11,9 +11,12 @@ import org.mongodb.scala.bson.codecs.Macros._
 
 import scala.util.{Failure, Random, Success}
 import Actors.Initializer.system
+import org.mongodb.scala.model.Filters
+
 import scala.concurrent.duration._
 import scala.concurrent.Await
 import system.dispatcher
+
 import scala.language.postfixOps
 
 
@@ -25,13 +28,21 @@ object BugOperations extends MongoDBOperations{
 		.withCodecRegistry(codecRegistry)
 
 	def createAll(): Unit = {
-		val source = Source(Bugs)
-		val taskFuture = source.grouped(2).runWith(MongoSink.insertMany(allBugs))
-		taskFuture.onComplete{
-			case Success(_) => log.info("BugOperations","createAll","Success",s"Created ${Bugs.length} BUG")
-			case Failure (ex) => log.warn("BugOperations","createAll","Failure",s"Failed create: $ex")
+		val source = Source(Bugs).map(_ => Filters.eq("species", "bug"))
+		val taskFuture = source.runWith(MongoSink.deleteMany(allBugs))
+		taskFuture.onComplete {
+			case Success(_) =>
+				val secondSource = Source(Bugs)
+				val secondTaskFuture = secondSource.grouped(2).runWith(MongoSink.insertMany[Bug](allBugs))
+				secondTaskFuture.onComplete {
+					case Success(_) => log.info("BugOperations", "createAll", "Success", s"Created ${Bugs.length} FISH")
+					case Failure(ex) => log.warn("BugOperations", "createAll", "Failure", s"Failed create: $ex")
+				}
+			case Failure(ex) => log.warn("BugOperations", "createAll", "Failure", s"Failed delete all: $ex")
 		}
 	}
+
+
 
 	def readAll(): List[Bug] = {
 		val source = MongoSource(allBugs.find(classOf[Bug]))
