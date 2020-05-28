@@ -12,7 +12,7 @@ const fetch = createApolloFetch({ uri })
 let queryGraphQL = (query, callback) => {
     fetch({ query })
     .then(CBAS_response => {
-        console.log(CBAS_response)
+        console.log("CBAS_response", CBAS_response)
         callback(CBAS_response.data)
     }).catch(error =>{
         callback(null)
@@ -37,7 +37,6 @@ exports.queryAllAddedUsers = (CBTC_DataBank) => {
 
 exports.mutateAddCBforUser = (CBAS_Payload, callback) => {
     let mutation = Mutation.UPDATE_USER_HOME_SET_CROSSINGBOT(CBAS_Payload.username, CBAS_Payload.added)
-    console.log(mutation)
     queryGraphQL(mutation, callback)
 }
 
@@ -90,7 +89,6 @@ exports.mutateUserPocketCatch = (CBAS_Payload, Twitch_Payload) => {
                 CBAS_Payload["id"] = Number(Twitch_Response.data.data[0].id)
                 CBAS_Payload["avatar"] = Twitch_Response.data.data[0].profile_image_url 
                 var secondMutation = Mutation.COMPLETE_USER_CREATION(CBAS_Payload.username, CBAS_Payload.id, CBAS_Payload.avatar)
-                console.log("secondMutation",secondMutation)
                 
                 //do a final mutation to the user and update those fields on the user
                 setTimeout(() => {

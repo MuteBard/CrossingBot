@@ -55,7 +55,6 @@ supplyBankWithCreatures = () => {
 
 supplyBankWithAddedUsers = (callback) => {
     let CBTC_DataBank = (response) => {
-        console.log("CBTC_DataBank", response)
         usernames = response.getUsersWithCBAdded.map(user => `#${user.username}`)
         module.exports.usernames = usernames 
         if(callback != null){

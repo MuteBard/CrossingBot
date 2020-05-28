@@ -25,6 +25,7 @@ object UserActor {
 	case class Read_One_User(username : String)
 	case class Read_One_User_With_Pending_Turnip_Transaction(username : String, business : String, quantity : Int)
 	case object Read_All_Stream_Added_Users
+	case object Read_All_Stalks_Purchased
 	case class Update_User_Stream_Added(username: String, addedToChannel : Boolean)
 	case class FinalizeUserCreation(username:  String, id : Int, avatar : String)
 	case class Update_One_User_With_Executing_Turnip_Transaction(username : String, business: String, quantity : Int, marketPrice: Int, totalBells: Int)
@@ -130,6 +131,11 @@ class UserActor extends Actor with ActorLogging{
 			val userList = UserOperations.readAllChannelsWithCrossingBotAdded().toList
 			sender() ! userList
 
+		case Read_All_Stalks_Purchased =>
+			log.info(s"[Read_All_Stalks_Purchased] Getting the total live stalks")
+			val turnips = UserOperations.readTotalStalks()
+			sender() ! turnips
+
 		case Update_User_Stream_Added(username, added ) =>
 			log.info(s"[Read_All_Stream_Added_Users] changing $username's addToChannel value to $added")
 			UserOperations.updateUserChannelsWithCrossingBotAdded(username, added)
@@ -228,8 +234,10 @@ class UserActor extends Actor with ActorLogging{
 				}
 			}
 
-		case Update_One_User_With_Creature(username, species) =>
+		case Update_One_User_With_Creature(username, speciesType) =>
 			val merge : (String, String) => String = (s1, s2) => s1 + s2+" "
+			val species = speciesType.toLowerCase()
+
 			if(species.toLowerCase() == BUG){
 				val bug = Await.result((bugActor ? BugActor.Read_One_Bug_By_Random()).mapTo[Bug], chill seconds)
 				log.info(s"[Update_One_User_With_Creature] Verifying if USER with username $username exists")
@@ -240,6 +248,10 @@ class UserActor extends Actor with ActorLogging{
 					log.info(s"[Update_One_User_With_Creature] $username exists, checking if user has more than 10 bugs")
 					if(user.pocket.bug.length < 10){
 						log.info(s"[Update_One_User_With_Creature] Updating pocket")
+						println(pocket)
+						println(pocket.bug)
+						println(pocket.bug.head)
+
 						UserOperations.updateUserPocket(userSeq.head, species, pocket)
 						sender() ! s"Success | Update | {#name#:#${bug.name}#,#bells#:#${bug.bells}#,#rarity#:#${bug.rarity}#,#availability#:#${bug.availability.fold("")(merge).trim()}#,#img#:#${bug.img}#}"
 					}else{
@@ -298,16 +310,16 @@ class UserActor extends Actor with ActorLogging{
 				sender() ! "Failed"
 			}
 
-		case Delete_One_Creature_From_Pocket(username, species, creatureName) =>
+		case Delete_One_Creature_From_Pocket(username, speciesType, creatureName) =>
 			log.info(s"[Delete_One_Creature_From_Pocket] Selling and deleting $creatureName in $username's pocket")
+			val species = speciesType.toLowerCase()
 			val userSeq = UserOperations.readOneUser(username)
-
 			val userExists = userSeq.nonEmpty
 			if (userExists) {
 				if (species == BUG) {
 					if (userSeq.head.pocket.bug.map(bug => bug.name).contains(creatureName)){
 						val creatureBells = Await.result((bugActor ? BugActor.Read_One_Bug_By_Name(creatureName)).mapTo[Bug], chill seconds).bells
-						UserOperations.deleteOneForUser(username, creatureName, creatureBells)
+						UserOperations.deleteOneForUser(userSeq.head, username, species, creatureName, creatureBells)
 						sender() ! creatureBells
 					}else{
 						sender() ! 0
@@ -316,7 +328,7 @@ class UserActor extends Actor with ActorLogging{
 				} else if (species == FISH) {
 					if (userSeq.head.pocket.fish.map(fish => fish.name).contains(creatureName)) {
 						val creatureBells = Await.result((fishActor ? FishActor.Read_One_Fish_By_Name(creatureName)).mapTo[Fish], chill seconds).bells
-						UserOperations.deleteOneForUser(username, creatureName, creatureBells)
+						UserOperations.deleteOneForUser(userSeq.head, username, species, creatureName, creatureBells)
 						sender() ! creatureBells
 					}else{
 						sender() ! 0

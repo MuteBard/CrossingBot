@@ -175,6 +175,7 @@ exports.creatureRequest = (Twitch_Data) => {
 
 exports.sellOneRequest = (Twitch_Data) => {
     if(!Twitch_Data.failure){
+        console.log("sellOneRequest",Twitch_Data)
 
         let CBAS_Payload = { "username" : Twitch_Data.username, "species" : Twitch_Data.species, "creatureName" : Twitch_Data.creatureName } 
         let Twitch_Payload = (response) => { 
@@ -182,9 +183,10 @@ exports.sellOneRequest = (Twitch_Data) => {
             let message = ""
 
             if(response != null){
-                CBAS_Data = response.sellOneCreatures
+                CBAS_Data = response.sellOneCreature
+                console.log("CHECK", CBAS_Data)
                 if(CBAS_Data > 0){
-                    message = `${Twitch_Data.username}, you sold everything for ${CBAS_Data}! ${addFlower()}`
+                    message = `${Twitch_Data.username}, you sold the ${Twitch_Data.creatureName} for ${CBAS_Data}! ${addFlower()}`
                 }else{
                     message = `${Twitch_Data.username}, you do not have that ${Twitch_Data.species} ${addFlower()}`
                 }

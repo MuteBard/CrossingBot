@@ -83,7 +83,7 @@ object BugData {
 		Bug(77, "bug", "Centipede", 300, List("JAN","FEB","MAR","APR","MAY","JUN","SEP","OCT","NOV","DEC"), 1, "https://cdn.discordapp.com/attachments/713104561446977637/713107020013895690/NH-Icon-centipede.png" ),
 		Bug(78, "bug", "Spider", 300, List("JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"), 1, "https://cdn.discordapp.com/attachments/713104561446977637/713107042050637874/NH-Icon-spider.png" ),
 		Bug(79, "bug", "Tarantula", 8000, List("JAN","FEB","MAR","APR","NOV","DEC"), 4, "https://cdn.discordapp.com/attachments/713104561446977637/713107061449162822/NH-Icon-tarantula.png" ),
-		Bug(80, "bug", "Scorpion", 8000, List("MAY","JUN","JUL","AUG","SEP","OCT"), 4, "https://cdn.discordapp.com/attachments/713104561446977637/713107086841741333/NH-Icon-scorpion.png" )
+		Bug(80, "bug", "Scorpion", 8000, List("MAY","JUN","JUL","AUG","SEP","OCT"), 1, "https://cdn.discordapp.com/attachments/713104561446977637/713107086841741333/NH-Icon-scorpion.png" )
 	)
 }
 

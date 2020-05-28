@@ -7,12 +7,12 @@ import Actors.Initializer._
 import Model.MovementRecord_.MovementRecord
 import Model.TurnipTransaction_.TurnipTransaction
 import zio.{IO, UIO}
-import akka.pattern.ask
-import akka.util.Timeout
-import scala.language.postfixOps
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
+import scala.language.postfixOps
+import akka.util.Timeout
+import akka.pattern.ask
 
 object Service {
 
@@ -110,9 +110,10 @@ object Service {
 	}
 
 	class CBS extends CrossingBotService{
-		implicit val timeout: Timeout = Timeout(5 seconds)
 		var num = 0
 		val chill = 10
+		implicit val timeout: Timeout = Timeout(chill seconds)
+
 		//--User--
 		//Queries
 		def getUser(username : String) : IO[NotFound, User] = {

@@ -2,12 +2,22 @@ package Actors
 
 import java.util.Calendar
 
+import Actors.UserActor.Read_All_Stalks_Purchased
+import Actors.Initializer._
 import Auxillary.Time._
 import Dao.MarketOperations
 import Model.Day_.Day
 import Model.MovementRecord_.MovementRecord
 import Model.TurnipTime_.TurnipTime
 import akka.actor.{Actor, ActorLogging}
+
+import scala.concurrent.Await
+import scala.concurrent.duration._
+import scala.language.postfixOps
+import akka.util.Timeout
+import akka.pattern.ask
+
+
 
 import scala.language.postfixOps
 
@@ -25,12 +35,15 @@ object MarketActor {
 
 class MarketActor extends Actor with ActorLogging {
 
+
 	import Actors.MarketActor._
 
 	var todayMarket = Day()
 	var dateMarketCreated = ""
 	var currentHourBlockId: Int = -1
 	var currentQuarterBlockId: Int = -1
+	val chill = 10
+	implicit val timeout: Timeout = Timeout(chill seconds)
 
 	override def receive: Receive = {
 
@@ -41,7 +54,6 @@ class MarketActor extends Actor with ActorLogging {
 			val twoMRs = MarketOperations.readLastNDaysMovementRecords(2)
 			val suspectTodayMarket = twoMRs(0)
 
-//			val suspectMovementRecord = MarketOperations.readLatestMovementRecord()
 			val mr =
 				if (suspectTodayMarket.id == todayDateId()) { //if this movement record is within today
 					suspectTodayMarket
@@ -87,7 +99,7 @@ class MarketActor extends Actor with ActorLogging {
 				val high = Math.max(newTurnip.price, mr.todayHigh)
 				val low = Math.min(newTurnip.price, mr.todayLow)
 				val turnipHistory = newTurnip +: mr.turnipHistory
-				val stalksPurchased = if (mr.stalksPurchased >= 0) mr.stalksPurchased else 0
+				val stalksPurchased = Await.result((userActor ? UserActor.Read_All_Stalks_Purchased).mapTo[Int], chill seconds)
 				val latestHourBlock = todayMarket.getHourBlock(newHourBlockId)
 				val latestHourBlockName = todayMarket.getHourBlock(newHourBlockId).name
 				val latestQuarterBlock = todayMarket.getQuarterBlock(newHourBlockId, newQuarterBlockId)

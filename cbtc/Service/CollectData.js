@@ -158,6 +158,7 @@ let connectToTwitch = (publicConnection) => {
     
         else if(command.includes("!sell") && !command.includes("all")){
             let creatureName = properlyCaseCreatureName(command)
+            console.log(creatureName)
             if(isCreatureNameValid(creatureName, creatureDictionary)){
                 Twitch_Data["creatureName"] = creatureName
                 Twitch_Data["species"] = getCreatureSpecies(creatureName, creatureDictionary)

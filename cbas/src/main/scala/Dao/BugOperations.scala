@@ -35,7 +35,7 @@ object BugOperations extends MongoDBOperations{
 				val secondSource = Source(Bugs)
 				val secondTaskFuture = secondSource.grouped(2).runWith(MongoSink.insertMany[Bug](allBugs))
 				secondTaskFuture.onComplete {
-					case Success(_) => log.info("BugOperations", "createAll", "Success", s"Created ${Bugs.length} FISH")
+					case Success(_) => log.info("BugOperations", "createAll", "Success", s"Created ${Bugs.length} BUG")
 					case Failure(ex) => log.warn("BugOperations", "createAll", "Failure", s"Failed create: $ex")
 				}
 			case Failure(ex) => log.warn("BugOperations", "createAll", "Failure", s"Failed delete all: $ex")
