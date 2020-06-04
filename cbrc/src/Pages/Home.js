@@ -1,29 +1,106 @@
 import React, { Component } from 'react';
-import { Row, Col, Card, Button } from 'antd'; 
-
+import { Row, Col, Card, Button, Input } from 'antd'; 
 import "antd/dist/antd.css";
 import "./css/pages.css"
-
 import Route from '../Actions/Route'
 import HeroTop from '../Assets/resolved/HeroTop'
 import HeroBottom from '../Assets/resolved/HeroBottom'
 import LightCog from '../Assets/resolved/backgroundcogLight'
+import TwitchLogo from '../Assets/resolved/twitchLogo'
+import Logo from '../Assets/resolved/logo'
+import MagnifyingGlass from '../Assets/resolved/magnifyingGlass'
+import Key from '../Assets/resolved/key'
+import {settings} from '../Configurations/Options'
+import axios from 'axios'
+
+const { Search } = Input
+const { Meta } = Card;
 
 export default class Home extends Component {
     state = {
-      pressed : false
+      usernameInput : "",
+      validTwitchAccount : false,
+      CBuserExists : false,
+      searchPressed : false,
+      validCBUserCreation : false,
+      authenticateCBPassword : false,
+      authenticatePressed : false,
+      validCBChannelAddition: false,
+      passwordInput : "",
     }
     addCrossingBotToChannel(){
-      let updateUserChannelWithCrossingBot = (data) => {
-        console.log(data)
-        if (data.isCrossingBotAdded == "Success"){
-          this.setState({
-            pressed : true
-          })
-        }
+      // let updateUserChannelWithCrossingBot = (data) => {
+      //   console.log(data)
+      //   if (data.isCrossingBotAdded == "Success"){
+      //     this.setState({
+      //       cbAddedPressed : true
+      //     })
+      //   }
+      // }
+      // let CBAS_Payload = {username : "MuteBard", added : true}
+      // Route.mutateCBforUserOrCreateUser(CBAS_Payload, updateUserChannelWithCrossingBot)
+
+      this.setState({
+        validCBChannelAddition : true
+      })
+    }
+
+    passwordInput(e){
+      console.log(e)
+      this.setState({
+        passwordInput : e
+      })
+    }
+
+
+    usernameInputSearch(e){
+      console.log(e)
+      this.setState({
+        usernameInput : e
+      })
+    }
+
+    submitUser(){
+      if (this.state.passwordInput == "jyjufjydhtsdjkuylktdj"){
+        this.setState({
+          authenticateCBPassword : true,
+          authenticatePressed  : true
+        })
+      }else{
+        this.setState({
+          authenticatePressed  : true
+        })
       }
-      let CBAS_Payload = {username : "MuteBard", added : true}
-      Route.mutateCBforUserOrCreateUser(CBAS_Payload, updateUserChannelWithCrossingBot)
+    }
+
+    searchForUser = async() => {
+      console.log("searchForUser")
+      // let Twitch_Response = await axios({
+      //   method: 'GET',
+      //   url: `https://api.twitch.tv/helix/users?login=${this.state.usernameInput}`,
+      //   headers : settings.headers,
+      // })
+      // .catch(error => console.log(error))
+      if(this.state.usernameInput == "MuteBard"){
+        this.setState({
+          id : 7886767,//Number(Twitch_Response.data.data[0].id),
+          avatar : "hgjhgjhg",//Twitch_Response.data.data[0].profile_image_url,
+          passwordInput : "jyjufjydhtsdjkuylktdj",
+          searchPressed: true,
+          validTwitchAccount : true,
+        })
+      }else{
+        this.setState({
+          searchPressed: true,
+        })
+      }
+    }
+
+    addUserToDB(){
+      console.log(this.state)
+      this.setState({
+        validCBUserCreation: true,
+      })
     }
 
     render() {
@@ -39,27 +116,117 @@ export default class Home extends Component {
           <Row className="row" align="middle">
             <Col span={22} offset={2}>
               <Card style={{ width: 1200, backgroundColor : "#EEEEEE" }}>
-                <div className="howToUse"><strong>How to Register</strong></div>
+                <div className="howToUse"><strong>How to Register / Sign In</strong></div>
                 <ol className="listText">
-                  <li> Press this button <br/>
-                    
+                  <li>First make sure you have a Twitch account at https://www.twitch.tv/</li>
+                  <li>
                     {
-                      this.state.pressed == false 
-                      ? 
-                      <div>
-                        <Button type="primary" key="back" onClick={() => this.addCrossingBotToChannel()}>
-                            Add crossingbot_ to Mutebard's chat
-                        </Button> <br/> 
-                        <div>Or go to a twitch channel that has crossingbot_</div>
+                      this.state.validTwitchAccount == true 
+                      ?
+                      <div>Found your account</div>
+                      :
+                      <div>Search for your Twitch username</div>
+                    }
+                    <div className="searchUser">
+                    {
+                      this.state.validTwitchAccount == true 
+                      ?
+                      <div className="searchMessageContainer">
+                        <div className="searchMessage"><strong>Mutebard</strong><TwitchLogo/></div>
+                        <img alt="example" className="profilePicture" src="https://cdn.discordapp.com/attachments/688616211617284144/708405645845725194/298.png"/>
                       </div>
                       :
-                      <div>Awesome! Now head to your Twitch channel page</div>
+                      <div className="searchInputContainer">
+                          <input type="text" className="searchInput" value={this.state.usernameInput} onChange={event => this.usernameInputSearch(event.target.value)}/>
+                          <button className="button" onClick={() => this.searchForUser()}><MagnifyingGlass/></button>
+                      </div>
+                    }
+                    {
+                      this.state.validTwitchAccount == false && this.state.searchPressed == true
+                      ?
+                      <div className={"error"}>This is not a valid Twitch user account</div> 
+                      :
+                      null
                     }
 
+                    </div>
+                  </li>
+                  {this.state.validTwitchAccount == true 
+                  ?
+                    this.state.CBuserExists == true
+                    ?
+                    <li>
+                      {
+                        this.state.authenticateCBPassword == true
+                        ?
+                        <div>
+                          <div>Success</div>
+                          <div className="logInMessageContainer"> 
+                            <div className="logInMessage"><strong>Signed In</strong><Logo tiny={true}/></div>
+                          </div>
+                        </div>
+                        :
+                        <div>
+                          <div>Enter the provided <strong>Crossingbot</strong> Password (NOT your Twitch Password)</div>
+                            <div className="logInUsersContainer">
+                              <div className="logInUsers">
+                              <input type="text" className="PasswordInput" value={this.state.passwordInput} onChange={event => this.passwordInput(event.target.value)}/>
+                              <button className="button" onClick={() => this.submitUser()}><Key/></button>
+                            </div>
+                              {
+                                this.state.authenticateCBPassword == false && this.state.authenticatePressed == true
+                                ?
+                                <div className={"error"}>This password is not valid</div> 
+                                :
+                                null
+                              }
+                          </div>
+                        </div>
+                      }
+
+
                     </li>
-                  <li>Type <strong>!bug</strong> or <strong>!fish</strong> in the Twitch text channel</li>
-                  <li>Refresh this page</li>
-                  And thats it! You are ready to use CrossingBot either on Twitch and on this website!
+                    :
+                    <li>
+                      {
+                        this.state.validCBUserCreation == true
+                        ?
+                        <div>Success (Store it someplace safe)</div>
+                        :
+                        <div>Create your CrossingBot account by requesting a password</div>
+
+                      }
+                      <div className="createUsers">
+                      {
+                        this.state.validCBUserCreation == true 
+                        ?
+                        <div className="creationMessage"><strong>{this.state.passwordInput}</strong><Logo tiny={true}/></div>
+                        :
+                        <button className="creationMessage button" onClick={() => this.addUserToDB()}><strong>Request a Password</strong></button>
+                      }
+                      </div>
+                    </li>
+                  :
+                    null
+                  }
+
+                  {this.state.validTwitchAccount == true && this.state.validCBUserCreation == true || this.state.validTwitchAccount == true && this.state.authenticateCBPassword == true 
+                  ?
+                  <li>
+                    Add CrossingBot to your twitch channel (Optional)
+                    <div className="createUsers">
+                    {
+                      this.state.validCBChannelAddition == true
+                      ?
+                      <div className="creationMessage"><strong>Awesome! All Set</strong><Logo tiny={true}/></div>
+                      :
+                      <button className="creationMessage button" onClick={() => this.addCrossingBotToChannel()}><strong>Add crossingbot_ to Mutebard's chat</strong></button>
+                    }
+                    </div>
+                  </li>
+                  :
+                  null
+                  }
                 </ol>
               </Card>
             </Col>

@@ -1,4 +1,5 @@
 let secret = require('./Secret');
+//TODO:FIX THIS
 let users = ["#MuteBard"]
 
 exports.settings_A = {

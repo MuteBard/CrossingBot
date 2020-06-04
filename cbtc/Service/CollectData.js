@@ -23,6 +23,7 @@ let setOptionsForConnection = () => {
 
 let connectToTwitch = (publicConnection) => {
         
+    var responseDictionary
     var creatureDictionary = {}
     var pendingTurnipTransactionDictionary = {}
     var timeDictionary = {}

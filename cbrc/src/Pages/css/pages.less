@@ -1,8 +1,12 @@
 @darkgreen : #2A5D67;
 @green : #4AE3B5;
 @darkblue : #171332;
-@gray: #EEEEEE;
+@gray : #708090;
 @white: #FFFFFF;
+@twitch : #5F3BAD;
+@activeTwitch : #983BAD;
+@cardColor : #EEEEEE;
+@error : red;
 
 
 *{
@@ -11,9 +15,14 @@
     -moz-osx-font-smoothing: grayscale;
     
 
+
     .HomeContainer{
         font-family: 'Ubuntu', sans-serif;
         
+        .error {
+            color : @error;
+            margin-left : 20px;
+        }
 
         .welcome{
             font-size: 70px;
@@ -29,6 +38,129 @@
             }
             .listText{
                 font-size: 20px;
+
+                .searchUser{
+                    display:flex;
+                    // justify-content: center;
+                    align-items: center;
+
+  
+                    .profilePicture{
+                        width:2.6em;
+                        margin-left : 15px;
+                        border-radius: 5px;
+                    }
+                    .searchInputContainer{
+                        display : flex;
+                        .searchInput{
+                            margin-left : 15px;
+                            border-radius: 5px 0 0 5px;
+                            border : 3px solid @twitch;
+                            background-color: @cardColor;
+                            outline: none;
+                            font-weight: bold;
+                            padding : 8px;
+                        }
+                        .button{
+                            background-color : @twitch;
+                            border: none;
+                            outline: none;
+                            padding : 7px 5px 5px 5px;  
+                            border-radius: 0 5px 5px 0;
+                        }
+
+                        .button:active {
+                            background-color: @activeTwitch;
+                            box-shadow: 0 0px @gray;
+                        }
+
+                    }
+                    .searchMessageContainer{
+                        display : flex;
+                        align-items: center;
+                        .searchMessage{
+                            margin-left : 15px;
+                            border-radius: 5px;
+                            padding : 10px;
+                            background-color : @twitch;
+                            color : @white;
+                            .twitchImage{
+                                width : 1em;
+                                margin-left : 10px;
+                            }
+                        }
+                    }
+
+                }
+                .logInMessageContainer{
+                    display:flex;
+                    
+                    .logInMessage{
+                        display : flex;
+                        align-items: center;
+                        margin-left : 15px;
+                        border-radius: 5px;
+                        padding : 10px;
+                        background-color : @twitch;
+                        color : @white;   
+                    }
+                }
+                .logInUsersContainer{
+                    display : flex; 
+                    align-items: center;
+                    // flex-direction: column;
+                    .logInUsers{
+                        display : flex;
+    
+                        .PasswordInput{
+                            margin-left : 15px;
+                            border-radius: 5px 0 0 5px;
+                            border : 3px solid @twitch;
+                            background-color: @cardColor;
+                            outline: none;
+                            font-weight: bold;
+                            padding : 8px;
+                        }
+                        .button{
+                            background-color : @twitch;
+                            border: none;
+                            outline: none;
+                            padding : 7px 5px 5px 5px;  
+                            border-radius: 0 5px 5px 0;
+                        }
+    
+                        .button:active {
+                            background-color: @activeTwitch;
+                            box-shadow: 0 0px @gray;
+                        }
+                    }  
+                }
+
+
+                .createUsers{
+                    display : flex;
+                    align-items: center;
+                    .creationMessage{
+                        display : flex;
+                        align-items: center;
+                        margin-left : 15px;
+                        border-radius: 5px;
+                        padding : 10px;
+                        background-color : @twitch;
+                        color : @white;
+                    }
+                    .button {
+                        border: none;
+                        outline: none;
+                        box-shadow: 0 4px@gray;              
+                    }
+
+                    .button:active {
+                        background-color: @activeTwitch;
+                        box-shadow: 0 0px @gray;
+                        transform: translateY(4px);
+                    }
+                }
             }
         }
         

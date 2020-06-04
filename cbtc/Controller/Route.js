@@ -12,7 +12,6 @@ const fetch = createApolloFetch({ uri })
 let queryGraphQL = (query, callback) => {
     fetch({ query })
     .then(CBAS_response => {
-        console.log("CBAS_response", CBAS_response)
         callback(CBAS_response.data)
     }).catch(error =>{
         callback(null)
@@ -132,7 +131,6 @@ exports.queryUserTurnipTransactionStatus = (CBAS_Payload, Twitch_Payload) => {
 }
 
 exports.mutateUserTurnipTransactionStatus = (CBAS_Payload, Twitch_Payload) => {
-    
     let query = Mutation.ACKNOWLEDGE_TRANSACTION(CBAS_Payload.username, CBAS_Payload.business, CBAS_Payload.quantity, CBAS_Payload.marketPrice, CBAS_Payload.totalBells)
     queryGraphQL(query, Twitch_Payload)
 }
@@ -147,4 +145,3 @@ exports.queryTurnipStatsRequest = (CBAS_Payload, Twitch_Payload) => {
     let query = Query.USER_TURNIP_STATS_REQUEST(CBAS_Payload.username)
     queryGraphQL(query, Twitch_Payload)
 }
-

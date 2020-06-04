@@ -34,9 +34,15 @@ supplyBankWithCreatures = () => {
     
     let supplyBankWithBugs = () => {
         let CBTC_DataBank = (response) => {
-            bugBank = response.getAllBugs
-            module.exports.bugBank = bugBank
-            supplyBankWithFishes()
+            try{
+                bugBank = response.getAllBugs
+                console.log(`Obtained ${bugBank.length} bugs`)
+                module.exports.bugBank = bugBank
+                supplyBankWithFishes()
+            }catch(e){
+                console.log(`Obtained 0 bugs, Check GraphQL for issues`)
+            }
+
         }
         Route.queryAllBugs(CBTC_DataBank)
     }
@@ -44,8 +50,15 @@ supplyBankWithCreatures = () => {
     
     let supplyBankWithFishes = () => {
         let CBTC_DataBank = (response) => {
-            fishBank = response.getAllFishes
-            module.exports.fishBank = fishBank
+            try{
+                fishBank = response.getAllFishes
+                console.log(`Obtained ${fishBank.length} fishes`)
+                module.exports.fishBank = fishBank            
+            }catch(e){
+                console.log(`Obtained 0 fishes, Check GraphQL for issues`)
+            }
+
+            
         }
         Route.queryAllFishes(CBTC_DataBank)
     }
@@ -55,10 +68,15 @@ supplyBankWithCreatures = () => {
 
 supplyBankWithAddedUsers = (callback) => {
     let CBTC_DataBank = (response) => {
-        usernames = response.getUsersWithCBAdded.map(user => `#${user.username}`)
-        module.exports.usernames = usernames 
-        if(callback != null){
-            callback()
+        try{
+            usernames = response.getUsersWithCBAdded.map(user => `#${user.username}`)
+            console.log(`Obtained ${usernames.length} users with crossingbot added on their channel`)
+            module.exports.usernames = usernames 
+            if(callback != null){
+                callback()
+            }
+        }catch(e){
+            console.log("Something went wrong in getting users: "+e)
         }
     }
     Route.queryAllAddedUsers(CBTC_DataBank)
