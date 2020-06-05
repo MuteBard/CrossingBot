@@ -1,4 +1,4 @@
-let secret = require('./Secret');
+let secret = require('./Secrets');
   
 exports.settings = {
   headers: {
