@@ -8,9 +8,9 @@ let UPDATE_USER_PW = (username, encryptedPw) =>
     updateEncryptedPw(username : ${"\""+username+"\""}, encryptedPw : ${"\""+encryptedPw+"\""})
 }`
 
-let CREATE_USER = (username, id, avatar, addedToChannel) =>
+let CREATE_USER_VIA_CBRC = (username, id, avatar, addedToChannel) =>
 `mutation{
-    createUser(username : ${"\""+username+"\""}, id : ${"\""+id+"\""}, avatar : ${"\""+avatar+"\""}, addedToChannel : ${"\""+addedToChannel+"\""})
+    createOneUser(username : ${"\""+username+"\""}, id : ${id}, avatar : ${"\""+avatar+"\""}, addedToChannel : ${addedToChannel})
 }`
 
 let CATCH_REQUEST = (username, species) =>
@@ -35,7 +35,7 @@ let ACKNOWLEDGE_TRANSACTION = (username, business, quantity, marketPrice, totalB
     acknowledgeTransaction(username : ${"\""+username+"\""}, business: ${"\""+business+"\""}, quantity: ${quantity}, marketPrice: ${marketPrice}, totalBells: ${marketPrice})
 }`
 
-module.exports.CREATE_USER = CREATE_USER
+module.exports.CREATE_USER_VIA_CBRC = CREATE_USER_VIA_CBRC
 module.exports.UPDATE_USER_HOME_SET_CROSSINGBOT = UPDATE_USER_HOME_SET_CROSSINGBOT
 module.exports.CATCH_REQUEST = CATCH_REQUEST
 module.exports.COMPLETE_USER_CREATION  = COMPLETE_USER_CREATION 

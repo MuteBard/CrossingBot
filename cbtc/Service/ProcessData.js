@@ -10,10 +10,19 @@ let respondToTwitch = (Twitch_Payload) =>{
     maintainConnection.publicConnection.action(Twitch_Payload.channel, Twitch_Payload.message)
 }
 
+exports.CBJoinChannel = (username) => {
+    console.log("B")
+    maintainConnection.publicConnection.join(username)
+}
+
+exports.sendMessageToTwitchUponInvite = (username) => {
+    respondToTwitch({channel: `#${username.toLowerCase()}`, message : `${username}, you have added CrossingBot to your channel! Head back to the CrossingBot website on your browser!${addFlower()}`})
+}
+
 exports.applyNewCrossingBotSettingForUsers = (callback) => {
     bank.supplyBankWithAddedUsers(callback)
 }
-
+ 
 exports.setCBForUser = (Twitch_Data) => {
     let CBAS_Payload = {"username" : Twitch_Data.username, "added" : Twitch_Data.added } 
     let Twitch_Payload = (response) => { 

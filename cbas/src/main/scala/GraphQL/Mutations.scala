@@ -10,7 +10,7 @@ object Mutations {
 	case class dummyArgs(dummy : Boolean)
 	case class Mutations(
 	    //User
-	    createUser :              createUserArgs => UIO[String],
+	    createOneUser :           createUserArgs => UIO[String],
 	    catchCreature :           catchCreatureArgs => IO[NotFound, String],
 	    isCrossingBotAdded:       addToChannelArgs => UIO[String],
 	    finalizeUserCreation :     finalizeUserArgs => IO[NotFound, String],

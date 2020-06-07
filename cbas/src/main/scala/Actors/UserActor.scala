@@ -48,6 +48,7 @@ class UserActor extends Actor with ActorLogging{
 	override def receive: Receive = {
 
 		case Create_One_User(username, id, avatar, addedToChannel) => {
+			log.info(s"[Create_One_User] Creating user $username")
 			val newUser = User(username = username,  id = id, avatar = avatar, addedToChannel = addedToChannel)
 			UserOperations.createOneUser(newUser)
 			sender() ! "Success"

@@ -119,7 +119,7 @@ object Service {
 		//Queries
 		def getUser(username : String) : IO[NotFound, User] = {
 			val user = Await.result((userActor ? UserActor.Read_One_User(username)).mapTo[User], chill seconds)
-			if(user.id != -2) IO.succeed(user)
+			if (user.id != -2) IO.succeed(user)
 			else IO.fail(NotFound(""))
 		}
 
@@ -236,6 +236,7 @@ object Service {
 
 		//Mutations
 		def createOneUser(username: String, id: Int, avatar: String, addedToChannel: Boolean): UIO[String] = {
+			println("HELLO")
 			val status = Await.result((userActor ? UserActor.Create_One_User(username, id, avatar, addedToChannel)).mapTo[String], chill seconds)
 			IO.succeed(status)
 		}

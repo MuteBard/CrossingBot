@@ -1,4 +1,3 @@
-const generator = require('generate-password');
 const uri = 'http://localhost:5000/api/graphql'
 const headers = require('../Configurations/Options').settings_B.headers
 const BUG = "bug"  
@@ -8,6 +7,7 @@ const Query = require('./Queries')
 const Mutation = require('./Mutations')
 const minutes = require('../Cron/Timing').minutes
 const CBTC_DataBank = require('../FlashData/Bank')
+const process = require('../Service/ProcessData')
 // const duration = minutes(5)
 const { createApolloFetch } = require('apollo-fetch');
 const fetch = createApolloFetch({ uri })
@@ -18,12 +18,14 @@ const pwOptions =
 exports.rest = (app) => {
     app.post('/authenticateUser', (req, res) => {
         let CBAS_Payload = {"username" : req.body.username }
+        console.log("Z")
 
         let CBRC_Payload = (data) => {
             let i = 0;
             let intervalId = setInterval(() => { 
                 if(CBTC_DataBank.hasInvitedUser(req.body.username)){
                     clearInterval(intervalId);
+                    process.sendMessageToTwitchUponInvite(req.body.username)
                     res.send(data)
                 }
                 if(i > 300){
@@ -109,31 +111,49 @@ exports.mutateUserPocketCatch = (CBAS_Payload, Twitch_Payload) => {
             Twitch_Payload(JSON.parse(creatureData))
 
             if (operation == "Create"){
-        
-                let Twitch_Response = await axios({
-                    method: 'GET',
-                    url: `https://api.twitch.tv/helix/users?login=${ CBAS_Payload.username }`,
-                    headers,
-                })
-                .catch(error => console.log(error))
-                CBAS_Payload["id"] = Number(Twitch_Response.data.data[0].id)
-                CBAS_Payload["avatar"] = Twitch_Response.data.data[0].profile_image_url 
-                var secondMutation = Mutation.COMPLETE_USER_CREATION(CBAS_Payload.username, CBAS_Payload.id, CBAS_Payload.avatar)
-                
-                //do a final mutation to the user and update those fields on the user
-                setTimeout(() => {
-                    fetch({ query : secondMutation })
-                    .then(Second_CBAS_Response => {
-                        if(Second_CBAS_Response.data.finalizeUserCreation == "Success"){
-                            console.log(`User creation of ${CBAS_Payload.username} is complete`)
-                        }
-                    })
-                    .catch(error => console.log(error)) 
-                }, 3000);
+                createUser(username, false)
             }
         }
     }) 
     .catch(error => console.log(error)) 
+}
+
+let createUser = async (username, calledByCBRC) => {
+    // let Twitch_Response = await axios({
+    //     method: 'GET',
+    //     url: `https://api.twitch.tv/helix/users?login=${ username }`,
+    //     headers,
+    // })
+    // .catch(error => console.log(error))
+    let CBAS_Payload = {}
+    CBAS_Payload["id"] = 100//Number(Twitch_Response.data.data[0].id)
+    CBAS_Payload["avatar"] = "abc"// Twitch_Response.data.data[0].profile_image_url 
+    console.log(CBAS_Payload)
+
+    var mutation = ""
+    if (calledByCBRC){
+        let addedToChannel = true
+        mutation = Mutation.CREATE_USER_VIA_CBRC(username, CBAS_Payload.id, CBAS_Payload.avatar, addedToChannel)
+    }else{
+        mutation = Mutation.COMPLETE_USER_CREATION(username, CBAS_Payload.id, CBAS_Payload.avatar)
+    }
+    
+    //do a final mutation to the user and update those fields on the user
+    setTimeout(() => {
+        console.log("G")
+        fetch({ query : mutation })
+        .then(CBAS_Response => {
+            console.log(CBAS_Response)
+            if(calledByCBRC && CBAS_Response.data.finalizeUserCreation == "Success"){
+                console.log(`User creation of ${username} is complete`)  
+            }
+            else if(CBAS_Response.data.finalizeUserCreation == "Success"){
+                console.log(`User creation of ${username} is complete`)
+            }
+        })
+        .catch(error => console.log(error)) 
+    }, 3000);
+    return CBAS_Payload
 }
 
 exports.mutateUserPocketSellOne = (CBAS_Payload, Twitch_Payload) => {
@@ -200,16 +220,13 @@ let queryUser = (CBAS_Payload, CBRC_Payload) => {
             
         }else{
             //1B
+            console.log("A")
             CBRC_Data["userExists"] = false
             CBRC_Data["pwExists"] = false
-            let Twitch_Response = await axios({
-                method: 'GET',
-                url: `https://api.twitch.tv/helix/users?login=${ CBAS_Payload.username }`,
-                headers,
-            })
-            .catch(error => console.log(error))
-            CBRC_Data["id"] = Number(Twitch_Response.data.data[0].id)
-            CBRC_Data["avatar"] = Twitch_Response.data.data[0].profile_image_url 
+            let data = await createUser(CBAS_Payload.username, true)
+            CBRC_Data["id"] = data.id
+            CBRC_Data["avatar"] = data.avatar
+            process.CBJoinChannel(CBAS_Payload.username)
             CBRC_Payload(CBRC_Data)
         }
     }).catch(error =>{
@@ -217,21 +234,3 @@ let queryUser = (CBAS_Payload, CBRC_Payload) => {
     })    
 }
 
-                    // CBRC_Data["pw"] = generator.generate({
-                    //     length : 12,
-                    //     numbers : true,
-                    //     lowercase : true,
-                    //     uppercase : true,
-                    //     symbols : true,
-                    //     excludeSimilarCharacters : true,
-                    // });
-                    // let encryptedPw = CBRC_Data["pw"] 
-                    // let mutate_2B = Mutation.UPDATE_USER_PW(CBAS_Payload.username, encryptedPw )
-                    // fetch({ query : mutate_2B })
-                    // .then(CBAS_Response => {
-                    //     if(CBAS_Response.data.updateEncryptedPw == "Success"){
-                    //         console.log(`[2B]: ${CBAS_Payload.username} account is updated`)
-                    //         CBRC_Payload(CBRC_Data)
-                    //     }
-                    // })
-                    // .catch(error => console.log(error)) 
