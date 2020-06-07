@@ -1,16 +1,35 @@
-const url = "http://localhost:5000/api/graphql"
+const CBAS_url = "http://localhost:5000/api/graphql"
+const CBTC_url = "http://localhost:4000"
 const BUG = "bug"  
 const FISH  = "fish" 
 const Query = require('./Queries')
 const Mutation = require('./Mutations')
 const axios = require('axios')
 
+
+
+//REST (client)
+let RestCall = (config, callback) => {
+    axios(config).then(CBTC_response => callback(CBTC_response.data))
+}
+
+exports.authenticateUser = (CBTC_Payload, callback) => {
+    console.log(CBTC_Payload)
+    RestCall({
+        url : `${CBTC_url}/authenticateUser`,
+        method : "post",
+        data : CBTC_Payload
+    }, callback)
+}
+
+//GraphQL (client)
 let queryGraphQL = (query, callback) => {
     axios({
-        url,
+        url : CBAS_url,
         method: 'post',
         data: { query }
     }).then(CBAS_response => {
+        console.log(CBAS_response)
         callback(CBAS_response.data.data)
     }).catch(error => {
         console.log(error) 
@@ -63,7 +82,7 @@ exports.mutateCatchCatchOneCreature = async (CBAS_Payload, callback) => {
     let mutation = Mutation.UPDATE_USER_CATCH_CATCH_ONE(CBAS_Payload.username, CBAS_Payload.species)
     
     let CBAS_Response = await axios({
-        url,
+        url : CBAS_url,
         method: 'post',
         data: { query : mutation }
     }).catch(error => {

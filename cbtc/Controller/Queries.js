@@ -8,6 +8,18 @@ let USER_BELLS_REQUEST = (username) =>
     }
 }`
 
+let USER_EXISTS_REQUEST = (username) => 
+`query{
+    getDoesUserExist(username:${"\""+username+"\""})
+}`
+
+let USER_PW_EXISTS_REQUEST = (username) => 
+`query{
+    getUser(username:${"\""+username+"\""}){
+        encryptedPw 
+    }
+}`
+
 let USER_TURNIP_STATS_REQUEST = (username) =>
 `query{
     getUser(username:${"\""+username+"\""}){
@@ -210,3 +222,5 @@ module.exports.CREATURE_SUMMARY_BY_NAME = CREATURE_SUMMARY_BY_NAME
 module.exports.ALL_BUGS = ALL_BUGS
 module.exports.ALL_FISHES = ALL_FISHES
 module.exports.ALL_ADDED_USERS = ALL_ADDED_USERS
+module.exports.USER_EXISTS_REQUEST = USER_EXISTS_REQUEST
+module.exports.USER_PW_EXISTS_REQUEST = USER_PW_EXISTS_REQUEST

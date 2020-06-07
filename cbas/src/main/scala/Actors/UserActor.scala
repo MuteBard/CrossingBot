@@ -22,6 +22,7 @@ import scala.language.postfixOps
 object UserActor {
 
 	case class Create_One_User(username : String, id : Int, avatar: String, addedToChannel : Boolean)
+	case class Read_Does_User_Exist(username : String)
 	case class Read_One_User(username : String)
 	case class Read_One_User_With_Pending_Turnip_Transaction(username : String, business : String, quantity : Int)
 	case object Read_All_Stream_Added_Users
@@ -51,6 +52,11 @@ class UserActor extends Actor with ActorLogging{
 			UserOperations.createOneUser(newUser)
 			sender() ! "Success"
 		}
+
+		case Read_Does_User_Exist(username) =>
+			log.info(s"[Read_Does_User_Exist] Checking if USER $username exists")
+			val userSeq = UserOperations.readOneUser(username)
+			sender() ! userSeq.nonEmpty
 
 		case Read_One_User(username) =>
 			log.info(s"[Read_One_User] Getting USER with username $username")

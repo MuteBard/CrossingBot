@@ -3,6 +3,11 @@ let UPDATE_USER_HOME_SET_CROSSINGBOT = (username, added) =>
     isCrossingBotAdded(username : ${"\""+username+"\""}, added : ${added})
 }`
 
+let UPDATE_USER_PW = (username, encryptedPw) => 
+`mutation{
+    updateEncryptedPw(username : ${"\""+username+"\""}, encryptedPw : ${"\""+encryptedPw+"\""})
+}`
+
 let CREATE_USER = (username, id, avatar, addedToChannel) =>
 `mutation{
     createUser(username : ${"\""+username+"\""}, id : ${"\""+id+"\""}, avatar : ${"\""+avatar+"\""}, addedToChannel : ${"\""+addedToChannel+"\""})

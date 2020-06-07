@@ -1,3 +1,4 @@
+const generator = require('generate-password');
 const uri = 'http://localhost:5000/api/graphql'
 const headers = require('../Configurations/Options').settings_B.headers
 const BUG = "bug"  
@@ -5,10 +6,40 @@ const FISH  = "fish"
 const axios = require('axios')
 const Query = require('./Queries')
 const Mutation = require('./Mutations')
+const minutes = require('../Cron/Timing').minutes
+const CBTC_DataBank = require('../FlashData/Bank')
+// const duration = minutes(5)
 const { createApolloFetch } = require('apollo-fetch');
 const fetch = createApolloFetch({ uri })
 
-//GRAPHQL
+const pwOptions = 
+
+//REST (server)
+exports.rest = (app) => {
+    app.post('/authenticateUser', (req, res) => {
+        let CBAS_Payload = {"username" : req.body.username }
+
+        let CBRC_Payload = (data) => {
+            let i = 0;
+            let intervalId = setInterval(() => { 
+                if(CBTC_DataBank.hasInvitedUser(req.body.username)){
+                    clearInterval(intervalId);
+                    res.send(data)
+                }
+                if(i > 300){
+                    res.send({responded : false, error : 'No response given on twitch'})
+                }
+                i++
+             }, 1000);
+        }
+
+        queryUser(CBAS_Payload, CBRC_Payload)
+
+    })
+}
+
+
+//GRAPHQL (client)
 let queryGraphQL = (query, callback) => {
     fetch({ query })
     .then(CBAS_response => {
@@ -145,3 +176,62 @@ exports.queryTurnipStatsRequest = (CBAS_Payload, Twitch_Payload) => {
     let query = Query.USER_TURNIP_STATS_REQUEST(CBAS_Payload.username)
     queryGraphQL(query, Twitch_Payload)
 }
+
+let queryUser = (CBAS_Payload, CBRC_Payload) => {
+    let CBRC_Data = {}
+    CBRC_Data["responded"] = true
+    let query = Query.USER_EXISTS_REQUEST(CBAS_Payload.username)
+
+    fetch({ query })
+    .then(async CBAS_response => {
+        if(CBAS_response.data.getDoesUserExist == true){
+            //1A
+            CBRC_Data["userExists"] = true
+            let query_2 = Query.USER_PW_EXISTS_REQUEST(CBAS_Payload.username)
+            fetch({query : query_2 })
+            .then(CBAS_response => {
+                if(CBAS_response.data.getUser.encryptedPw != "" ){
+                    CBRC_Data["pwExists"] = true      
+                }else{
+                    CBRC_Data["pwExists"] = false
+                }
+                CBRC_Payload(CBRC_Data)
+            })
+            
+        }else{
+            //1B
+            CBRC_Data["userExists"] = false
+            CBRC_Data["pwExists"] = false
+            let Twitch_Response = await axios({
+                method: 'GET',
+                url: `https://api.twitch.tv/helix/users?login=${ CBAS_Payload.username }`,
+                headers,
+            })
+            .catch(error => console.log(error))
+            CBRC_Data["id"] = Number(Twitch_Response.data.data[0].id)
+            CBRC_Data["avatar"] = Twitch_Response.data.data[0].profile_image_url 
+            CBRC_Payload(CBRC_Data)
+        }
+    }).catch(error =>{
+        console.log(error)
+    })    
+}
+
+                    // CBRC_Data["pw"] = generator.generate({
+                    //     length : 12,
+                    //     numbers : true,
+                    //     lowercase : true,
+                    //     uppercase : true,
+                    //     symbols : true,
+                    //     excludeSimilarCharacters : true,
+                    // });
+                    // let encryptedPw = CBRC_Data["pw"] 
+                    // let mutate_2B = Mutation.UPDATE_USER_PW(CBAS_Payload.username, encryptedPw )
+                    // fetch({ query : mutate_2B })
+                    // .then(CBAS_Response => {
+                    //     if(CBAS_Response.data.updateEncryptedPw == "Success"){
+                    //         console.log(`[2B]: ${CBAS_Payload.username} account is updated`)
+                    //         CBRC_Payload(CBRC_Data)
+                    //     }
+                    // })
+                    // .catch(error => console.log(error)) 

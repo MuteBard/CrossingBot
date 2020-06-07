@@ -3,6 +3,7 @@ const Route = require('../Controller/Route')
 var bugBank = []
 var fishBank = []
 var usernames = []
+var invited = []
 var pendingTurnipTransactionDictionary = {}
 
 
@@ -30,7 +31,7 @@ let updateUserInPendingTransactionDictionary = (username, marketPrice, totalBell
 }
 
 
-supplyBankWithCreatures = () => {
+let supplyBankWithCreatures = () => {
     
     let supplyBankWithBugs = () => {
         let CBTC_DataBank = (response) => {
@@ -66,7 +67,7 @@ supplyBankWithCreatures = () => {
     supplyBankWithBugs()
 } 
 
-supplyBankWithAddedUsers = (callback) => {
+let supplyBankWithAddedUsers = (callback) => {
     let CBTC_DataBank = (response) => {
         try{
             usernames = response.getUsersWithCBAdded.map(user => `#${user.username}`)
@@ -82,6 +83,26 @@ supplyBankWithAddedUsers = (callback) => {
     Route.queryAllAddedUsers(CBTC_DataBank)
 }
 
+let addInvitedUser = (username) => {
+    invited.push(username)
+}
+let removeInvitedUser = (username) => {
+    invited = invited.filter(invitedUser => invitedUser != username)
+}
+let getInvitedList = () => {
+    return invited
+}
+
+let hasInvitedUser = (username) => {
+    let list = invited.filter(invitedUser => invitedUser == username)
+    if (list === undefined || list.length == 0){
+        return false
+    }else{
+        return true
+    }
+}
+
+
 
 module.exports.supplyPendingTurnipTransactionDictionary = supplyPendingTurnipTransactionDictionary
 module.exports.retrivePendingTurnipTransactionDictionary = retrivePendingTurnipTransactionDictionary
@@ -89,3 +110,7 @@ module.exports.deleteUserFromPendingTransactionDictionary = deleteUserFromPendin
 module.exports.updateUserInPendingTransactionDictionary = updateUserInPendingTransactionDictionary
 module.exports.supplyBankWithCreatures = supplyBankWithCreatures
 module.exports.supplyBankWithAddedUsers = supplyBankWithAddedUsers
+module.exports.addInvitedUser = addInvitedUser
+module.exports.removeInvitedUser = removeInvitedUser
+module.exports.getInvitedList = getInvitedList
+module.exports.hasInvitedUser = hasInvitedUser

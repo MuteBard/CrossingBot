@@ -23,6 +23,7 @@ object Service {
 		//--User--
     	//Queries
 		def getUser(username : String):                     IO[NotFound, User]
+		def getDoesUserExist(username : String):            UIO[Boolean]
 		def getUsersWithCBAdded(dummy: Boolean):            UIO[List[User]]
 		def validatePendingTransaction(
 			username : String,
@@ -120,6 +121,11 @@ object Service {
 			val user = Await.result((userActor ? UserActor.Read_One_User(username)).mapTo[User], chill seconds)
 			if(user.id != -2) IO.succeed(user)
 			else IO.fail(NotFound(""))
+		}
+
+		def getDoesUserExist(username : String): UIO[Boolean] = {
+			val doesExist = Await.result((userActor ? UserActor.Read_Does_User_Exist(username)).mapTo[Boolean], chill seconds)
+			IO.succeed(doesExist)
 		}
 
 		def getUsersWithCBAdded(dummy : Boolean): UIO[List[User]] = {

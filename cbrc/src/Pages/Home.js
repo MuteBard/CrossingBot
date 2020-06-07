@@ -73,27 +73,34 @@ export default class Home extends Component {
       }
     }
 
-    searchForUser = async() => {
-      console.log("searchForUser")
-      // let Twitch_Response = await axios({
-      //   method: 'GET',
-      //   url: `https://api.twitch.tv/helix/users?login=${this.state.usernameInput}`,
-      //   headers : settings.headers,
-      // })
-      // .catch(error => console.log(error))
-      if(this.state.usernameInput == "MuteBard"){
-        this.setState({
-          id : 7886767,//Number(Twitch_Response.data.data[0].id),
-          avatar : "hgjhgjhg",//Twitch_Response.data.data[0].profile_image_url,
-          passwordInput : "jyjufjydhtsdjkuylktdj",
-          searchPressed: true,
-          validTwitchAccount : true,
-        })
-      }else{
-        this.setState({
-          searchPressed: true,
-        })
+    confirmUser = async() => {
+      let userAuthenticated = (data) => {
+        console.log(data)
       }
+
+      console.log("searchForUser")
+      let CBTC_payload = {username: this.state.usernameInput}
+      Route.authenticateUser(CBTC_payload, userAuthenticated)
+
+      // // let Twitch_Response = await axios({
+      // //   method: 'GET',
+      // //   url: `https://api.twitch.tv/helix/users?login=${this.state.usernameInput}`,
+      // //   headers : settings.headers,
+      // // })
+      // // .catch(error => console.log(error))
+      // if(this.state.usernameInput == "MuteBard"){
+      //   this.setState({
+      //     id : 7886767,//Number(Twitch_Response.data.data[0].id),
+      //     avatar : "hgjhgjhg",//Twitch_Response.data.data[0].profile_image_url,
+      //     passwordInput : "jyjufjydhtsdjkuylktdj",
+      //     searchPressed: true,
+      //     validTwitchAccount : true,
+      //   })
+      // }else{
+      //   this.setState({
+      //     searchPressed: true,
+      //   })
+      // }
     }
 
     addUserToDB(){
@@ -119,13 +126,14 @@ export default class Home extends Component {
                 <div className="howToUse"><strong>How to Register / Sign In</strong></div>
                 <ol className="listText">
                   <li>First make sure you have a Twitch account at https://www.twitch.tv/</li>
+                  <li>Go to your twitch chat within your channel</li>
                   <li>
                     {
                       this.state.validTwitchAccount == true 
                       ?
                       <div>Found your account</div>
                       :
-                      <div>Search for your Twitch username</div>
+                      <div>Now, search for your Twitch username</div>
                     }
                     <div className="searchUser">
                     {
@@ -138,7 +146,7 @@ export default class Home extends Component {
                       :
                       <div className="searchInputContainer">
                           <input type="text" className="searchInput" value={this.state.usernameInput} onChange={event => this.usernameInputSearch(event.target.value)}/>
-                          <button className="button" onClick={() => this.searchForUser()}><MagnifyingGlass/></button>
+                          <button className="button" onClick={() => this.confirmUser()}><MagnifyingGlass/></button>
                       </div>
                     }
                     {
