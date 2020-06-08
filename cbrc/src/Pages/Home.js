@@ -26,26 +26,11 @@ export default class Home extends Component {
     authenticateCBPassword : false,
     authenticatePressed : false,
     validCBChannelAddition: false,
+    authorized : false,
     passwordInput : "",
     scenario : 0,
     avatar : "",
     radio : "REGISTER"
-  }
-  addCrossingBotToChannel(){
-    // let updateUserChannelWithCrossingBot = (data) => {
-    //   console.log(data)
-    //   if (data.isCrossingBotAdded == "Success"){
-    //     this.setState({
-    //       cbAddedPressed : true
-    //     })
-    //   }
-    // }
-    // let CBAS_Payload = {username : "MuteBard", added : true}
-    // Route.mutateCBforUserOrCreateUser(CBAS_Payload, updateUserChannelWithCrossingBot)
-
-    this.setState({
-      validCBChannelAddition : true
-    })
   }
 
   passwordInput(e){
@@ -64,16 +49,13 @@ export default class Home extends Component {
   }
 
   submitUser(){
-    if (this.state.passwordInput == "jyjufjydhtsdjkuylktdj"){
-      this.setState({
-        authenticateCBPassword : true,
-        authenticatePressed  : true
-      })
-    }else{
-      this.setState({
-        authenticatePressed  : true
-      })
+    let setUserState = (data) => {
+      console.log(data)
+      this.setState({authorized : data.signIn})
     }
+    let encryptedPw = this.state.usernameInput
+    let CBAS_Payload = {"username" : this.state.usernameInput, "encryptedPw" : encryptedPw}
+    Route.signIn(CBAS_Payload, setUserState)
   }
 
   confirmUser(){
@@ -90,8 +72,8 @@ export default class Home extends Component {
             })
 
           }else{
-            console.log(this.generatePayload(data))
-            // Route.updateUserPw(this.generatePayload(data)) //in cbas, protect this
+            console.log("Scenario 2")
+            Route.signUp(this.generatePayload(data)) 
           }
         
       }else{
@@ -104,7 +86,6 @@ export default class Home extends Component {
     console.log("searchForUser")
     let CBTC_payload = {username: this.state.usernameInput}
     Route.authenticateUser(CBTC_payload, userAuthenticated)
-
   }
   
   generatePayload(data){
@@ -118,14 +99,15 @@ export default class Home extends Component {
     });
 
     let encryptedPw = pw 
-      this.setState({
-        validTwitchAccount : true,
-        searchPressed : true,
-        passwordInput : pw,
-        avatar : data.avatar,
-        scenario : data.scenario
-      })
-      return {"username" : this.state.usernameInput,  "encryptedPw" : encryptedPw}
+    this.setState({
+      validTwitchAccount : true,
+      searchPressed : true,
+      passwordInput : pw,
+      avatar : data.avatar,
+      scenario : data.scenario,
+      authorized : true
+    })
+    return {"username" : this.state.usernameInput,  "encryptedPw" : encryptedPw}
   }
 
 
@@ -220,9 +202,9 @@ export default class Home extends Component {
   inputPwBox(){
     let stepTitle = () =>{
       return(
-        this.state.authenticateCBPassword == true
+        this.state.authorized == true
         ?
-        <div>Successfully Logged In</div>
+        <div>Successfully Logged In!</div>
         :
         <div>Enter the provided <strong>Crossingbot</strong> Password (NOT your Twitch Password)</div>
       )
@@ -230,7 +212,7 @@ export default class Home extends Component {
 
     let inputBox = () => {
       return(
-        this.state.authenticateCBPassword == true
+        this.state.authorized == true
         ?
         null
         :
@@ -280,11 +262,19 @@ export default class Home extends Component {
         <Row className="row" align="middle">
           <Col span={22} offset={2}>
             <Card style={{ width: 1200, backgroundColor : "#EEEEEE" }}>
-              <div className="howToUse"><strong>Join The Village!</strong></div>
+              
               <Radio.Group onChange={this.onChange} value={this.state.radio} defaultValue="REGISTER">
                 <Radio.Button value={"REGISTER"}>REGISTER</Radio.Button>
                 <Radio.Button value={"SIGN IN"}>SIGN IN</Radio.Button>
               </Radio.Group>
+              {
+                this.state.radio === "REGISTER"
+                ?
+                <div className="howToUse"><strong>Join The Village!</strong></div>
+                :
+                <div className="howToUse"><strong>Welcome Back!</strong></div>
+              }
+              
               {
                 this.state.radio == "REGISTER" 
                 ?
@@ -296,7 +286,7 @@ export default class Home extends Component {
                   {
                     this.state.scenario > 1
                     ?
-                    <li>Awesome! {this.state.usernameInput}, you are all set to use CrossingBot either on Twitch or on this website!</li>
+                    <li>Awesome! {this.state.usernameInput}, you are all set to use CrossingBot either on Twitch or on this website!  </li>
                     :
                     null
                   }

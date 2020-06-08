@@ -69,6 +69,16 @@ object Service {
 			addedToChannel : Boolean
 
 		):                                                  UIO[String]
+		def signUp(
+			username : String,
+			encryptedPw : String
+		):                                                  UIO[String]
+
+		def signIn(
+			username : String,
+	        encryptedPw : String
+	    ):                                                  UIO[Boolean]
+
 		def populate:                                       UIO[String]
 		def toggleMarket(running : Boolean):                UIO[String]
 
@@ -240,6 +250,19 @@ object Service {
 			val status = Await.result((userActor ? UserActor.Create_One_User(username, id, avatar, addedToChannel)).mapTo[String], chill seconds)
 			IO.succeed(status)
 		}
+
+
+		def signUp(username: String, encryptedPw: String): UIO[String] = {
+			val status = Await.result((userActor ? UserActor.SignUp_One_User(username, encryptedPw)).mapTo[String], chill seconds)
+			IO.succeed(status)
+		}
+
+		def signIn(username: String, encryptedPw: String): UIO[Boolean] = {
+			val authorized = Await.result((userActor ? UserActor.SignIn_One_User(username, encryptedPw)).mapTo[Boolean], chill seconds)
+			IO.succeed(authorized)
+		}
+
+
 		def isCrossingBotAdded(username: String, added: Boolean) : UIO[String] = {
 			val status = Await.result((userActor ? UserActor.Update_User_Stream_Added(username, added)).mapTo[String], chill seconds)
 			IO.succeed(status)

@@ -11,6 +11,8 @@ object Mutations {
 	case class Mutations(
 	    //User
 	    createOneUser :           createUserArgs => UIO[String],
+	    signUp:                   authArgs => UIO[String],
+	    signIn:                   authArgs => UIO[Boolean],
 	    catchCreature :           catchCreatureArgs => IO[NotFound, String],
 	    isCrossingBotAdded:       addToChannelArgs => UIO[String],
 	    finalizeUserCreation :     finalizeUserArgs => IO[NotFound, String],
@@ -27,6 +29,8 @@ object Mutations {
 
 	val allMutations = Mutations(
 		args => cbs.createOneUser(args.username, args.id, args.avatar, args.addedToChannel),
+		args => cbs.signUp(args.username, args.encryptedPw),
+		args => cbs.signIn(args.username, args.encryptedPw),
 		args => cbs.catchCreature(args.username, args.species),
 		args => cbs.isCrossingBotAdded(args.username, args.added),
 		args => cbs.finalizeUserCreation(args.username, args.id, args.avatar),

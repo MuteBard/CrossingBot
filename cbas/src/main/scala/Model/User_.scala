@@ -26,5 +26,6 @@ object User_ {
 	case class authenticationArgs(username : String, encryptedPw : String)
 	case class addToChannelArgs(username: String, added : Boolean)
 	case class createUserArgs(username: String, id: Int, avatar: String, addedToChannel: Boolean)
+	case class authArgs(username: String, encryptedPw: String)
 
 }

@@ -6,6 +6,15 @@ let UPDATE_USER_HOME_SET_CROSSINGBOT = (username, added) =>
     isCrossingBotAdded(username : ${"\""+username+"\""}, added : ${added})
 }`
   
+let SIGN_UP = (username, encryptedPw) => 
+`mutation{
+    signUp(username : ${"\""+username+"\""}, encryptedPw  : ${"\""+encryptedPw+"\""})
+}`
+
+let SIGN_IN = (username, encryptedPw) => 
+`mutation{
+    signIn(username : ${"\""+username+"\""}, encryptedPw  : ${"\""+encryptedPw+"\""})
+}`
 
 let UPDATE_USER_CATCH_CATCH_ONE = (username, species) =>
 `mutation{
@@ -34,6 +43,8 @@ let UPDATE_USER_MARKET_TRANSACTION = (username, business, quantity, marketPrice,
 
 
 module.exports.UPDATE_USER_HOME_SET_CROSSINGBOT = UPDATE_USER_HOME_SET_CROSSINGBOT
+module.exports.SIGN_UP = SIGN_UP
+module.exports.SIGN_IN = SIGN_IN
 module.exports.UPDATE_USER_CATCH_CATCH_ONE = UPDATE_USER_CATCH_CATCH_ONE
 module.exports.UPDATE_USER_CATCH_SELL_ONE = UPDATE_USER_CATCH_SELL_ONE
 module.exports.UPDATE_USER_CATCH_SELL_BUGS = UPDATE_USER_CATCH_SELL_BUGS

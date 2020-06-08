@@ -49,25 +49,47 @@ object UserOperations extends MongoDBOperations {
 		}
 
 	def readOneUser(username : String): Seq[User] = {
-		val source = MongoSource(allUsers.find(classOf[User])).filter(users => users.username == username)
+		val source = MongoSource(allUsers.find(classOf[User])).filter(user => user.username == username)
 		val userSeqFuture = source.runWith(Sink.seq)
 		val userSeq : Seq[User] = Await.result(userSeqFuture, chill seconds)
 		userSeq
 	}
 
 	def readAllChannelsWithCrossingBotAdded() : Seq[User] = {
-		val source = MongoSource(allUsers.find(classOf[User])).filter(users => users.addedToChannel)
+		val source = MongoSource(allUsers.find(classOf[User])).filter(user => user.addedToChannel)
 		val userSeqFuture = source.runWith(Sink.seq)
 		val userSeq : Seq[User] = Await.result(userSeqFuture, chill seconds)
 		userSeq
 	}
 
 	def readTotalStalks() : Int = {
-		val source = MongoSource(allUsers.find(classOf[User])).filter(users => users.liveTurnips.quantity > 0)
+		val source = MongoSource(allUsers.find(classOf[User])).filter(user => user.liveTurnips.quantity > 0)
 		val userSeqFuture = source.runWith(Sink.seq)
 		val userSeq : Seq[User] = Await.result(userSeqFuture, chill seconds)
 		val userTurnips = userSeq.map(user => user.liveTurnips.quantity).sum
 		userTurnips
+	}
+
+	def signUpUser(username : String, encryptedPw : String) : Unit = {
+		val source = MongoSource(allUsers.find(classOf[User]))
+			.map(user => {
+				DocumentUpdate(filter = Filters.eq("username", user.username), update = Updates.set("encryptedPw", encryptedPw))
+			})
+		val taskFuture = source.runWith(MongoSink.updateOne(allUsers))
+		taskFuture.onComplete{
+			case Success(_) =>
+				log.info("UserOperations","signUpUser","Success",s"Updated $username's encrypted password successfully")
+			case Failure (ex) =>
+				log.warn("UserOperations","signUpUser","Failure",s"Failed update: $ex")
+		}
+	}
+
+
+	def signInUser(username : String, encryptedPw : String) : Boolean = {
+		val source = MongoSource(allUsers.find(classOf[User])).filter(user => user.username == username && user.encryptedPw == user.encryptedPw)
+		val userSeqFuture = source.runWith(Sink.seq)
+		val userSeq : Seq[User] = Await.result(userSeqFuture, chill seconds)
+		userSeq.length == 1
 	}
 
 	def updateUserChannelsWithCrossingBotAdded(username: String, added  : Boolean) : Unit = {

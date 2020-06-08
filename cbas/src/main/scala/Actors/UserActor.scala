@@ -28,6 +28,8 @@ object UserActor {
 	case object Read_All_Stream_Added_Users
 	case object Read_All_Stalks_Purchased
 	case class Update_User_Stream_Added(username: String, addedToChannel : Boolean)
+	case class SignUp_One_User(username : String, encryptedPw: String)
+	case class SignIn_One_User(username : String, encryptedPw: String)
 	case class FinalizeUserCreation(username:  String, id : Int, avatar : String)
 	case class Update_One_User_With_Executing_Turnip_Transaction(username : String, business: String, quantity : Int, marketPrice: Int, totalBells: Int)
 	case class Update_One_User_With_Creature(username : String, species: String)
@@ -142,6 +144,17 @@ class UserActor extends Actor with ActorLogging{
 			log.info(s"[Read_All_Stalks_Purchased] Getting the total live stalks")
 			val turnips = UserOperations.readTotalStalks()
 			sender() ! turnips
+
+		case SignUp_One_User(username, encryptedPw) =>
+			log.info(s"[SignUp_One_User] Signing up $username")
+			UserOperations.signUpUser(username, encryptedPw)
+			sender() ! "Success"
+
+		case SignIn_One_User(username, encryptedPw) =>
+			log.info(s"[SignIn_One_User] Signing in $username")
+			val authorized = UserOperations.signInUser(username, encryptedPw)
+			sender() !  authorized
+
 
 		case Update_User_Stream_Added(username, added ) =>
 			log.info(s"[Read_All_Stream_Added_Users] changing $username's addToChannel value to $added")

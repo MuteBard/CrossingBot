@@ -9,8 +9,8 @@ import "./css/components.css"
 const CATCH = "catch"
 const BUG = "bug"
 const SELLALL = "sellall"
-const cardHeaderStyle = {width: 470, textAlign : "center", color : "#2A5D67", backgroundColor : "#4AE3B5" }
-const cardBodyStyle = { width: 470, textAlign : "center", color : "#4AE3B5", backgroundColor : "#2A5D67" }
+const cardHeaderStyle = {width: 470, textAlign : "center", color : "#2A5D67", backgroundColor : "#4AE3B5", fontSize : "25px" }
+const cardBodyStyle = { width: 470, textAlign : "center", color : "#4AE3B5", backgroundColor : "#2A5D67", fontSize : "25px" }
 
 
 export default class BugBody extends Component{
@@ -186,20 +186,36 @@ export default class BugBody extends Component{
                     <div>
                         <Row className="PocketContainer">
                             <Col className="PocketCol" span={20} offset={2}>
-                                <p className="PocketColTitle">Your Pocket</p>
-                                <Card>
-                                    {pocketBugs.map(data => <PocketBug handlePocketClick={handleClick} traits={{name : data.name, image : data.img, bells: data.bells, rarity: data.rarity, availability : data.availability, hover: data.hover, small: data.small}}/>)}
-                                </Card>
+                                
+                                {
+                                    pocketBugs.length > 0
+                                ? 
+                                    <div>
+                                        <p className="PocketColTitle">Your Pocket</p>
+                                        <Card>
+                                            {pocketBugs.map(data => <PocketBug handlePocketClick={handleClick} traits={{name : data.name, image : data.img, bells: data.bells, rarity: data.rarity, availability : data.availability, hover: data.hover, small: data.small}}/>)}
+                                        </Card>
+                                    </div>
+                                :
+                                    <p className="PocketColTitle">Your Pocket is Empty</p>
+                                }
                             </Col>
                         </Row>
                         <Row>
                             <Col span={5} offset={2}>
                                 <div className="sellAllCard">
+                                {
+                                    pocketBugs.length > 0
+                                ? 
                                     <Card>
                                         <Button type="primary" block onClick={() => {handleClick(SELLALL,BUG)}}>
                                             Sell All Bugs
                                         </Button>
                                     </Card>
+                                :
+                                    null
+                                }
+
                                 </div>
                             </Col>
                         </Row>

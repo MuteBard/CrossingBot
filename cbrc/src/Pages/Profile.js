@@ -43,27 +43,10 @@ export default class Catch extends Component {
           }
         }
 
-        // let headers = {
-        //     "Client-ID": secret.security.TWITCH_CLIENT_ID,
-        //     "Accept" : "application/vnd.twitchtv.v5+json",
-        //     "Authorization" : secret.security.ACCESS_TOKEN
-        // }
-
-        // let Twitch_Response = await axios({
-        //     method: 'GET',
-        //     url: `https://api.twitch.tv/helix/users?login=${ CBAS_Payload.username }`,
-        //     headers,
-        // })
-        // .catch(error => console.log(error))
-        // CBAS_Payload["id"] = Number(Twitch_Response.data.data[0].id)
-        // CBAS_Payload["avatar"] = Twitch_Response.data.data[0].profile_image_url 
 
 
-        let CBAS_Payload = {username : "MuteBard", addedToChannel : value, failure: false}
-        
-
-        
-        Route.mutateCBforUserOrCreateUser(CBAS_Payload, updateUserChannelWithCrossingBot)
+        let CBAS_Payload = {username : "MuteBard", addedToChannel : value}        
+        Route.mutateCBforUser(CBAS_Payload, updateUserChannelWithCrossingBot)
       }
 
     updateData = () => {

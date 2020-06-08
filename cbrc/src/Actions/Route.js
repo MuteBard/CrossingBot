@@ -30,17 +30,27 @@ let queryGraphQL = (query, callback) => {
         data: { query }
     }).then(CBAS_response => {
         console.log(CBAS_response)
-        callback(CBAS_response.data.data)
+        if(callback != null){
+            callback(CBAS_response.data.data)
+        }
     }).catch(error => {
         console.log(error) 
     })
 }
 
+exports.signUp = (CBAS_Payload) => {
+    let mutation = Mutation.SIGN_UP(CBAS_Payload.username, CBAS_Payload.encryptedPw)
+    queryGraphQL(mutation, null)
+}
 
-exports.mutateCBforUserOrCreateUser = (CBAS_Payload, callback) => {
-    let updateMutation = Mutation.UPDATE_USER_HOME_SET_CROSSINGBOT(CBAS_Payload.username, CBAS_Payload.added)
-    // let creationMutation = Mutation.CREATE_USER(CBAS_Payload.username, CBAS_Payload.id, CBAS_Payload.avatar, CBAS_Payload.addedToChannel )
-    queryGraphQL(updateMutation, callback)
+exports.signIn = (CBAS_Payload, callback) => {
+    let mutation = Mutation.SIGN_IN(CBAS_Payload.username, CBAS_Payload.encryptedPw)
+    queryGraphQL(mutation, callback)
+}
+
+exports.mutateCBforUser = (CBAS_Payload, callback) => {
+    let mutation = Mutation.UPDATE_USER_HOME_SET_CROSSINGBOT(CBAS_Payload.username, CBAS_Payload.added)
+    queryGraphQL(mutation, callback)
 }
 
 exports.queryProfileUserData = (CBAS_Payload, callback) => {
