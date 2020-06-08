@@ -17,8 +17,7 @@ const pwOptions =
 //REST (server)
 exports.rest = (app) => {
     app.post('/authenticateUser', (req, res) => {
-        let CBAS_Payload = {"username" : req.body.username }
-        console.log("Z")
+        let CBAS_Payload = {"username" : req.body.username }    
 
         let CBRC_Payload = (data) => {
             let i = 0;
@@ -26,6 +25,8 @@ exports.rest = (app) => {
                 if(CBTC_DataBank.hasInvitedUser(req.body.username)){
                     clearInterval(intervalId);
                     process.sendMessageToTwitchUponInvite(req.body.username)
+                    res.send(data)
+                }else if(data.scenario == 1){
                     res.send(data)
                 }
                 if(i > 300){
@@ -140,7 +141,6 @@ let createUser = async (username, calledByCBRC) => {
     
     //do a final mutation to the user and update those fields on the user
     setTimeout(() => {
-        console.log("G")
         fetch({ query : mutation })
         .then(CBAS_Response => {
             console.log(CBAS_Response)
@@ -206,26 +206,25 @@ let queryUser = (CBAS_Payload, CBRC_Payload) => {
     .then(async CBAS_response => {
         if(CBAS_response.data.getDoesUserExist == true){
             //1A
-            CBRC_Data["userExists"] = true
             let query_2 = Query.USER_PW_EXISTS_REQUEST(CBAS_Payload.username)
             fetch({query : query_2 })
             .then(CBAS_response => {
                 if(CBAS_response.data.getUser.encryptedPw != "" ){
-                    CBRC_Data["pwExists"] = true      
+                    CBRC_Data["scenario"] = 1
                 }else{
-                    CBRC_Data["pwExists"] = false
+                    CBRC_Data["scenario"] = 2
                 }
+                CBRC_Data["id"] = CBAS_response.data.getUser.id
+                CBRC_Data["avatar"] = CBAS_response.data.getUser.avatar 
                 CBRC_Payload(CBRC_Data)
             })
             
         }else{
             //1B
-            console.log("A")
-            CBRC_Data["userExists"] = false
-            CBRC_Data["pwExists"] = false
             let data = await createUser(CBAS_Payload.username, true)
             CBRC_Data["id"] = data.id
             CBRC_Data["avatar"] = data.avatar
+            CBRC_Data["scenario"] = 3
             process.CBJoinChannel(CBAS_Payload.username)
             CBRC_Payload(CBRC_Data)
         }

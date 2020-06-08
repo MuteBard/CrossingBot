@@ -16,7 +16,7 @@ exports.CBJoinChannel = (username) => {
 }
 
 exports.sendMessageToTwitchUponInvite = (username) => {
-    respondToTwitch({channel: `#${username.toLowerCase()}`, message : `${username}, you have added CrossingBot to your channel! Head back to the CrossingBot website on your browser!${addFlower()}`})
+    respondToTwitch({channel: `#${username.toLowerCase()}`, message : `${username}, you have added CrossingBot to your channel! Head back to the CrossingBot website on your browser! ${addFlower()}`})
 }
 
 exports.applyNewCrossingBotSettingForUsers = (callback) => {
@@ -29,7 +29,7 @@ exports.setCBForUser = (Twitch_Data) => {
         let CBAS_Data = null
         let message = ""
         if (Twitch_Data.added == true){
-            message = `${Twitch_Data.username}, you have queued to add crossingbot_ to your channel! It will be live in your channel within 10 minutes or less ${addFlower()}` 
+            message = `${Twitch_Data.username}, you have added crossingbot_ to your channel! ${addFlower()}` 
         }else if (Twitch_Data.added == false){
             message = `${Twitch_Data.username}, you have queued to remove crossingbot_ to your channel. It will be gone from your channel within 10 minutes or less ${addFlower()}` 
         }else

@@ -21,7 +21,6 @@ let setOptionsForConnection = () => {
     var privateConnection = new tmi.Client(options.settings_A);  
     module.exports.publicConnection = publicConnection
     connectToTwitch(publicConnection, privateConnection)  
-    // connectToTwitchPrivately(privateConnection) 
 }
 
 let connectToTwitch = (publicConnection, privateConnection) => {
@@ -66,21 +65,15 @@ let connectToTwitch = (publicConnection, privateConnection) => {
             }
     
             let command = message.toLowerCase().trim()
-    
-            if(command == "ping"){
-                console.log("ENTER 1")
-                // connectToTwitchPrivately(privateConnection, Twitch_Data["channel"], "pong")
-            } 
-    
+   
 
             if(command == "!invite" && Twitch_Data["isStreamer"]){
                 bank.addInvitedUser(Twitch_Data["username"])
             }
             
-
-    
             if(command == "+crossingbot"){
                 Twitch_Data["added"] = true
+                publicConnection.join(username)
                 process.setCBForUser(Twitch_Data)
             }
     
@@ -264,15 +257,6 @@ let connectToTwitch = (publicConnection, privateConnection) => {
         }
     }   
 }
-
-let connectToTwitchPrivately = (privateConnection, username, message) => {
-    privateConnection.connect().then(() => {
-        console.log("ENTER 2")
-        privateConnection.whisper(username, `/w ${username} message`);
-    })
-  
-}
-
 
 module.exports.startBot = startBot
 

@@ -105,39 +105,32 @@
                         color : @white;   
                     }
                 }
-                .logInUsersContainer{
-                    display : flex; 
-                    align-items: center;
-                    // flex-direction: column;
-                    .logInUsers{
-                        display : flex;
-    
-                        .PasswordInput{
-                            margin-left : 15px;
-                            border-radius: 5px 0 0 5px;
-                            border : 3px solid @twitch;
-                            background-color: @cardColor;
-                            outline: none;
-                            font-weight: bold;
-                            padding : 8px;
-                        }
-                        .button{
-                            background-color : @twitch;
-                            border: none;
-                            outline: none;
-                            padding : 7px 5px 5px 5px;  
-                            border-radius: 0 5px 5px 0;
-                        }
-    
-                        .button:active {
-                            background-color: @activeTwitch;
-                            box-shadow: 0 0px @gray;
-                        }
-                    }  
+                .PasswordInputContainer{
+                    display : flex;
+                    .PasswordInput{
+                        margin-left : 15px;
+                        border-radius: 5px 0 0 5px;
+                        border : 3px solid @twitch;
+                        background-color: @cardColor;
+                        outline: none;
+                        font-weight: bold;
+                        padding : 8px;
+                    }
+                    .button{
+                        background-color : @twitch;
+                        border: none;
+                        outline: none;
+                        padding : 7px 5px 5px 5px;  
+                        border-radius: 0 5px 5px 0;
+                    }
+
+                    .button:active {
+                        background-color: @activeTwitch;
+                        box-shadow: 0 0px @gray;
+                    }
                 }
-
-
-                .createUsers{
+            
+                .creationMessageContainer{
                     display : flex;
                     align-items: center;
                     .creationMessage{
@@ -160,7 +153,11 @@
                         box-shadow: 0 0px @gray;
                         transform: translateY(4px);
                     }
-                }
+                } 
+            
+
+
+
             }
         }
         

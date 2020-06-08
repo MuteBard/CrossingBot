@@ -17,6 +17,8 @@ let USER_PW_EXISTS_REQUEST = (username) =>
 `query{
     getUser(username:${"\""+username+"\""}){
         encryptedPw 
+        id
+        avatar
     }
 }`
 
