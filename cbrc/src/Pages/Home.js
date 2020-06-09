@@ -22,15 +22,18 @@ export default class Home extends Component {
     usernameInput : "",
     validTwitchAccount : false,
     searchPressed : false,
-    validCBUserCreation : false,
-    authenticateCBPassword : false,
-    authenticatePressed : false,
-    validCBChannelAddition: false,
-    authorized : false,
+    authorized : null,
     passwordInput : "",
     scenario : 0,
     avatar : "",
     radio : "REGISTER"
+  }
+
+  usernameInputSearch(e){
+    console.log(e)
+    this.setState({
+      usernameInput : e
+    })
   }
 
   passwordInput(e){
@@ -40,18 +43,17 @@ export default class Home extends Component {
     })
   }
 
-
-  usernameInputSearch(e){
-    console.log(e)
-    this.setState({
-      usernameInput : e
-    })
-  }
-
   submitUser(){
     let setUserState = (data) => {
-      console.log(data)
       this.setState({authorized : data.signIn})
+      if( data.signIn === true){
+        let gloabalState = ({
+          username: this.state.usernameInput,
+          avatar : this.state.avatar,
+          authorized : true
+       })
+       this.props.setGlobalUser(gloabalState)
+      }
     }
     let encryptedPw = this.state.usernameInput
     let CBAS_Payload = {"username" : this.state.usernameInput, "encryptedPw" : encryptedPw}
@@ -72,7 +74,12 @@ export default class Home extends Component {
             })
 
           }else{
-            console.log("Scenario 2")
+           let gloabalState = ({
+               username: this.state.usernameInput,
+               avatar : this.state.avatar,
+               authorized : true
+            })
+            this.props.setGlobalUser(gloabalState)
             Route.signUp(this.generatePayload(data)) 
           }
         
@@ -83,7 +90,6 @@ export default class Home extends Component {
         })
       }
     }
-    console.log("searchForUser")
     let CBTC_payload = {username: this.state.usernameInput}
     Route.authenticateUser(CBTC_payload, userAuthenticated)
   }
@@ -110,15 +116,9 @@ export default class Home extends Component {
     return {"username" : this.state.usernameInput,  "encryptedPw" : encryptedPw}
   }
 
-
-  addUserToDB(){
-    console.log(this.state)
-    this.setState({
-      validCBUserCreation: true,
-    })
-  }
-
   onChange = e => {
+    console.log(this.props)
+    console.log(this.props.setGlobalUser())
     this.setState({
       radio: e.target.value,
     });
@@ -226,7 +226,7 @@ export default class Home extends Component {
 
     let errorDisplay = () => {
       return(   
-        this.state.authenticateCBPassword == false && this.state.authenticatePressed == true
+        this.state.authorized == false
         ?
         <div className={"error"}>This password is not valid</div> 
         :
@@ -250,6 +250,7 @@ export default class Home extends Component {
 
 
   render() {
+   
     return ( 
       <div className="HomeContainer"> 
         <HeroTop/>
