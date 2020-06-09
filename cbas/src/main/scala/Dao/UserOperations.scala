@@ -71,7 +71,7 @@ object UserOperations extends MongoDBOperations {
 	}
 
 	def signUpUser(username : String, encryptedPw : String) : Unit = {
-		val source = MongoSource(allUsers.find(classOf[User]))
+		val source = MongoSource(allUsers.find(classOf[User])).filter(user => user.username == username)
 			.map(user => {
 				DocumentUpdate(filter = Filters.eq("username", user.username), update = Updates.set("encryptedPw", encryptedPw))
 			})
@@ -198,6 +198,18 @@ object UserOperations extends MongoDBOperations {
 		genericUpdateUser(user.username, "bells", user.bells + bugBells + fishBells)
 		genericUpdateUser(user.username, "pocket", Pocket(List(),  user.pocket.fish))
 		bugBells + fishBells
+	}
+
+
+
+	def deleteUser(username : String): Unit = {
+		val source = MongoSource(allUsers.find(classOf[User])).map(_ => Filters.eq("username", username))
+		val taskFuture = source.runWith(MongoSink.deleteOne(allUsers))
+
+		taskFuture.onComplete{
+			case Success(_) => log.info("UserOperations","deleteUser", "Success", s"Deleteed $username")
+			case Failure (ex) => log.warn("UserOperations","deleteUser","Failure",s"Failed delete $username: $ex")
+		}
 	}
 }
 

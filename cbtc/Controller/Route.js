@@ -19,20 +19,42 @@ exports.rest = (app) => {
     app.post('/authenticateUser', (req, res) => {
         let CBAS_Payload = {"username" : req.body.username }    
 
+        /*
+        Scenario 1 : User exists on Twitch and exists on CrossingBot DB and has a CrossingBot password
+        Scenario 2 : User exists on Twitch and exists on CrossingBot DB but does not have a CrossingBot password
+        Scenario 3 : User exists on Twitch but does not exist on CrossingBot DB and does not have a CrossingBot password
+        Scenario 4 : Scenario 2 or Scenario 3 but user fails to type !invite
+        Scenario 5 : User doesn not exist on Twitch
+        */
         let CBRC_Payload = (data) => {
             let i = 0;
             let intervalId = setInterval(() => { 
+                //scenario 1
                 if(data.scenario == 1){
                     clearInterval(intervalId);
+                    data["responded"] = true
                     res.send(data)
                 }
+                //scenario 2 and 3
                 else if(CBTC_DataBank.hasInvitedUser(req.body.username)){
                     clearInterval(intervalId);
                     process.sendMessageToTwitchUponInvite(req.body.username)
+                    data["responded"] = true
                     res.send(data)
                 }
+                //scenario 4
                 else if(i > 300){
-                    res.send({responded : false, error : 'No response given on twitch'})
+                    data["scenario"] = 4
+                    data["responded"] = false
+                    data["error"] = "You didnt type !invite on your stream"
+                    deleteUser(CBAS_Payload)
+                    res.send(data)
+                }
+                //scenario 5
+                else if(data.scenario == 5){
+                    data["responded"] = false
+                    data["error"] = "This username does not exist"
+                    res.send(data)
                 }
                 i++
              }, 1000);
@@ -122,15 +144,15 @@ exports.mutateUserPocketCatch = (CBAS_Payload, Twitch_Payload) => {
 }
 
 let createUser = async (username, calledByCBRC) => {
-    // let Twitch_Response = await axios({
-    //     method: 'GET',
-    //     url: `https://api.twitch.tv/helix/users?login=${ username }`,
-    //     headers,
-    // })
-    // .catch(error => console.log(error))
+    let Twitch_Response = await axios({
+        method: 'GET',
+        url: `https://api.twitch.tv/helix/users?login=${ username }`,
+        headers,
+    })
+    .catch(error => console.log(error))
     let CBAS_Payload = {}
-    CBAS_Payload["id"] = 100//Number(Twitch_Response.data.data[0].id)
-    CBAS_Payload["avatar"] = "https://cdn.discordapp.com/attachments/688616211617284144/708405645845725194/298.png"// Twitch_Response.data.data[0].profile_image_url 
+    CBAS_Payload["id"] = Number(Twitch_Response.data.data[0].id)
+    CBAS_Payload["avatar"] = Twitch_Response.data.data[0].profile_image_url 
     console.log(CBAS_Payload)
 
     var mutation = ""
@@ -201,7 +223,7 @@ exports.queryTurnipStatsRequest = (CBAS_Payload, Twitch_Payload) => {
 
 let queryUser = (CBAS_Payload, CBRC_Payload) => {
     let CBRC_Data = {}
-    CBRC_Data["responded"] = true
+    
     let query = Query.USER_EXISTS_REQUEST(CBAS_Payload.username)
 
     fetch({ query })
@@ -224,14 +246,24 @@ let queryUser = (CBAS_Payload, CBRC_Payload) => {
         }else{
             //1B
             let data = await createUser(CBAS_Payload.username, true)
-            CBRC_Data["id"] = data.id
-            CBRC_Data["avatar"] = data.avatar
-            CBRC_Data["scenario"] = 3
-            process.CBJoinChannel(CBAS_Payload.username)
-            CBRC_Payload(CBRC_Data)
+            if(data.id != undefined ){
+                CBRC_Data["id"] = data.id
+                CBRC_Data["avatar"] = data.avatar
+                CBRC_Data["scenario"] = 3
+                process.CBJoinChannel(CBAS_Payload.username)
+                CBRC_Payload(CBRC_Data)
+            }else{
+                CBRC_Data["scenario"] = 5
+                CBRC_Payload(CBRC_Data)
+            }
+
         }
     }).catch(error =>{
         console.log(error)
-    })    
+    })  
 }
 
+let deleteUser = (CBAS_Payload) => {
+    let mutation = Mutation.DELETE_USER(CBAS_Payload.username)
+    queryGraphQL(query, null)
+}

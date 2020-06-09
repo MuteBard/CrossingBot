@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Row, Col, Card, Button, Input, Radio } from 'antd'; 
+import { Row, Col, Card, Radio } from 'antd'; 
 import generator from 'generate-password';
 import "antd/dist/antd.css";
 import "./css/pages.css"
@@ -11,16 +11,11 @@ import TwitchLogo from '../Assets/resolved/twitchLogo'
 import Logo from '../Assets/resolved/logo'
 import MagnifyingGlass from '../Assets/resolved/magnifyingGlass'
 import Key from '../Assets/resolved/key'
-import axios from 'axios'
-
-const { Search } = Input
-const { Meta } = Card;
 
 export default class Home extends Component {
   
   state = {
     usernameInput : "",
-    validTwitchAccount : false,
     searchPressed : false,
     authorized : null,
     passwordInput : "",
@@ -49,6 +44,7 @@ export default class Home extends Component {
       if( data.signIn === true){
         let gloabalState = ({
           username: this.state.usernameInput,
+          id : this.state.id,
           avatar : this.state.avatar,
           authorized : true
        })
@@ -63,12 +59,10 @@ export default class Home extends Component {
 
   confirmUser(){
     let userAuthenticated = (data) => {
-      console.log(data)
-      if(data.responded == true){
-          console.log(data)
-          if(data.scenario == 1){
+      if (data !== null){
+        if(data.responded === true){
+          if(data.scenario === 1){
             this.setState({
-              validTwitchAccount : true,
               searchPressed : true,
               avatar : data.avatar,
               scenario : data.scenario,
@@ -78,17 +72,23 @@ export default class Home extends Component {
           }else{
            let gloabalState = ({
                username: this.state.usernameInput,
+               id : this.state.id,
                avatar : this.state.avatar,
                authorized : true
             })
             this.props.setGlobalUser(gloabalState)
             Route.signUp(this.generatePayload(data)) 
           }
-        
+        }else{
+          this.setState({
+            searchPressed : true,
+            scenario : data.scenario
+          })
+        }
       }else{
         this.setState({
-          validTwitchAccount : false,
           searchPressed : true,
+          scenario : 6
         })
       }
     }
@@ -108,7 +108,6 @@ export default class Home extends Component {
 
     let encryptedPw = pw 
     this.setState({
-      validTwitchAccount : true,
       searchPressed : true,
       passwordInput : pw,
       avatar : data.avatar,
@@ -127,7 +126,7 @@ export default class Home extends Component {
   searchStep(message){
     let stepTitle = (message) => {
       return(
-        this.state.validTwitchAccount == true 
+        this.state.scenario == 1 || this.state.scenario == 2 || this.state.scenario == 3 
         ?
         <div>Found your account</div>
         :
@@ -137,7 +136,7 @@ export default class Home extends Component {
 
     let searchBox = () => {
       return(
-        this.state.scenario > 0
+        this.state.scenario == 1 || this.state.scenario == 2 || this.state.scenario == 3  
         ?
         <div className="searchMessageContainer">
           <div className="searchMessage"><strong>{this.state.usernameInput}</strong><TwitchLogo/></div>
@@ -152,13 +151,16 @@ export default class Home extends Component {
     }
 
     let errorDisplay = () => {
-      return(   
-        this.state.validTwitchAccount == false && this.state.searchPressed == true
-        ?
-        <div className={"error"}>This is not a valid Twitch user account</div> 
-        :
-        null
-      )
+      if(this.state.scenario == 4){
+        return(<div className={"error"}>You did not type !invite on your Twitch channel</div>)
+      }else if(this.state.scenario == 5){
+        return(<div className={"error"}>This username is not a valid Twitch account</div>)
+      }else if(this.state.scenario == 6){
+        return(<div className={"error"}>Something went wrong. Message MuteBard on Twitter below</div>)
+      }
+      else{
+        return(null)
+      }
     }
 
     return(
@@ -187,7 +189,7 @@ export default class Home extends Component {
     }
 
     if (this.state.searchPressed){
-      if(this.state.scenario == 2 || this.state.scenario == 3){
+      if(this.state.scenario === 2 || this.state.scenario === 3){
         return(
           <li>
             {stepTitle()}
@@ -202,7 +204,7 @@ export default class Home extends Component {
   inputPwBox(){
     let stepTitle = () =>{
       return(
-        this.state.authorized == true
+        this.state.authorized === true
         ?
         <div>Successfully Logged In!</div>
         :
@@ -212,7 +214,7 @@ export default class Home extends Component {
 
     let inputBox = () => {
       return(
-        this.state.authorized == true
+        this.state.authorized === true
         ?
         null
         :
@@ -226,7 +228,7 @@ export default class Home extends Component {
 
     let errorDisplay = () => {
       return(   
-        this.state.authorized == false
+        this.state.authorized === false
         ?
         <div className={"error"}>This password is not valid</div> 
         :
@@ -235,7 +237,7 @@ export default class Home extends Component {
     }
 
     if (this.state.searchPressed){
-      if(this.state.scenario == 1){
+      if(this.state.scenario === 1){
         return(
           <li className="li">
             {stepTitle()}
@@ -277,7 +279,7 @@ export default class Home extends Component {
               }
               
               {
-                this.state.radio == "REGISTER" 
+                this.state.radio === "REGISTER" 
                 ?
                 <ol className="listText">
                   <li>First make sure you have a Twitch account at https://www.twitch.tv/</li>
@@ -295,7 +297,7 @@ export default class Home extends Component {
                 
                 :
                 <ol className="listText">
-                  {this.searchStep("Welcome Back! Please enter your username")}
+                  {this.searchStep("Welcome Back! Please enter your username (Case Sensitive)")}
                   {this.inputPwBox()}
                 </ol>
               }

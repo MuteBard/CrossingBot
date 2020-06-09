@@ -26,7 +26,7 @@ const SELLALL = "sellall"
 export default class Catch extends Component {
     state = {
         visible: false,
-        username: "MuteBard",
+        username: this.props.state.username,
         userBells : 0,
         species : BUG,
         name : "",
@@ -43,7 +43,7 @@ export default class Catch extends Component {
     }
 
     updateData = () => {
-        let CBAS_Payload = { username: "MuteBard"}
+        let CBAS_Payload = { username: this.state.username}
         Route.queryUserPocket(CBAS_Payload, this.setCatchPocketData)
     }
 
@@ -57,7 +57,7 @@ export default class Catch extends Component {
         if(data === "BugOverflow" || data === "FishOverflow"){
             this.showModal()
         }
-        else if(data.newCreature == true){
+        else if(data.newCreature === true){
             this.setState({
                 name : data.name,
                 bells : data.bells,
@@ -94,15 +94,15 @@ export default class Catch extends Component {
 
     handleChildClick = (action, data) => {
         if (action === CATCH){
-            let CBAS_Payload = { username: "MuteBard", species : data }
+            let CBAS_Payload = { username: this.state.username, species : data }
             Route.mutateCatchCatchOneCreature(CBAS_Payload, this.setCatchPocketData)
         }
         else if(action === SELL){
-            let CBAS_Payload = { username: "MuteBard", species : data.species, name: data.name }
+            let CBAS_Payload = { username: this.state.username, species : data.species, name: data.name }
             Route.mutateCatchSellOneCreature(CBAS_Payload, this.updateData)
         }
         else if(action === SELLALL){    
-            let CBAS_Payload = { username: "MuteBard", species : data}
+            let CBAS_Payload = { username: this.state.username, species : data}
             Route.mutateCatchSellAllSpecies(CBAS_Payload, this.updateData)
         }
     }
@@ -125,7 +125,7 @@ export default class Catch extends Component {
                         ?
                         this.state.species === BUG  ? <DisplayBug traits={this.state}/> : <DisplayFish traits={this.state}/>
                         :
-                        <img src={this.state.img}/>
+                        <img alt={this.state.name} src={this.state.img}/>
                         }
                     </Col>
                 </Row>

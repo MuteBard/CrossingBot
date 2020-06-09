@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
 import { Line } from 'react-chartjs-2';
-import { month } from '../Cron/Timing';
 import Route from '../Actions/Route'
 
 

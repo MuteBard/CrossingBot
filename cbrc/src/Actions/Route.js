@@ -101,12 +101,12 @@ exports.mutateCatchCatchOneCreature = async (CBAS_Payload, callback) => {
 
     let catchCreature = CBAS_Response.data.data.catchCreature
 
-    if(catchCreature == "BugOverflow" || catchCreature == "FishOverflow"){  
+    if(catchCreature === "BugOverflow" || catchCreature === "FishOverflow"){  
         callback(catchCreature)
-    }else if(catchCreature.split("|")[0].trim() == "Success"){
+    }else if(catchCreature.split("|")[0].trim() === "Success"){
         let creatureData = (catchCreature.split("|")[2].trim().split("")
         .map(char => {
-            if(char == "#") return "\""
+            if(char === "#") return "\""
             else return char
         }).join(""))
 

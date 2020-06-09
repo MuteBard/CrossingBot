@@ -258,6 +258,7 @@ let connectToTwitch = (publicConnection, privateConnection) => {
     }   
 }
 
+
 module.exports.startBot = startBot
 
 

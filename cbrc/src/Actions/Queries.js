@@ -1,7 +1,5 @@
 //<Operation>_<Collection>_<Component>_*
 
-const CURRENT_MONTH = require('../Cron/Timing').month
-
 let GET_USER_HOME = (username) =>
 `query{
     getUser(username:${"\""+username+"\""}){

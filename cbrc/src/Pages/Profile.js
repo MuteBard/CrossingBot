@@ -7,10 +7,6 @@ import "antd/dist/antd.css";
 import "./css/pages.css" 
 
 import LightCog from '../Assets/resolved/backgroundcogLight'
-
-import BugIcon from '../Assets/resolved/bugIcon'
-import FishIcon from '../Assets/resolved/fishIcon'
-
 import Bells from '../Assets/resolved/bells'
 import Turnip from '../Assets/resolved/turnip'
 import BugNet from '../Assets/resolved/bugnet'
@@ -19,6 +15,8 @@ import Logo2 from '../Assets/resolved/logo2'
 
 export default class Catch extends Component {
     state = {
+        username : this.props.state.username,
+        avatar : this.props.state.avatar,
         quantity : 0,
         netGainLossAsBells: 0,
         netGainLossAsPercentage : 0,
@@ -36,7 +34,7 @@ export default class Catch extends Component {
     toggleCrossingBot(value){
         let updateUserChannelWithCrossingBot = (data) => {
             console.log(data)
-          if (data.isCrossingBotAdded == "Success"){
+          if (data.isCrossingBotAdded === "Success"){
             this.setState({
                 addedToChannel : value
             })
@@ -45,7 +43,7 @@ export default class Catch extends Component {
 
 
 
-        let CBAS_Payload = {username : "MuteBard", addedToChannel : value}        
+        let CBAS_Payload = {username : this.state.username , addedToChannel : value}        
         Route.mutateCBforUser(CBAS_Payload, updateUserChannelWithCrossingBot)
       }
 
@@ -61,7 +59,7 @@ export default class Catch extends Component {
             })
         }
 
-        let CBAS_Payload = { username: "MuteBard"}
+        let CBAS_Payload = { username: this.state.username}
         Route.queryProfileUserData(CBAS_Payload, setCatchPocketData)
     }
 
@@ -92,11 +90,11 @@ export default class Catch extends Component {
             <div className="ProfileContainer">
                 <Row className="row" align="middle">
                     <Col span={5} offset={1}>
-                        <img alt="example" className="profilePicture" src="https://cdn.discordapp.com/attachments/688616211617284144/708405645845725194/298.png"/>    
+                        <img alt="example" className="profilePicture" src={this.state.avatar}/>    
                     </Col>
                     <Col span={15} offset={3}>
                         <div className="UsernameText">
-                            <strong>MuteBard</strong>
+                            <strong>{this.state.username}</strong>
                         </div>
                     </Col>
                 </Row>
@@ -135,7 +133,7 @@ export default class Catch extends Component {
                     </Col>
                     <Col span={15} offset={2}>
                         <p className="itemTitle"><strong>Bugs Owned ({this.state.pocketBugs.length}/10)</strong></p>
-                        {this.state.pocketBugs.map(bug => <img src={bug.img}/>)}
+                        {this.state.pocketBugs.map(bug => <img alt={bug.name} src={bug.img}/>)}
                     </Col>
                 </Row>
                 
@@ -145,7 +143,7 @@ export default class Catch extends Component {
                     </Col>
                     <Col span={15} offset={2}>
                         <p className="itemTitle"><strong>Fishes Owned ({this.state.pocketFishes.length}/10)</strong></p>
-                        {this.state.pocketFishes.map(fish => <img src={fish.img}/>)}
+                        {this.state.pocketFishes.map(fish => <img alt={fish.name} src={fish.img}/>)}
                     </Col>
                 </Row>
 
@@ -155,7 +153,7 @@ export default class Catch extends Component {
                     </Col>
                     <Col span={6} offset={2}> 
                         <p className="itemTitle"><strong>Actions for Your Twitch Channel</strong></p>  
-                        {this.state.addedToChannel == true ? <Button type="primary" onClick={() => this.toggleCrossingBot(false)}>Turn Off CrossingBot</Button> : <Button type="primary" onClick={() => this.toggleCrossingBot(true)}>Turn On CrossingBot</Button> }
+                        {this.state.addedToChannel === true ? <Button type="primary" onClick={() => this.toggleCrossingBot(false)}>Turn Off CrossingBot</Button> : <Button type="primary" onClick={() => this.toggleCrossingBot(true)}>Turn On CrossingBot</Button> }
                     </Col>
                 </Row>
 

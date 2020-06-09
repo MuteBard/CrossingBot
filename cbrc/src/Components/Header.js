@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from "react-router-dom"
 import { Row, Col, Avatar} from 'antd';
-import { UserOutlined, BugOutlined, StockOutlined } from '@ant-design/icons'; 
+import { BugOutlined, StockOutlined } from '@ant-design/icons'; 
 import "antd/dist/antd.css";
 import './css/components.css'
 

@@ -38,7 +38,7 @@ export default function BugIcon({traits, handlePocketClick}){
           {
             image 
             ? 
-            <img className={small ? "bugIconSmall fade-in" : "bugIcon fade-in" } src={image}/>
+            <img alt={name} className={small ? "bugIconSmall fade-in" : "bugIcon fade-in" } src={image}/>
             :
             <SVG className={small ? "bugIconSmall fade-in" : "bugIcon fade-in" } src={bugIcon}/>
           }  
@@ -50,7 +50,7 @@ export default function BugIcon({traits, handlePocketClick}){
         {
           image 
           ? 
-          <img className={small ? "bugIconSmall fade-in" : "bugIcon fade-in" } src={image}/>
+          <img alt={name} className={small ? "bugIconSmall fade-in" : "bugIcon fade-in" } src={image}/>
           :
           <SVG className={small ? "bugIconSmall fade-in" : "bugIcon fade-in" } src={bugIcon}/>
         } 

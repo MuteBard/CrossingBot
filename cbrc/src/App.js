@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import './App.css';
-import { BrowserRouter, Route, Switch } from "react-router-dom"
+import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom"
 
 import Header from './Components/Header'
 import Footer from './Components/Footer'
@@ -13,12 +13,25 @@ import Profile from './Pages/Profile'
 
 export default class App extends Component{
   state = {
+    id : "",  
     username : "",
     avatar : "",
     authorized : false
   }
 
+  componentDidMount(){
+    this.setState({
+      username : localStorage.getItem('username'),
+      avatar : localStorage.getItem('avatar'),
+      authorized : localStorage.getItem('authorized'),
+    })
+  }
+
+
   setGlobalUser = (data) => {
+    localStorage.setItem('username', data.username);
+    localStorage.setItem('avatar', data.avatar);
+    localStorage.setItem('authorized', data.authorized);
     this.setState({
       username : data.username,
       avatar : data.avatar,
@@ -27,16 +40,18 @@ export default class App extends Component{
   }
   
   render(){ 
-    console.log(this.setState)
     return (
       <div>
       <BrowserRouter>
-        <Header state={this.state}/>/>
+        <Header state={this.state}/>
         {
           this.state.authorized === false
           ?
           <Switch>
-            <Route exact path="/" render={() => <Home setGlobalUser={(data) => this.setGlobalUser(data)} />}/>  
+            <Route exact path="/" render={() => <Home setGlobalUser={(data) => this.setGlobalUser(data)} />}/> 
+            <Redirect from='/profile/' to="/" /> 
+            <Redirect from='/market/' to="/" /> 
+            <Redirect from='/catch/' to="/" /> 
           </Switch>
           :
           <Switch>

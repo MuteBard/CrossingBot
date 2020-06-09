@@ -10,7 +10,7 @@ const CATCH = "catch"
 const BUG = "bug"
 const SELLALL = "sellall"
 const cardHeaderStyle = {width: 470, textAlign : "center", color : "#2A5D67", backgroundColor : "#4AE3B5", fontSize : "25px" }
-const cardBodyStyle = { width: 470, textAlign : "center", color : "#4AE3B5", backgroundColor : "#2A5D67", fontSize : "25px" }
+const cardBodyStyle = { width: 470, textAlign : "center", color : "#4AE3B5", backgroundColor : "#2A5D67", fontSize : "15px" }
 
 
 export default class BugBody extends Component{

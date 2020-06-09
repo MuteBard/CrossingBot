@@ -14,6 +14,7 @@ const { Option } = Select;
 
 export default class Market extends Component {
     state = {
+        username : this.props.state.username,
         loadings: [],
         visible: false,
         bells: 0,
@@ -105,7 +106,7 @@ export default class Market extends Component {
 
             })
         }
-        let CBAS_Payload = { username: "MuteBard" }
+        let CBAS_Payload = { username: this.state.username }
         
         setTimeout(() => {
             Route.queryMarketUserData(CBAS_Payload, setMarketUserData)
@@ -125,7 +126,7 @@ export default class Market extends Component {
                 }
             })
         }
-        let CBAS_Payload = {username : "MuteBard", business: this.state.select.business, quantity: this.state.select.quantity}
+        let CBAS_Payload = {username : this.state.username, business: this.state.select.business, quantity: this.state.select.quantity}
         Route.queryMarketVerificationData(CBAS_Payload, setMarketUserVerificationData)
     }
 
@@ -144,7 +145,7 @@ export default class Market extends Component {
             })
             this.updateData()
         }
-        let CBAS_Payload = {username : "MuteBard", business: this.state.select.business, quantity: this.state.select.quantity, marketPrice : this.state.verified.marketPrice, totalBells : this.state.verified.totalBells}
+        let CBAS_Payload = {username : this.state.username, business: this.state.select.business, quantity: this.state.select.quantity, marketPrice : this.state.verified.marketPrice, totalBells : this.state.verified.totalBells}
         Route.mutateMarketAcknowledgementData(CBAS_Payload, updateUserTurnipData)
     }
 
@@ -180,7 +181,7 @@ export default class Market extends Component {
         this.updateData()     
         setTimeout(() => {
             if(this.state.verified.status === "Authorized"){
-                if(this.state.verified.marketPrice == this.state.latestTurnip.price ){
+                if(this.state.verified.marketPrice === this.state.latestTurnip.price ){
                     this.acknowledgeTransaction()
                     this.refresh()
 
@@ -363,7 +364,7 @@ export default class Market extends Component {
                             ?
                             <Card className="card" style={{ width: 450, backgroundColor : "#EEEEEE" }}>
                                 <div className="stats2">
-                                    <div><strong>Pending {this.state.select.business == "buy" ? "Cost" : "Sale"}</strong></div>
+                                    <div><strong>Pending {this.state.select.business === "buy" ? "Cost" : "Sale"}</strong></div>
                                     {this.statistic(0, this.state.select.quantity * this.state.latestTurnip.price ,"bells", false)}
                                 </div>
                             </Card>
@@ -442,7 +443,7 @@ export default class Market extends Component {
                         <Table dataSource={this.generateTableData()} columns={this.generateTableColumns()}/>
                     </Col>
                 </Row>
-                { this.state.verified.marketPrice == this.state.latestTurnip.price ?
+                { this.state.verified.marketPrice === this.state.latestTurnip.price ?
                     <Modal
                         title="Turnip Transaction"
                         visible={this.state.visible}

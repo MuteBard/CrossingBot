@@ -38,7 +38,7 @@ export default function FishIcon({traits, handlePocketClick}){
           {
             image 
             ? 
-            <img className={small ? "fishIconSmall fade-in" : "fishIcon fade-in"} src={image}/>
+            <img alt={name} className={small ? "fishIconSmall fade-in" : "fishIcon fade-in"} src={image}/>
             :
             <SVG className={small ? "fishIconSmall fade-in" : "fishIcon fade-in" } src={fishIcon}/>
           } 
@@ -48,7 +48,7 @@ export default function FishIcon({traits, handlePocketClick}){
           {
             image 
             ? 
-            <img className={small ? "fishIconSmall fade-in" : "fishIcon fade-in"} src={image}/>
+            <img alt={name} className={small ? "fishIconSmall fade-in" : "fishIcon fade-in"} src={image}/>
             :
             <SVG className={small ? "fishIconSmall fade-in" : "fishIcon fade-in" } src={fishIcon}/>
           } 

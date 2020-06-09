@@ -1,3 +1,9 @@
+
+let DELETE_USER = (username) => 
+`mutation{
+    deleteUser(username : ${"\""+username+"\""})
+}`
+
 let UPDATE_USER_HOME_SET_CROSSINGBOT = (username, added) =>
 `mutation{
     isCrossingBotAdded(username : ${"\""+username+"\""}, added : ${added})
@@ -35,6 +41,7 @@ let ACKNOWLEDGE_TRANSACTION = (username, business, quantity, marketPrice, totalB
     acknowledgeTransaction(username : ${"\""+username+"\""}, business: ${"\""+business+"\""}, quantity: ${quantity}, marketPrice: ${marketPrice}, totalBells: ${marketPrice})
 }`
 
+module.exports.DELETE_USER = DELETE_USER
 module.exports.CREATE_USER_VIA_CBRC = CREATE_USER_VIA_CBRC
 module.exports.UPDATE_USER_HOME_SET_CROSSINGBOT = UPDATE_USER_HOME_SET_CROSSINGBOT
 module.exports.CATCH_REQUEST = CATCH_REQUEST

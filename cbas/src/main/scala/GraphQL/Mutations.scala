@@ -23,6 +23,7 @@ object Mutations {
 	    acknowledgeTransaction:   authorizedTransactionArgs => IO[NotFound, String],
 	    populate:                 UIO[String],
 	    toggleMarket:             toggleArgs => UIO[String],
+	    deleteUser:               usernameArgs => UIO[String]
 
 	)
 	val cbs : CrossingBotService = new CBS()
@@ -41,5 +42,6 @@ object Mutations {
 		args => cbs.acknowledgeTransaction(args.username, args.business, args.quantity, args.marketPrice, args.totalBells),
 		cbs.populate,
 		args => cbs.toggleMarket(args.running),
+		args => cbs.deleteUser(args.username)
 	)
 }

@@ -117,6 +117,8 @@ object Service {
 
 		def sellAllCreatures(username : String):            UIO[Int]
 
+		def deleteUser(username : String):                  UIO[String]
+
 
 	}
 
@@ -329,6 +331,11 @@ object Service {
 				val status = Await.result((startActor ? StartActor.Stop_Market_Timers).mapTo[String], chill seconds)
 				IO.succeed(status)
 			}
+		}
+
+		def deleteUser(username : String): UIO[String] ={
+			val status = Await.result((userActor ? UserActor.Delete_User(username)).mapTo[String], chill seconds)
+			IO.succeed(status)
 		}
 	}
 }

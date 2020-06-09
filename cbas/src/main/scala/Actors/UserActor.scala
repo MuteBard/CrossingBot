@@ -38,6 +38,7 @@ object UserActor {
 	case class Delete_All_Bugs_From_Pocket(username: String)
 	case class Delete_All_Fishes_From_Pocket(username: String)
 	case class Delete_All_Creatures_From_Pocket(username: String)
+	case class Delete_User(username: String)
 }
 
 class UserActor extends Actor with ActorLogging{
@@ -372,6 +373,12 @@ class UserActor extends Actor with ActorLogging{
 			log.info(s"[Delete_All_Creature_From_Pocket] Selling and deleting all creatures from $username's pocket")
 			val creatureBells = UserOperations.deleteAllForUser(username)
 			sender() ! creatureBells
+
+		case Delete_User(username) =>
+			log.info(s"[Delete_User] Deleting $username")
+			UserOperations.deleteUser(username)
+			sender() ! "Success"
+
 	}
 
 }
