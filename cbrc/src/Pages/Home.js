@@ -11,13 +11,13 @@ import TwitchLogo from '../Assets/resolved/twitchLogo'
 import Logo from '../Assets/resolved/logo'
 import MagnifyingGlass from '../Assets/resolved/magnifyingGlass'
 import Key from '../Assets/resolved/key'
-import {settings} from '../Configurations/Options'
 import axios from 'axios'
 
 const { Search } = Input
 const { Meta } = Card;
 
 export default class Home extends Component {
+  
   state = {
     usernameInput : "",
     validTwitchAccount : false,
@@ -52,6 +52,7 @@ export default class Home extends Component {
           avatar : this.state.avatar,
           authorized : true
        })
+
        this.props.setGlobalUser(gloabalState)
       }
     }
@@ -64,6 +65,7 @@ export default class Home extends Component {
     let userAuthenticated = (data) => {
       console.log(data)
       if(data.responded == true){
+          console.log(data)
           if(data.scenario == 1){
             this.setState({
               validTwitchAccount : true,
@@ -117,8 +119,6 @@ export default class Home extends Component {
   }
 
   onChange = e => {
-    console.log(this.props)
-    console.log(this.props.setGlobalUser())
     this.setState({
       radio: e.target.value,
     });
@@ -140,8 +140,8 @@ export default class Home extends Component {
         this.state.scenario > 0
         ?
         <div className="searchMessageContainer">
-          <div className="searchMessage"><strong>Mutebard</strong><TwitchLogo/></div>
-          <img alt="example" className="profilePicture" src="https://cdn.discordapp.com/attachments/688616211617284144/708405645845725194/298.png"/>
+          <div className="searchMessage"><strong>{this.state.usernameInput}</strong><TwitchLogo/></div>
+          <img alt="example" className="profilePicture" src={this.state.avatar}/>
         </div>
         :
         <div className="searchInputContainer">

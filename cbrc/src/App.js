@@ -14,29 +14,33 @@ import Profile from './Pages/Profile'
 export default class App extends Component{
   state = {
     username : "",
-    avatar : "https://cdn.discordapp.com/attachments/688616211617284144/708405645845725194/298.png",
+    avatar : "",
     authorized : false
   }
 
-  setUser(data){
-    console.log("FOund Me")
-    // this.setState({
-    //   username : data.username,
-    //   avatar : data.avatar,
-    //   authorized : data.authorized
-    // })
+  setGlobalUser = (data) => {
+    this.setState({
+      username : data.username,
+      avatar : data.avatar,
+      authorized : data.authorized
+    })
   }
   
   render(){ 
+    console.log(this.setState)
     return (
       <div>
       <BrowserRouter>
         <Header state={this.state}/>/>
         {
-          this.state.authorized === true
+          this.state.authorized === false
           ?
           <Switch>
-            <Route exact path="/" render={(props) => <Home setGlobalUser={this.setUser} {...props}/>}/>       
+            <Route exact path="/" render={() => <Home setGlobalUser={(data) => this.setGlobalUser(data)} />}/>  
+          </Switch>
+          :
+          <Switch>
+            <Route exact path="/" render={() => <Home setGlobalUser={this.setUser} />}/>       
             <Route exact path="/profile" render={() => <Profile state={this.state}/>}/>
             <Route exact path="/market" render={() => <Market state={this.state}/>}/>
             <Route exact path="/catch" render={() => <Catch state={this.state}/>}/>
@@ -48,10 +52,6 @@ export default class App extends Component{
                   window.location.href = 'https://paypal.me/MuteBard'; 
                   return <Route exact path="/" component={Home}/>
             }}/>
-          </Switch>
-          :
-          <Switch>
-            <Route exact path="/" component={Home}/>
           </Switch>
         }
         <Footer/>

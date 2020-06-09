@@ -22,14 +22,16 @@ exports.rest = (app) => {
         let CBRC_Payload = (data) => {
             let i = 0;
             let intervalId = setInterval(() => { 
-                if(CBTC_DataBank.hasInvitedUser(req.body.username)){
+                if(data.scenario == 1){
+                    clearInterval(intervalId);
+                    res.send(data)
+                }
+                else if(CBTC_DataBank.hasInvitedUser(req.body.username)){
                     clearInterval(intervalId);
                     process.sendMessageToTwitchUponInvite(req.body.username)
                     res.send(data)
-                }else if(data.scenario == 1){
-                    res.send(data)
                 }
-                if(i > 300){
+                else if(i > 300){
                     res.send({responded : false, error : 'No response given on twitch'})
                 }
                 i++
@@ -128,7 +130,7 @@ let createUser = async (username, calledByCBRC) => {
     // .catch(error => console.log(error))
     let CBAS_Payload = {}
     CBAS_Payload["id"] = 100//Number(Twitch_Response.data.data[0].id)
-    CBAS_Payload["avatar"] = "abc"// Twitch_Response.data.data[0].profile_image_url 
+    CBAS_Payload["avatar"] = "https://cdn.discordapp.com/attachments/688616211617284144/708405645845725194/298.png"// Twitch_Response.data.data[0].profile_image_url 
     console.log(CBAS_Payload)
 
     var mutation = ""
