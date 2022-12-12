@@ -17,7 +17,7 @@
     "cookie-session": "^1.4.0",
     "cors": "^2.8.5",
     "cron": "^1.8.2",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "http": "0.0.1-security",
     "passport": "^0.4.1",
     "passport-twitch": "^1.0.3",
